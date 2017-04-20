@@ -1,0 +1,50 @@
+html {
+    background:#2e3436;
+    color:#eeeeee;
+    padding:17px;
+}
+
+body {
+    max-width:45em;
+    line-height:1.333;
+    font-size:12pt;
+    font-family:"PT Serif", serif;
+    text-rendering:optimizeLegibility;
+    margin:0 auto;
+    padding:20px 60px;
+}
+
+ul {
+    margin-right: 25px;
+}
+
+a {
+    color:#729fcf;
+}
+
+h1,h2,h3 {
+    color: #d3d7cf;
+}
+
+div#postamble {
+    border-top: 1px black;
+    text-align: center;
+}
+
+div#text-table-of-contents {
+    background-color:#232a2b;
+    border: 1px solid black;
+    display: inline-block;
+}
+
+.org-src-container {
+    background-color:#232a2b;
+    border: 1px solid black;
+    padding-left: 10px;
+}
+
+.example {
+    background-color:#232a2b;
+    border: 1px solid black;
+    padding-left: 10px;
+}

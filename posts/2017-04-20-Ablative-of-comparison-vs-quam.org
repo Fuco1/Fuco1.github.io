@@ -1,0 +1,40 @@
+* DONE Ablative of comparison vs quam                               :publish:
+  CLOSED: [2017-04-20 Thu 18:23]
+     :LOGBOOK:
+     - State "DONE"       from              [2017-04-20 Thu 18:23]
+     :END:
+     :CLOCK:
+     CLOCK: [2017-04-20 Thu 18:02]--[2017-04-20 Thu 18:23] =>  0:21
+     :END:
+In English, the comparative adjective or adverb is connected to the thing being compared with the conjunction /than/.
+
+- She is older /than/ he is.
+- I talk to no one with more pleasure /than/ to you.
+
+In Latin, the regular particle to express the comparison is /quam/, so the previous examples would become:
+
+- Ea senior est /quam/ ille.
+- Cum nūllō libentius colloquor /quam/ tēcum.
+
+You can often omit it with numbers and adverbs such as /plūs/ or /minus/.
+
+But Latin also has another way to express comparison.  Yes, you guessed it right, the ever-so-flexible ablative.  Using ablative for comparison makes the phrases snappier, shorter and more to the point[fn:11cb1d37f109777:Similar to how Ablative Absolute can make the lengthy /temporal cum/ constructions simpler].
+
+The basic anatomy of an comparative ablative is to put the thing or person being compared or the property being compared in ablative.  You can imagine this being something akin to ablative of respect or separation.
+
+- /Hāc rē/ nihil contemptius esse potest.
+- Nothing can be more despicable than this act.
+
+But there is one thing you need to beware of; you can only use this ablative *if the other noun would be in nominative or accusative*, otherwise you have to fall back to /quam/.  To illustrate the difference, observe the following (the adjective /studiōsus/ takes genitive):
+
+- Tuī studiōsior sum /quam illīus./
+- I am fonder of you than of him. (i.e. I like you more than him)
+- Tuī studiōsior /illō/ sum.
+- I am fonder of you than he is. (i.e. I like you more than he does)
+
+The second example translated to the regular /quam/ construction would read:
+
+- Tuī studiōsior /quam ille/ sum.
+
+which puts the noun in nominative.
+
