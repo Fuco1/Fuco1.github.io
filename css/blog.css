@@ -22,6 +22,11 @@ a {
     color:#729fcf;
 }
 
+code {
+    color: #e6a8df;
+    background-color: #232a2b;
+}
+
 h1,h2,h3 {
     color: #d3d7cf;
 }
