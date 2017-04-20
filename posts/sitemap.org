@@ -2,3 +2,4 @@
 
    + [[file:2017-04-20-Ablative-of-comparison-vs-quam.org][2017-04-20-Ablative-of-comparison-vs-quam]]
    + [[file:2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files..org][2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.]]
+   + [[file:2017-04-20-Save-write-protected-files-with-sudo-automatically.org][2017-04-20-Save-write-protected-files-with-sudo-automatically]]

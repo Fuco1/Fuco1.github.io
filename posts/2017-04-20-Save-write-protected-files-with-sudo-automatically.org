@@ -1,0 +1,51 @@
+* DONE Save write-protected files with sudo automatically           :publish:
+  CLOSED: [2017-04-20 Thu 19:48]
+   :LOGBOOK:
+   - State "DONE"       from "NEXT"       [2017-04-20 Thu 19:48]
+   :END:
+   :CLOCK:
+   CLOCK: [2017-04-20 Thu 19:37]
+   :END:
+It probably doesn't happen very often but sometimes you have to edit some root-owned configuration or files owned by other users (such as webservers).  For those times, TRAMP is invaluable as it allows you to open files via =sudo= directly in Emacs.
+
+The problem, of course, is that you open the file in read-only mode as /you/ and only then realize that you don't have write access.  One solution is to invoke =C-x C-f= and just append =/sudo::= in front of the filename, but then... why do it yourself if Emacs can help!
+
+When you open a file you can't write to Emacs is helpful enough and loads it in =read-only-mode=.  Because you really want to edit the file, you disable the =read-only-mode= with =C-x C-q= and happily make your changes.  When you hit save, however, Emacs will complain the file is write-protected and asks you if you are sure you want to do that.  This is good as it prevents you from destroying the content by accident.
+
+Normally, nothing would happen as you still don't have the permissions to change the file so the operation fails with =operation not permitted= error.
+
+Here is where the advice comes handy.  It catches the error and tries to save the file with =sudo= TRAMP method.  After the file is saved, it is reverted back to "non-sudo" version so every one of your further edits would still require confirmation.
+
+#+BEGIN_SRC elisp
+(defadvice basic-save-buffer-2 (around fix-unwritable-save-with-sudo activate)
+  "When we save a buffer which is write-protected, try to sudo-save it.
+
+When the buffer is write-protected it is usually opened in
+read-only mode.  Use \\[read-only-mode] to toggle
+`read-only-mode', make your changes and \\[save-buffer] to save.
+Emacs will warn you that the buffer is write-protected and asks
+you to confirm if you really want to save.  If you answer yes,
+Emacs will use sudo tramp method to save the file and then
+reverts it, making it read-only again.  The buffer stays
+associated with the original non-sudo filename."
+  (condition-case err
+      (progn
+        ad-do-it)
+    (file-error
+     (when (string-prefix-p
+            "Doing chmod: operation not permitted"
+            (error-message-string err))
+       (let ((old-buffer-file-name buffer-file-name)
+             (success nil))
+         (unwind-protect
+             (progn
+               (setq buffer-file-name (concat "/sudo::" buffer-file-name))
+               (save-buffer)
+               (setq success t))
+           (setq buffer-file-name old-buffer-file-name)
+           (when success
+             (revert-buffer t t))))))))
+#+END_SRC
+
+This code doesn't work on remote hosts, so when you TRAMP over =ssh= you wouldn't be able to =sudo=-edit a remote file.  If someone's interested I'll be happy to recieve a patch (or I will fix it when I will have the need).  The code sits [[https://github.com/Fuco1/.emacs.d/blob/master/site-lisp/my-advices.el#L46][here]] so feel free to open a [[https://github.com/Fuco1/.emacs.d/compare][pull request]].
+

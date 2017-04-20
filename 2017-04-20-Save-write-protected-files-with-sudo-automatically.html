@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2017-04-20 Thu 19:49 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title></title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+<a href="./sitemap.html">Home</a>
+<a href="https://github.com/Fuco1/">GitHub</a>
+<hr />
+</div>
+<div id="content">
+<div id="outline-container-org9d16ee0" class="outline-2">
+<h2 id="org9d16ee0"><span class="section-number-2">1</span> Save write-protected files with sudo automatically</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+It probably doesn't happen very often but sometimes you have to edit some root-owned configuration or files owned by other users (such as webservers).  For those times, TRAMP is invaluable as it allows you to open files via <code>sudo</code> directly in Emacs.
+</p>
+
+<p>
+The problem, of course, is that you open the file in read-only mode as <i>you</i> and only then realize that you don't have write access.  One solution is to invoke <code>C-x C-f</code> and just append <code>/sudo::</code> in front of the filename, but then&#x2026; why do it yourself if Emacs can help!
+</p>
+
+<p>
+When you open a file you can't write to Emacs is helpful enough and loads it in <code>read-only-mode</code>.  Because you really want to edit the file, you disable the <code>read-only-mode</code> with <code>C-x C-q</code> and happily make your changes.  When you hit save, however, Emacs will complain the file is write-protected and asks you if you are sure you want to do that.  This is good as it prevents you from destroying the content by accident.
+</p>
+
+<p>
+Normally, nothing would happen as you still don't have the permissions to change the file so the operation fails with <code>operation not permitted</code> error.
+</p>
+
+<p>
+Here is where the advice comes handy.  It catches the error and tries to save the file with <code>sudo</code> TRAMP method.  After the file is saved, it is reverted back to "non-sudo" version so every one of your further edits would still require confirmation.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">basic-save-buffer-2</span> <span style="color: #888a85;">(</span>around fix-unwritable-save-with-sudo activate<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"When we save a buffer which is write-protected, try to sudo-save it.</span>
+
+<span style="color: #e9b96e;">When the buffer is write-protected it is usually opened in</span>
+<span style="color: #e9b96e;">read-only mode.  Use \\[</span><span style="color: #e6a8df;">read-only-mode</span><span style="color: #e9b96e;">] to toggle</span>
+<span style="color: #e9b96e;">`</span><span style="color: #e6a8df;">read-only-mode</span><span style="color: #e9b96e;">', make your changes and \\[</span><span style="color: #e6a8df;">save-buffer</span><span style="color: #e9b96e;">] to save.</span>
+<span style="color: #e9b96e;">Emacs will warn you that the buffer is write-protected and asks</span>
+<span style="color: #e9b96e;">you to confirm if you really want to save.  If you answer yes,</span>
+<span style="color: #e9b96e;">Emacs will use sudo tramp method to save the file and then</span>
+<span style="color: #e9b96e;">reverts it, making it read-only again.  The buffer stays</span>
+<span style="color: #e9b96e;">associated with the original non-sudo filename."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">condition-case</span> err
+      <span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
+        ad-do-it<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>file-error
+     <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>string-prefix-p
+            <span style="color: #e9b96e;">"Doing chmod: operation not permitted"</span>
+            <span style="color: #888a85;">(</span>error-message-string err<span style="color: #888a85;">))</span>
+       <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>old-buffer-file-name buffer-file-name<span style="color: #888a85;">)</span>
+             <span style="color: #888a85;">(</span>success nil<span style="color: #888a85;">))</span>
+         <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unwind-protect</span>
+             <span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
+               <span style="color: #888a85;">(</span>setq buffer-file-name <span style="color: #888a85;">(</span>concat <span style="color: #e9b96e;">"/sudo::"</span> buffer-file-name<span style="color: #888a85;">))</span>
+               <span style="color: #888a85;">(</span>save-buffer<span style="color: #888a85;">)</span>
+               <span style="color: #888a85;">(</span>setq success t<span style="color: #888a85;">))</span>
+           <span style="color: #888a85;">(</span>setq buffer-file-name old-buffer-file-name<span style="color: #888a85;">)</span>
+           <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> success
+             <span style="color: #888a85;">(</span>revert-buffer t t<span style="color: #888a85;">))))))))</span>
+!
+</pre>
+</div>
+
+<p>
+This code doesn't work on remote hosts, so when you TRAMP over <code>ssh</code> you wouldn't be able to <code>sudo</code>-edit a remote file.  If someone's interested I'll be happy to recieve a patch (or I will fix it when I will have the need).  The code sits <a href="https://github.com/Fuco1/.emacs.d/blob/master/site-lisp/my-advices.el#L46">here</a> so feel free to open a <a href="https://github.com/Fuco1/.emacs.d/compare">pull request</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2017-04-20 19:49</div>
+<div style="text-align: right;"><a href="./posts/2017-04-20-Save-write-protected-files-with-sudo-automatically.org">Source</a></div>
+</div>
+</body>
+</html>
