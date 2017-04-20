@@ -1,0 +1,82 @@
+#+TITLE: Annoying prefix argument
+#+DATE: 2017-04-20
+
+* DONE Annoying prefix argument                                     :ignore:publish:
+  CLOSED: [2017-04-20 Thu 21:49]
+  :LOGBOOK:
+  - State "DONE"       from              [2017-04-20 Thu 21:49]
+  :END:
+** Problem
+A prefix argument changes the behaviour of a command in a way which forms a useful stand-alone command.  We don't want to supply the command with the prefix argument all the time.
+
+** Solution
+Write an interactive wrapper and pre-fill the arguments
+
+** Motivation
+It is awkward and annoying to constantly use prefix-arguments for commonly used operations.  Emacs has a rich history of commands using prefix arguments to subtly (or not so subtly) modify the behaviour of the base command.  If you often use a specialized variant you can save yourself a lot of pain by simply building a specialized solution.  It is not uncommon to see two prefix arguments (~C-u C-u~), but I've seen four and even five once or twice.
+
+** Example
+Emacs comes with this amazing functionality called /marks/.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the /mark ring/[fn:c0753a19:A ring in Emacs is basically a stack where popped elements go to the bottom].  This allows you to remember multiple marks at the same time and recall them in a lifo order.
+
+When you move around the buffer, Emacs pushes the position where you started from to the mark ring and lets you jump back by popping the mark.
+
+Most commands which move the point, like =isearch=, =beginning-of-buffer=, =imenu=, =next-defun= set the mark in somewhat intelligent way.  For example, if you call =next-defun= multiple times it pushes the mark only when you call it for the first time.  That way, when you recall the mark you jump to the "original" defun five functions up without having to recall five times.
+
+This is all good and well, but dealing with marks turned out rather frustrating for me.  The most common action, namely recalling the mark, is bound to arather awkward ~C-u C-SPC~.  It doesn't help in the least that the command is called =set-mark-command=, in fact, the same command you use to /set/ the mark, just with a prefix argument.
+
+Here we can identify a rather common Emacs annoyance: prefix argument changes the behaviour of a command into something completely different; but we want to use both versions in a simple way!
+
+How can we solve this?  We write our own interactive wrapper!
+** Resolution
+
+First we need to figure out which argument and with what value we will need to pre-fill.  Most of the time reading the documentation with ~C-h f~ will be enough to give us a clue, but sometimes inspecting the source is the only way to be sure.
+
+In our example, we know that we call the function with ~C-u~ which corresponds to Elisp value =(4)= (that is a list with 4 in it).  Each extra =C-u= multiplies the number in the list by 4.  There is only one argument to the function =set-mark-command= so that's the position we will need to fill.  The result is then the following function.
+
+#+BEGIN_SRC elisp
+(defun my-jump-to-mark ()
+  "Jump to the local mark, respecting the `mark-ring' order.
+This is the same as using \\[set-mark-command] with the prefix argument."
+  (interactive)
+  (set-mark-command '(4)))
+#+END_SRC
+
+We can bind this command to a simple key binding, for example
+
+#+BEGIN_SRC elisp
+(global-set-key (kbd "M-`") 'my-jump-to-mark)
+#+END_SRC
+
+Sometimes, the prefix argument isn't passed as an argument but is read from a special variable =current-prefix-arg=.  When you call a command using a prefix argument, Emacs automatically sets this variable to the corresponding Elisp value.
+
+Before we continue, a little excursion into how Emacs maintains value bindings.  When you use =let= to set the value of a special variable[fn:94384dbb:A variable is /special/ if defined using =defvar=.], this value becomes current until the execution of the =let= block is finished.  This means that this value is available globally for all the subroutines called from the let block, as well as for all the subroutines called from these and so on.
+
+Armed with this knowledge, we can try it on an example.  The comand =align-regexp= changes the meaning of its 3rd argument based on the value of the special variable =current-prefix-arg=.  We will write an interactive wrapper which we will call without any prefix argument.  This means Emacs will set the value of =current-prefix-arg= to =nil=.  We will use dynamic binding to set the value to =(4)= and then call the original function.
+
+Because we want to respect the interactive behaviour of the original function we will use =call-interactively= which calls the function providing arguments according to its interactive calling specification.
+
+The result is then quite simple again.
+
+#+BEGIN_SRC elisp
+(defun my-align-regexp ()
+  "Call `align-regexp' with `current-prefix-arg' set to (4)."
+  (interactive)
+  (let ((current-prefix-arg '(4)))
+    (call-interactively 'align-regexp)))
+#+END_SRC
+
+Notice that we could have used this technique in the first example as well, because the interactive specifications ="p"= and ="P"= simply check the value of =current-prefix-arg= and pass it forward.  The code would look like so:
+
+#+BEGIN_SRC elisp
+(defun my-jump-to-mark-2 ()
+  "Jump to the local mark, respecting the `mark-ring' order.
+This is the same as using \\[set-mark-command] with the prefix argument."
+  (interactive)
+  (let ((current-prefix-arg '(4)))
+    (call-interactively 'set-mark-command)))
+#+END_SRC
+
+We can't, however, use the first method on =align-regexp= because none of its arguments directly corresponds to the prefix argument---it is only inside the body that this is checked.
+
+The moral of the story is that we should always prefer passing the argument directly as it is cleaner and less magical.  Only if the prefix argument is not direct but checked inside the body of the function we shall use dynamic binding.
+
