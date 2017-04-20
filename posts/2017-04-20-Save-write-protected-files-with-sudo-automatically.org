@@ -1,4 +1,5 @@
 #+TITLE: Save write-protected files with sudo automatically
+#+DATE: 2017-04-20
 
 * DONE Save write-protected files with sudo automatically           :ignore:publish:
   CLOSED: [2017-04-20 Thu 19:48]
@@ -9,7 +10,7 @@
    - State "DONE"       from "NEXT"       [2017-04-20 Thu 19:48]
    :END:
    :CLOCK:
-   CLOCK: [2017-04-20 Thu 19:37]
+   CLOCK: [2017-04-20 Thu 19:37]--[2017-04-20 Thu 19:50] =>  0:13
    :END:
 It probably doesn't happen very often but sometimes you have to edit some root-owned configuration or files owned by other users (such as webservers).  For those times, TRAMP is invaluable as it allows you to open files via =sudo= directly in Emacs.
 

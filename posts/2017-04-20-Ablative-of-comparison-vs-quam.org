@@ -1,4 +1,5 @@
 #+TITLE: Ablative of comparison vs quam
+#+DATE: 2017-04-20
 
 * DONE Ablative of comparison vs quam                               :ignore:publish:
   CLOSED: [2017-04-20 Thu 18:23]
