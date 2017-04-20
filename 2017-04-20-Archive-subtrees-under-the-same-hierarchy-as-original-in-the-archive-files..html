@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2017-04-20 Thu 18:51 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title></title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+<a href="./sitemap.html">Home</a>
+<a href="https://github.com/Fuco1/">GitHub</a>
+<hr />
+</div>
+<div id="content">
+<div id="outline-container-orge3de9df" class="outline-2">
+<h2 id="orge3de9df"><span class="section-number-2">1</span> Archive subtrees under the same hierarchy as original in the archive files.</h2>
+<div class="outline-text-2" id="text-1">
+<pre class="example">
+TODO: move this to literal org config later
+</pre>
+<p>
+The way archiving works in <code>org-mode</code> always annoyed me.  Specifically the fact that the tree structure gets flattened when you archive your tasks.  Sure, there is the property <code>ARCHIVE_OLPATH</code> but it is not as visual as having the tasks in trees.  Plus it makes things like clock reports very difficult.
+</p>
+
+<p>
+If your tree equals a project, clockreport with <code>C-c C-x C-r</code> will sum
+the times properly&#x2026; well not anymore with flattened structure.  This works so long as you archive the entire project at once, but I often have projects so huge (e.g. <i>Emacs Configuration</i>) that I archive subtress or parts or just single tasks on a regular basis, with the base project being practically never-ending.
+</p>
+
+<p>
+Well, no more, I said, and wrote this handy advice that uses the aforementioned property to reconstruct the tree in the archive file.  If the parent headings don't exist they are created on-demand.  There is one caveat: if you have non-unique headings, this can sometimes file things under wrong tree; the search is done from top to bottom following the hierarchy.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">org-archive-subtree</span> <span style="color: #888a85;">(</span>around fix-hierarchy activate<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>fix-archive-p <span style="color: #888a85;">(</span>and <span style="color: #888a85;">(</span>not current-prefix-arg<span style="color: #888a85;">)</span>
+                             <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span>use-region-p<span style="color: #888a85;">))))</span>
+         <span style="color: #888a85;">(</span>afile <span style="color: #888a85;">(</span>org-extract-archive-file <span style="color: #888a85;">(</span>org-get-local-archive-location<span style="color: #888a85;">)))</span>
+         <span style="color: #888a85;">(</span>buffer <span style="color: #888a85;">(</span>or <span style="color: #888a85;">(</span>find-buffer-visiting afile<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>find-file-noselect afile<span style="color: #888a85;">))))</span>
+    ad-do-it
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> fix-archive-p
+      <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-current-buffer</span> buffer
+        <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-max<span style="color: #888a85;">))</span>
+        <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>org-up-heading-safe<span style="color: #888a85;">))</span>
+        <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>olpath <span style="color: #888a85;">(</span>org-entry-get <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"ARCHIVE_OLPATH"</span><span style="color: #888a85;">))</span>
+               <span style="color: #888a85;">(</span>path <span style="color: #888a85;">(</span>and olpath <span style="color: #888a85;">(</span>split-string olpath <span style="color: #e9b96e;">"/"</span><span style="color: #888a85;">)))</span>
+               <span style="color: #888a85;">(</span>level 1<span style="color: #888a85;">)</span>
+               tree-text<span style="color: #888a85;">)</span>
+          <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> olpath
+            <span style="color: #888a85;">(</span>org-mark-subtree<span style="color: #888a85;">)</span>
+            <span style="color: #888a85;">(</span>setq tree-text <span style="color: #888a85;">(</span>buffer-substring <span style="color: #888a85;">(</span>region-beginning<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>region-end<span style="color: #888a85;">)))</span>
+            <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">(</span>this-command<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>org-cut-subtree<span style="color: #888a85;">))</span>
+            <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+            <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-restriction</span>
+              <span style="color: #888a85;">(</span>widen<span style="color: #888a85;">)</span>
+              <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-each</span> path
+                <span style="color: #888a85;">(</span><span style="color: #b4fa70;">lambda</span> <span style="color: #888a85;">(</span>heading<span style="color: #888a85;">)</span>
+                  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">if</span> <span style="color: #888a85;">(</span>re-search-forward
+                       <span style="color: #888a85;">(</span>rx-to-string
+                        `<span style="color: #888a85;">(</span>: bol <span style="color: #888a85;">(</span>repeat ,level <span style="color: #e9b96e;">"*"</span><span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>1+ <span style="color: #e9b96e;">" "</span><span style="color: #888a85;">)</span> ,heading<span style="color: #888a85;">))</span> nil t<span style="color: #888a85;">)</span>
+                      <span style="color: #888a85;">(</span>org-narrow-to-subtree<span style="color: #888a85;">)</span>
+                    <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-max<span style="color: #888a85;">))</span>
+                    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unless</span> <span style="color: #888a85;">(</span>looking-at <span style="color: #e9b96e;">"^"</span><span style="color: #888a85;">)</span>
+                      <span style="color: #888a85;">(</span>insert <span style="color: #e9b96e;">"\n"</span><span style="color: #888a85;">))</span>
+                    <span style="color: #888a85;">(</span>insert <span style="color: #888a85;">(</span>make-string level ?*<span style="color: #888a85;">)</span>
+                            <span style="color: #e9b96e;">" "</span>
+                            heading
+                            <span style="color: #e9b96e;">"\n"</span><span style="color: #888a85;">))</span>
+                  <span style="color: #888a85;">(</span>cl-incf level<span style="color: #888a85;">)))</span>
+              <span style="color: #888a85;">(</span>widen<span style="color: #888a85;">)</span>
+              <span style="color: #888a85;">(</span>org-end-of-subtree t t<span style="color: #888a85;">)</span>
+              <span style="color: #888a85;">(</span>org-paste-subtree level tree-text<span style="color: #888a85;">))))))))</span>
+!
+</pre>
+</div>
+
+<p>
+The code uses the old advice system because I like it better (it reads much better, even if it isn't so powerful), plus I still use Emacs 24.  If you test this on new versions and find out it doesn't work, open an <a href="https://github.com/Fuco1/.emacs.d/issues/new">issue</a> or a <a href="https://github.com/Fuco1/.emacs.d/compare">pull request</a>.  It also depends on <a href="https://github.com/magnars/dash.el">dash.el</a> so make sure you have that installed.
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2017-04-20 18:51</div>
+<div style="text-align: right;"><a href="./posts/2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files..org">Source</a></div>
+</div>
+</body>
+</html>
