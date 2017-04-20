@@ -1,14 +1,15 @@
 * DONE Archive subtrees under the same hierarchy as original in the archive files. :publish:
   CLOSED: [2017-04-20 Thu 18:51]
+  :PROPERTIES:
+  :BLOG_FILENAME: 2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.
+  :END:
     :LOGBOOK:
     - State "DONE"       from              [2017-04-20 Thu 18:51]
     :END:
     :CLOCK:
     CLOCK: [2017-04-20 Thu 18:40]--[2017-04-20 Thu 18:51] =>  0:11
     :END:
-#+BEGIN_EXAMPLE :exports nil
-TODO: move this to literal org config later
-#+END_EXAMPLE
+# TODO: move this to literal org config later
 The way archiving works in =org-mode= always annoyed me.  Specifically the fact that the tree structure gets flattened when you archive your tasks.  Sure, there is the property =ARCHIVE_OLPATH= but it is not as visual as having the tasks in trees.  Plus it makes things like clock reports very difficult.
 
 If your tree equals a project, clockreport with =C-c C-x C-r= will sum
