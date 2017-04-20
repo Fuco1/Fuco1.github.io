@@ -1,4 +1,6 @@
-* DONE Archive subtrees under the same hierarchy as original in the archive files :publish:
+#+TITLE: Archive subtrees under the same hierarchy as original in the archive files
+
+* DONE Archive subtrees under the same hierarchy as original in the archive files :ignore:publish:
   CLOSED: [2017-04-20 Thu 18:51]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files
@@ -59,3 +61,4 @@ Well, no more, I said, and wrote this handy advice that uses the aforementioned 
 #+END_SRC
 
 The code uses the old advice system because I like it better (it reads much better, even if it isn't so powerful), plus I still use Emacs 24.  If you test this on new versions and find out it doesn't work, open an [[https://github.com/Fuco1/.emacs.d/issues/new][issue]] or a [[https://github.com/Fuco1/.emacs.d/compare][pull request]].  It also depends on [[https://github.com/magnars/dash.el][dash.el]] so make sure you have that installed.
+

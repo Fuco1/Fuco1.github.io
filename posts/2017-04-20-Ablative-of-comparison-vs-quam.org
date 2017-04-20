@@ -1,5 +1,10 @@
-* DONE Ablative of comparison vs quam                               :publish:
+#+TITLE: Ablative of comparison vs quam
+
+* DONE Ablative of comparison vs quam                               :ignore:publish:
   CLOSED: [2017-04-20 Thu 18:23]
+  :PROPERTIES:
+  :BLOG_FILENAME: 2017-04-20-Ablative-of-comparison-vs-quam
+  :END:
      :LOGBOOK:
      - State "DONE"       from              [2017-04-20 Thu 18:23]
      :END:

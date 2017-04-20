@@ -1,5 +1,10 @@
-* DONE Save write-protected files with sudo automatically           :publish:
+#+TITLE: Save write-protected files with sudo automatically
+
+* DONE Save write-protected files with sudo automatically           :ignore:publish:
   CLOSED: [2017-04-20 Thu 19:48]
+  :PROPERTIES:
+  :BLOG_FILENAME: 2017-04-20-Save-write-protected-files-with-sudo-automatically
+  :END:
    :LOGBOOK:
    - State "DONE"       from "NEXT"       [2017-04-20 Thu 19:48]
    :END:
