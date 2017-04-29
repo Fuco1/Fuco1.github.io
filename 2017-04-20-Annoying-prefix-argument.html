@@ -92,7 +92,6 @@ In our example, we know that we call the function with <kbd>C-u</kbd> which corr
 <span style="color: #e9b96e;">This is the same as using \\[</span><span style="color: #e6a8df;">set-mark-command</span><span style="color: #e9b96e;">] with the prefix argument."</span>
   <span style="color: #888a85;">(</span>interactive<span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span>set-mark-command '<span style="color: #888a85;">(</span>4<span style="color: #888a85;">)))</span>
-!
 </pre>
 </div>
 
@@ -102,7 +101,6 @@ We can bind this command to a simple key binding, for example
 
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span>global-set-key <span style="color: #888a85;">(</span>kbd <span style="color: #e9b96e;">"M-`"</span><span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'my-jump-to-mark</span><span style="color: #888a85;">)</span>
-!
 </pre>
 </div>
 
@@ -132,7 +130,6 @@ The result is then quite simple again.
   <span style="color: #888a85;">(</span>interactive<span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>current-prefix-arg '<span style="color: #888a85;">(</span>4<span style="color: #888a85;">)))</span>
     <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'align-regexp</span><span style="color: #888a85;">)))</span>
-!
 </pre>
 </div>
 
@@ -147,7 +144,6 @@ Notice that we could have used this technique in the first example as well, beca
   <span style="color: #888a85;">(</span>interactive<span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>current-prefix-arg '<span style="color: #888a85;">(</span>4<span style="color: #888a85;">)))</span>
     <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'set-mark-command</span><span style="color: #888a85;">)))</span>
-!
 </pre>
 </div>
 
