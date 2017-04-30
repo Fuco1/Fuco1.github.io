@@ -1,5 +1,5 @@
 #+TITLE: Save write-protected files with sudo automatically
-#+DATE: 2017-04-20
+#+DATE: [2017-04-20 Thu 19:48]
 
 * DONE Save write-protected files with sudo automatically           :ignore:publish:
   CLOSED: [2017-04-20 Thu 19:48]

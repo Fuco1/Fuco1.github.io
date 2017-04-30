@@ -1,5 +1,5 @@
 #+TITLE: Turn on context-aware modes on shell command output
-#+DATE: 2017-04-29
+#+DATE: [2017-04-29 Sat 23:10]
 
 * DONE Turn on context-aware modes on shell command output          :ignore:publish:
   CLOSED: [2017-04-29 Sat 23:10]
@@ -50,4 +50,3 @@ Similarly, we advice the synchronous version =shell-command=.  This function ret
     (-when-let (buffer (get-buffer "*Shell Command Output*"))
       (my-shell-guess-major-mode buffer))))
 #+END_SRC
-

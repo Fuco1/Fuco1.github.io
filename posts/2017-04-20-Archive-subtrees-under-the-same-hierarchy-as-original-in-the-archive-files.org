@@ -1,5 +1,5 @@
 #+TITLE: Archive subtrees under the same hierarchy as original in the archive files
-#+DATE: 2017-04-20
+#+DATE: [2017-04-20 Thu 18:51]
 
 * DONE Archive subtrees under the same hierarchy as original in the archive files :ignore:publish:
   CLOSED: [2017-04-20 Thu 18:51]

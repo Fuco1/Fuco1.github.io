@@ -1,5 +1,5 @@
 #+TITLE: Annoying prefix argument
-#+DATE: 2017-04-20
+#+DATE: [2017-04-20 Thu 21:49]
 
 * DONE Annoying prefix argument                                     :ignore:publish:
   CLOSED: [2017-04-20 Thu 21:49]
