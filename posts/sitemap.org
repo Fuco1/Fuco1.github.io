@@ -1,6 +1,6 @@
 #+TITLE: Archive
 
-   + [[file:2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.org][2017-04-29 Turn on context-aware modes on shell command output]]
+   + [[file:2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.org][2017-04-30 Turn on context-aware modes on shell command output]]
    + [[file:2017-04-20-Save-write-protected-files-with-sudo-automatically.org][2017-04-20 Save write-protected files with sudo automatically]]
    + [[file:2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.org][2017-04-20 Archive subtrees under the same hierarchy as original in the archive files]]
    + [[file:2017-04-20-Annoying-prefix-argument.org][2017-04-20 Annoying prefix argument]]

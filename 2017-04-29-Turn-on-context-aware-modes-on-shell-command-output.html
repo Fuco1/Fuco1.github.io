@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-04-29 Sat 23:13 -->
+<!-- 2017-04-30 Sun 16:57 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Turn on context-aware modes on shell command output</title>
@@ -29,24 +29,43 @@ The return values (really the process output) is JSON most of the time.  So why 
 </p>
 
 <p>
-The little difficulty here is that the process runs asynchronously so I have to hook into the sentinel to know when things are finished.  I do that with the next advice<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  If the process finished, try to parse the buffer and if it contains valid JSON turn on <code>json-mode</code> and beautify the content for easier reading.
+First, let's write a little helper function to guess the appropriate major mode for a buffer.  I only have the JSON logic<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> there but you can of course add more "handlers" to check for XML or TAP output and so on.  <a href="https://github.com/Fuco1/.emacs.d/issues/new">Let me know</a> if you create something awesome!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="orgf88a1d8"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-shell-guess-major-mode</span> <span style="color: #888a85;">(</span>buffer<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Guess major mode for the content of BUFFER."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-current-buffer</span> buffer
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
+            <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+            <span style="color: #888a85;">(</span><span style="color: #b4fa70;">ignore-errors</span> <span style="color: #888a85;">(</span>json-read<span style="color: #888a85;">)))</span>
+      <span style="color: #888a85;">(</span>json-mode<span style="color: #888a85;">)</span>
+      <span style="color: #888a85;">(</span>json-mode-beautify<span style="color: #888a85;">))))</span>
+</pre>
+</div>
+
+<p>
+The little difficulty here is that the process runs asynchronously so I have to hook into the sentinel to know when things are finished.  I do that with the next advice.  If the process finished, try to parse the buffer and if it contains valid JSON turn on <code>json-mode</code> and beautify the content for easier reading.
 </p>
 
 <div class="org-src-container">
 <pre class="src src-elisp" id="orgeeae894"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">shell-command-sentinel</span> <span style="color: #888a85;">(</span>after enable-better-mode activate<span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>memq <span style="color: #888a85;">(</span>process-status <span style="color: #888a85;">(</span>ad-get-arg 0<span style="color: #888a85;">))</span> '<span style="color: #888a85;">(</span>exit signal<span style="color: #888a85;">))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-current-buffer</span> <span style="color: #888a85;">(</span>process-buffer <span style="color: #888a85;">(</span>ad-get-arg 0<span style="color: #888a85;">))</span>
-      <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
-              <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
-              <span style="color: #888a85;">(</span><span style="color: #b4fa70;">ignore-errors</span> <span style="color: #888a85;">(</span>json-read<span style="color: #888a85;">)))</span>
-        <span style="color: #888a85;">(</span>json-mode<span style="color: #888a85;">)</span>
-        <span style="color: #888a85;">(</span>json-mode-beautify<span style="color: #888a85;">)))))</span>
+    <span style="color: #888a85;">(</span>my-shell-guess-major-mode <span style="color: #888a85;">(</span>process-buffer <span style="color: #888a85;">(</span>ad-get-arg 0<span style="color: #888a85;">)))))</span>
 </pre>
 </div>
 
 <p>
-You can of course add more "handlers" to check for XML or TAP output and so on.  <a href="https://github.com/Fuco1/.emacs.d/issues/new">Let me know</a> if you create something awesome!
+Similarly, we advice the synchronous version <code>shell-command</code>.  This function returns the exit status if it runs synchronous command or <code>comint-output-filter</code> if it was used to start an asynchronous command.  We can decide on that and either run the guess routine or leave it to the sentinel above.
 </p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org651af88"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">shell-command</span> <span style="color: #888a85;">(</span>after enable-better-mode activate<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unless</span> <span style="color: #888a85;">(</span>eq ad-return-value <span style="color: #e6a8df;">'comint-output-filter</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">(</span>buffer <span style="color: #888a85;">(</span>get-buffer <span style="color: #e9b96e;">"*Shell Command Output*"</span><span style="color: #888a85;">))</span>
+      <span style="color: #888a85;">(</span>my-shell-guess-major-mode buffer<span style="color: #888a85;">))))</span>
+</pre>
+</div>
 <div id="footnotes">
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
@@ -58,7 +77,7 @@ You can of course add more "handlers" to check for XML or TAP output and so on. 
 </div></div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-04-29 23:13</div>
+<div style="text-align: left; float: left;">Last updated at: 2017-04-30 16:57</div>
 <div style="text-align: right;"><a href="./posts/2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.org">Source</a></div>
 </div>
 </body>
