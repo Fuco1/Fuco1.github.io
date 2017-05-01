@@ -1,0 +1,52 @@
+#+TITLE: Support for imenu in dired
+#+DATE: [2017-05-01 Mon 14:27]
+
+* DONE Support for imenu in dired :ignore:
+  CLOSED: [2017-05-01 Mon 14:27]
+  :PROPERTIES:
+  :BLOG_FILENAME: 2017-05-01-Support-for-imenu-in-dired
+  :END:
+  :LOGBOOK:
+  - State "DONE"       from              [2017-05-01 Mon 14:27]
+  :END:
+
+=imenu= is a very simple package that builds index of /interesting/ positions in the current buffer and presents them as a menu.  You pick the item and the point moves there.  There is a built-in interface and also one in [[https://github.com/Fuco1/sallet][sallet]], [[https://github.com/emacs-helm/helm][helm]] or [[https://github.com/abo-abo/swiper][counsel]].
+
+Unfortunatelly =dired= doesn't come with support for it, so here I add some definitions to generate the index of all the inserted directories.
+
+#+BEGIN_SRC elisp
+(defun my-dired-imenu-prev-index-position (&optional arg)
+  "Go to the header line of previous directory."
+  (interactive "p")
+  (unless (= (line-number-at-pos) 1)
+    (call-interactively 'dired-prev-subdir)
+    t))
+
+(defun my-dired-extract-index-name ()
+  "Extract name of the current item for imenu."
+  (save-excursion
+    (back-to-indentation)
+    (buffer-substring-no-properties
+     (point)
+     (1- (re-search-forward ":$")))))
+
+(defun my-dired-imenu-create-index ()
+  "Create `imenu' index for dired."
+  (let* ((alist (imenu-default-create-index-function))
+         (uniquified (f-uniquify-alist (-map 'car alist))))
+    (--remove (= 0 (length (car it))) (--map (cons (cdr (assoc (car it) uniquified)) (cdr it)) alist))))
+
+(defun my-dired-imenu-init ()
+  "Initialize `imenu' variables in current buffer."
+  (setq-local imenu-prev-index-position-function 'my-dired-imenu-prev-index-position)
+  (setq-local imenu-extract-index-name-function 'my-dired-extract-index-name)
+  (setq-local imenu-create-index-function 'my-dired-imenu-create-index))
+#+END_SRC
+
+To use this just add =my-dired-imenu-init= to =dired-mode-hook=.
+
+#+BEGIN_SRC elisp
+(add-hook 'dired-mode-hook 'my-dired-imenu-init)
+#+END_SRC
+
+The code depends on =f= and =dash=.
