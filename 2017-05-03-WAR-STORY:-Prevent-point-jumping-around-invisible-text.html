@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2017-05-03 Wed 22:56 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WAR STORY: Prevent point jumping around invisible text</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+<a href="./sitemap.html">Home</a>
+<a href="https://github.com/Fuco1/">GitHub</a>
+<a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">WAR STORY: Prevent point jumping around invisible text</h1>
+
+<p>
+When I use <code>org-mode</code> I like to keep the markup syntax hidden so it doesn't get in the way visually.  You can do this by setting <code>org-hide-emphasis-markers</code> to <code>t</code>.  The way this works is rather simple: font-lock will add <code>'invisible</code> property on the markers and adjust the value of <code>buffer-invisibility-spec</code> so that the markers stay hidden.
+</p>
+
+<p>
+This caused an amazingly annoying side-effect to appear.  When I entered text such as (point being at <code>|</code>):
+</p>
+
+<pre class="example">
+This is some text with =verbatim|=
+</pre>
+
+<p>
+I would not see the equals signs (as requested) and the point would be at the end of the line, visually at least.  But to "escape" the markup you would have to <code>C-e</code> to the <i>actual</i> end of line to get past the equals sign to continue with regular text.
+</p>
+
+<p>
+I use a custom function <a href="https://github.com/Fuco1/.emacs.d/blob/master/site-lisp/my-defuns-edit.el">my-end-of-code-or-line</a> that cycles between various "points of interest" like end of code (do not jump into line-ending comment), end of line, end of table cell and so on.
+</p>
+
+<p>
+But every time I invoked this function in the above situation the point moved to the beginning of <i>next line</i>.  It took me about 30 minutes to figure out the culprit.  It happens because runs of invisible texts are "conveniently" skipped over and some redisplay routine then adjust the point such that it is not in the middle of such a sequence.  Apparently being before the newline counts as being inside the sequence.  What was even weirder was that it happend also with other seemingly unrelated commands like <code>save-buffer</code> (this was one major WTF moment!).
+</p>
+
+<p>
+There is of course a solution, but damn is it ugly.  I found somewhere that variable <code>disable-point-adjustment</code> is responsible for this (I was actually reading C sources at that point).  I tried all sorts of things like binding it dynamically with <code>let</code>, setting it before the function in <code>pre-command-hook</code>, everything to no avail.
+</p>
+
+<p>
+The way you are supposed to do this is rather unobvious: set the value of the variable <code>disable-point-adjustment</code> to <code>t</code> at <b>the very end of your command</b>.  Then some hook or redisplay routine reads it and disables itself.  By the time next command is run, Emacs <b>resets</b> its value to <code>nil</code> automatically.
+</p>
+
+<p>
+This is mighty surprising behaviour because most of these flag-variables like <code>inhibit-read-only</code> or <code>case-fold-search</code> are bound with <code>let</code> and so that is the first go-to choice for any seasoned Emacs user.
+</p>
+
+<p>
+Well, you always learn something new :)  Auctex, Org and isearch also use (or used) this in some of their commands if you want to get more inspiration.
+</p>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2017-05-03 22:56</div>
+<div style="text-align: right;"><a href="./posts/2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.org">Source</a></div>
+</div>
+</body>
+</html>

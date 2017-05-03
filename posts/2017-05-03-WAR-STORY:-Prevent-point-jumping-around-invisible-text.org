@@ -1,0 +1,37 @@
+#+TITLE: WAR STORY: Prevent point jumping around invisible text
+#+DATE: [2017-05-03 Wed 22:53]
+
+* DONE WAR STORY: Prevent point jumping around invisible text       :ignore:publish:
+  CLOSED: [2017-05-03 Wed 22:53]
+  :PROPERTIES:
+  :BLOG_FILENAME: 2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text
+  :END:
+   :LOGBOOK:
+   - State "DONE"       from              [2017-05-03 Wed 22:53]
+   :END:
+   :CLOCK:
+   CLOCK: [2017-05-03 Wed 22:33]
+   :END:
+
+When I use =org-mode= I like to keep the markup syntax hidden so it doesn't get in the way visually.  You can do this by setting =org-hide-emphasis-markers= to =t=.  The way this works is rather simple: font-lock will add ='invisible= property on the markers and adjust the value of =buffer-invisibility-spec= so that the markers stay hidden.
+
+This caused an amazingly annoying side-effect to appear.  When I entered text such as (point being at =|=):
+
+#+BEGIN_EXAMPLE
+This is some text with =verbatim|=
+#+END_EXAMPLE
+
+I would not see the equals signs (as requested) and the point would be at the end of the line, visually at least.  But to "escape" the markup you would have to =C-e= to the /actual/ end of line to get past the equals sign to continue with regular text.
+
+I use a custom function [[https://github.com/Fuco1/.emacs.d/blob/master/site-lisp/my-defuns-edit.el][my-end-of-code-or-line]] that cycles between various "points of interest" like end of code (do not jump into line-ending comment), end of line, end of table cell and so on.
+
+But every time I invoked this function in the above situation the point moved to the beginning of /next line/.  It took me about 30 minutes to figure out the culprit.  It happens because runs of invisible texts are "conveniently" skipped over and some redisplay routine then adjust the point such that it is not in the middle of such a sequence.  Apparently being before the newline counts as being inside the sequence.  What was even weirder was that it happend also with other seemingly unrelated commands like =save-buffer= (this was one major WTF moment!).
+
+There is of course a solution, but damn is it ugly.  I found somewhere that variable =disable-point-adjustment= is responsible for this (I was actually reading C sources at that point).  I tried all sorts of things like binding it dynamically with =let=, setting it before the function in =pre-command-hook=, everything to no avail.
+
+The way you are supposed to do this is rather unobvious: set the value of the variable =disable-point-adjustment= to =t= at *the very end of your command*.  Then some hook or redisplay routine reads it and disables itself.  By the time next command is run, Emacs *resets* its value to =nil= automatically.
+
+This is mighty surprising behaviour because most of these flag-variables like =inhibit-read-only= or =case-fold-search= are bound with =let= and so that is the first go-to choice for any seasoned Emacs user.
+
+Well, you always learn something new :)  Auctex, Org and isearch also use (or used) this in some of their commands if you want to get more inspiration.
+
