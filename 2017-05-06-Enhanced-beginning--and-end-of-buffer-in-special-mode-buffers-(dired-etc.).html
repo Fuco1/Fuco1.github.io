@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2017-05-06 Sat 16:22 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+<a href="./sitemap.html">Home</a>
+<a href="https://github.com/Fuco1/">GitHub</a>
+<a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)</h1>
+
+<p>
+Two very useful commands are <code>beginning-of-buffer</code> (by default on <code>M-&lt;</code>) and <code>end-of-buffer</code> (<code>M-&gt;</code>).  They do exactly what they advertise: move the point (= jump) to the beginning or end of current buffer.
+</p>
+
+<p>
+This works fine in buffers with text like buffers holding code (<code>emacs-lisp-mode</code>, <code>c-mode</code>&#x2026;) or text (<code>org-mode</code>, <code>markdown-mode</code>&#x2026;) because it does exactly what you want.
+</p>
+
+<p>
+One of the beautiful and most clever things in Emacs design to me is that <b>every</b> buffer is just text.  What this means is you can use all the multitude of functions that work on text to also navigate forms, special listings, tables et cetera.  Indeed, the most infuriating feeling when I use something which isn't Emacs, e.g. a GUI program with a table in it, is the inability to just search the contents of the UI: there either is a special search for each control or you simply can't do it at all.  Very annoying.
+</p>
+
+<p>
+However, back in Emacs not everything is perfect :).  When you are in special buffers like <code>dired</code>, <code>vc-dir</code> or <code>occur</code> it makes little sense for <code>beginning-of-buffer</code> to jump to the <i>actual</i> beginning.  What you want 99% of the time is to go to the first logical entry, be it the first file or the first result of search.
+</p>
+
+<p>
+Well, nothing is simpler than to just write a macro that would generate these "better" navigation functions and remap the default functions to the new variants, right?
+</p>
+
+<p>
+The following two macros do just that.  Basically, they wrap the <code>beginning-of-buffer</code> functionality by first going to the real beginning and then invoke provided forms to move the point to the logical beginning.  Almost every special mode provides some sort of <code>...-next-line</code> or <code>...-next-item</code> function you can use to move from the beginning to the first logical item.
+</p>
+
+<p>
+One clever additional functionality is that if the point already is at the logical beginning and you invoke the function again it will actually jump to the real beginning.  Similarly it works for <code>end-of-buffer</code>.  This adds a little bit of <i>dwim</i> flavoring to the commands.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defmacro</span> <span style="color: #fce94f;">my-special-beginning-of-buffer</span> <span style="color: #888a85;">(</span>mode <span style="color: #8cc4ff;">&amp;rest</span> forms<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Define a special version of `</span><span style="color: #e6a8df;">beginning-of-buffer</span><span style="color: #e9b96e;">' in MODE.</span>
+
+<span style="color: #e9b96e;">The special function is defined such that the point first moves</span>
+<span style="color: #e9b96e;">to `</span><span style="color: #e6a8df;">point-min</span><span style="color: #e9b96e;">' and then FORMS are evaluated.  If the point did</span>
+<span style="color: #e9b96e;">not change because of the evaluation of FORMS, jump</span>
+<span style="color: #e9b96e;">unconditionally to `</span><span style="color: #e6a8df;">point-min</span><span style="color: #e9b96e;">'.  This way repeated invocations</span>
+<span style="color: #e9b96e;">toggle between real beginning and logical beginning of the</span>
+<span style="color: #e9b96e;">buffer."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">declare</span> <span style="color: #888a85;">(</span>indent 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>fname <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #e9b96e;">"my-"</span> <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-beginning-of-buffer"</span><span style="color: #888a85;">)))</span>
+        <span style="color: #888a85;">(</span>mode-map <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-mode-map"</span><span style="color: #888a85;">)))</span>
+        <span style="color: #888a85;">(</span>mode-hook <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-mode-hook"</span><span style="color: #888a85;">))))</span>
+    `<span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
+       <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> ,fname <span style="color: #888a85;">()</span>
+         <span style="color: #888a85;">(</span>interactive<span style="color: #888a85;">)</span>
+         <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>p <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
+           <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+           ,@forms
+           <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>= p <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span>
+             <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">)))))</span>
+       <span style="color: #888a85;">(</span>add-hook ',mode-hook
+                 <span style="color: #888a85;">(</span><span style="color: #b4fa70;">lambda</span> <span style="color: #888a85;">()</span>
+                   <span style="color: #888a85;">(</span>define-key ,mode-map
+                     [remap beginning-of-buffer] ',fname<span style="color: #888a85;">))))))</span>
+</pre>
+</div>
+
+<p>
+And a corresponding version for <code>end-of-buffer</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defmacro</span> <span style="color: #fce94f;">my-special-end-of-buffer</span> <span style="color: #888a85;">(</span>mode <span style="color: #8cc4ff;">&amp;rest</span> forms<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Define a special version of `</span><span style="color: #e6a8df;">end-of-buffer</span><span style="color: #e9b96e;">' in MODE.</span>
+
+<span style="color: #e9b96e;">The special function is defined such that the point first moves</span>
+<span style="color: #e9b96e;">to `</span><span style="color: #e6a8df;">point-max</span><span style="color: #e9b96e;">' and then FORMS are evaluated.  If the point did</span>
+<span style="color: #e9b96e;">not change because of the evaluation of FORMS, jump</span>
+<span style="color: #e9b96e;">unconditionally to `</span><span style="color: #e6a8df;">point-max</span><span style="color: #e9b96e;">'.  This way repeated invocations</span>
+<span style="color: #e9b96e;">toggle between real end and logical end of the buffer."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">declare</span> <span style="color: #888a85;">(</span>indent 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>fname <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #e9b96e;">"my-"</span> <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-end-of-buffer"</span><span style="color: #888a85;">)))</span>
+        <span style="color: #888a85;">(</span>mode-map <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-mode-map"</span><span style="color: #888a85;">)))</span>
+        <span style="color: #888a85;">(</span>mode-hook <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-mode-hook"</span><span style="color: #888a85;">))))</span>
+    `<span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
+       <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> ,fname <span style="color: #888a85;">()</span>
+         <span style="color: #888a85;">(</span>interactive<span style="color: #888a85;">)</span>
+         <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>p <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
+           <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-max<span style="color: #888a85;">))</span>
+           ,@forms
+           <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>= p <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span>
+             <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-max<span style="color: #888a85;">)))))</span>
+       <span style="color: #888a85;">(</span>add-hook ',mode-hook
+                 <span style="color: #888a85;">(</span><span style="color: #b4fa70;">lambda</span> <span style="color: #888a85;">()</span>
+                   <span style="color: #888a85;">(</span>define-key ,mode-map
+                     [remap end-of-buffer] ',fname<span style="color: #888a85;">))))))</span>
+</pre>
+</div>
+
+<p>
+The key remapping works by remapping the <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Remapping-Commands.html">command</a>;  this is an amazing Emacs feature many people aren't aware of.  What this means in short is that you do not bind a key to the command but rather remap a command to another command.  That is, whatever key you bound to <code>beginning-of-buffer</code> will now instead invoke the special function generated above.  When you remap <code>beginning-of-buffer</code> somewhere globally all the special functions will "automagically" remap as well.
+</p>
+
+<p>
+The macros rely on the Emacs convention where the mode name ends in <code>-mode</code> and the map ends in <code>-mode-map</code>, so far it worked everywhere (but it wouldn't be difficult to change the macro to accept those as arguments&#x2014;left as an exercise to the reader).
+</p>
+
+<p>
+What follows is all the "overloads" I use in my config, you can use these as an inspiration to add your own.  I'm thinking of how to package this code and provide some simple interface for people to enable these in their configs and contribute more for various other special buffers.  If you want to help out with the packaging leave me a <a href="https://github.com/Fuco1/.emacs.d/issues/new">message</a>.
+</p>
+
+<div id="outline-container-orgdafe6b4" class="outline-2">
+<h2 id="orgdafe6b4">Dired (<code>M-x dired</code>)</h2>
+<div class="outline-text-2" id="text-orgdafe6b4">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer dired
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span><span style="color: #b4fa70;">ignore-errors</span> <span style="color: #888a85;">(</span>dired-get-filename<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span>dired-next-line 1<span style="color: #888a85;">)))</span>
+<span style="color: #888a85;">(</span>my-special-end-of-buffer dired
+  <span style="color: #888a85;">(</span>dired-previous-line 1<span style="color: #888a85;">))</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2d089bd" class="outline-2">
+<h2 id="org2d089bd">Occur (<code>M-x occur</code>)</h2>
+<div class="outline-text-2" id="text-org2d089bd">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer occur
+  <span style="color: #888a85;">(</span>occur-next 1<span style="color: #888a85;">))</span>
+<span style="color: #888a85;">(</span>my-special-end-of-buffer occur
+  <span style="color: #888a85;">(</span>occur-prev 1<span style="color: #888a85;">))</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2aaae00" class="outline-2">
+<h2 id="org2aaae00">Ibuffer (<code>M-x ibuffer</code>)</h2>
+<div class="outline-text-2" id="text-org2aaae00">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer ibuffer
+  <span style="color: #888a85;">(</span>ibuffer-forward-line 1<span style="color: #888a85;">))</span>
+<span style="color: #888a85;">(</span>my-special-end-of-buffer ibuffer
+  <span style="color: #888a85;">(</span>ibuffer-backward-line 1<span style="color: #888a85;">))</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6f1ba1e" class="outline-2">
+<h2 id="org6f1ba1e">vc directory view (<code>M-x vc-dir</code> or <code>C-x v d</code>)</h2>
+<div class="outline-text-2" id="text-org6f1ba1e">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer vc-dir
+  <span style="color: #888a85;">(</span>vc-dir-next-line 1<span style="color: #888a85;">))</span>
+<span style="color: #888a85;">(</span>my-special-end-of-buffer vc-dir
+  <span style="color: #888a85;">(</span>vc-dir-previous-line 1<span style="color: #888a85;">))</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbb838a1" class="outline-2">
+<h2 id="orgbb838a1">bs (<code>M-x bs-show</code>)</h2>
+<div class="outline-text-2" id="text-orgbb838a1">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer bs
+  <span style="color: #888a85;">(</span>bs-down 2<span style="color: #888a85;">))</span>
+<span style="color: #888a85;">(</span>my-special-end-of-buffer bs
+  <span style="color: #888a85;">(</span>bs-up 1<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>bs-down 1<span style="color: #888a85;">))</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge052544" class="outline-2">
+<h2 id="orge052544">Recentf (<code>M-x recentf-open-files</code>)</h2>
+<div class="outline-text-2" id="text-orge052544">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer recentf-dialog
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>re-search-forward <span style="color: #e9b96e;">"^  \\["</span> nil t<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>match-beginning 0<span style="color: #888a85;">))))</span>
+<span style="color: #888a85;">(</span>my-special-end-of-buffer recentf-dialog
+  <span style="color: #888a85;">(</span>re-search-backward <span style="color: #e9b96e;">"^  \\["</span> nil t<span style="color: #888a85;">))</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org45d2982" class="outline-2">
+<h2 id="org45d2982">Org Agenda (<code>M-x org-agenda</code>)</h2>
+<div class="outline-text-2" id="text-org45d2982">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer org-agenda
+  <span style="color: #888a85;">(</span>org-agenda-next-item 1<span style="color: #888a85;">))</span>
+<span style="color: #888a85;">(</span>my-special-end-of-buffer org-agenda
+  <span style="color: #888a85;">(</span>org-agenda-previous-item 1<span style="color: #888a85;">))</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0ec5e01" class="outline-2">
+<h2 id="org0ec5e01">ag (from <code>ag.el</code> package, <code>M-x ag</code>)</h2>
+<div class="outline-text-2" id="text-org0ec5e01">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer ag
+  <span style="color: #888a85;">(</span>compilation-next-error 1<span style="color: #888a85;">))</span>
+<span style="color: #888a85;">(</span>my-special-end-of-buffer ag
+  <span style="color: #888a85;">(</span>compilation-previous-error 1<span style="color: #888a85;">))</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2017-05-06 16:22</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>
