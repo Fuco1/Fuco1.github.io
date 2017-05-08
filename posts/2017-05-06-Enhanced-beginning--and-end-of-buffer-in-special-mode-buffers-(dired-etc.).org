@@ -1,7 +1,7 @@
 #+TITLE: Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)
 #+DATE: [2017-05-06 Sat 16:16]
 
-* DONE Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.) :ignore:
+* DONE Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.) :ignore:published:
   CLOSED: [2017-05-06 Sat 16:16]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.)
@@ -10,7 +10,7 @@
   - State "DONE"       from "TODO"       [2017-05-06 Sat 16:16]
   :END:
   :CLOCK:
-  CLOCK: [2017-05-06 Sat 15:45]
+  CLOCK: [2017-05-06 Sat 15:45]--[2017-05-06 Sat 16:26] =>  0:41
   :END:
 
 Two very useful commands are =beginning-of-buffer= (by default on =M-<=) and =end-of-buffer= (=M->=).  They do exactly what they advertise: move the point (= jump) to the beginning or end of current buffer.
@@ -155,4 +155,20 @@ What follows is all the "overloads" I use in my config, you can use these as an 
   (compilation-next-error 1))
 (my-special-end-of-buffer ag
   (compilation-previous-error 1))
+#+END_SRC
+
+** Notmuch (from =notmuch= package, =M-x notmuch-search=)
+#+BEGIN_SRC elisp
+(my-special-beginning-of-buffer notmuch-search
+  (notmuch-search-first-thread)
+  (beginning-of-line))
+(my-special-end-of-buffer notmuch-search
+  (notmuch-search-last-thread)
+  (end-of-line))
+#+END_SRC
+
+** Elfeed (from =elfeed= package, =M-x elfeed=)
+#+BEGIN_SRC elisp
+(my-special-end-of-buffer elfeed-search
+  (forward-line -2))
 #+END_SRC

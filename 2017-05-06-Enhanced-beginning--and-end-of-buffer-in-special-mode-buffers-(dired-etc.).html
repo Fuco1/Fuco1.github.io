@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-05-06 Sat 16:22 -->
+<!-- 2017-05-08 Mon 12:06 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)</title>
@@ -228,10 +228,36 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 </div>
 </div>
+
+<div id="outline-container-org7fe8d84" class="outline-2">
+<h2 id="org7fe8d84">Notmuch (from <code>notmuch</code> package, <code>M-x notmuch-search</code>)</h2>
+<div class="outline-text-2" id="text-org7fe8d84">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer notmuch-search
+  <span style="color: #888a85;">(</span>notmuch-search-first-thread<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>beginning-of-line<span style="color: #888a85;">))</span>
+<span style="color: #888a85;">(</span>my-special-end-of-buffer notmuch-search
+  <span style="color: #888a85;">(</span>notmuch-search-last-thread<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>end-of-line<span style="color: #888a85;">))</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6229ca0" class="outline-2">
+<h2 id="org6229ca0">Elfeed (from <code>elfeed</code> package, <code>M-x elfeed</code>)</h2>
+<div class="outline-text-2" id="text-org6229ca0">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-end-of-buffer elfeed-search
+  <span style="color: #888a85;">(</span>forward-line -2<span style="color: #888a85;">))</span>
+</pre>
+</div>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-05-06 16:22</div>
+<div style="text-align: left; float: left;">Last updated at: 2017-05-08 12:06</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).org">Edit on GitHub!</a></div>
 </div>
 </body>
