@@ -1,5 +1,6 @@
 #+TITLE: Archive
 
+   + [[file:2017-05-25-Fontify-done-checkbox-items-in-org-mode.org][2017-05-25 Fontify done checkbox items in org-mode]]
    + [[file:2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.org][2017-05-09 Automatically remove inherited tags from tasks after refiling]]
    + [[file:2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).org][2017-05-06 Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)]]
    + [[file:2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.org][2017-05-03 WAR STORY: Prevent point jumping around invisible text]]

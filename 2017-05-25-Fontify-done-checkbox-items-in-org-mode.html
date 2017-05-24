@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2017-05-25 Thu 00:25 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fontify done checkbox items in org-mode</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./sitemap.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">Fontify done checkbox items in org-mode</h1>
+
+<p>
+My computer crashed over the weekend and during the re-installation I started migrating my install scripts to puppet (I had roughly 60% covered by puppet prior to that already), so I made a check list in org with all the things to not forget to include.  The list grew quite large and hard to process visually.
+</p>
+
+<p>
+There is a somewhat nice feature of org mode which you can turn on using <code>org-fontify-done-headline</code> flag; if set to <code>t</code>, <code>DONE</code> headlines will be highlighted in <code>org-headline-done</code> face.  I let this face inherit from <code>shadow</code> which effectively removes these lines from my attention.
+</p>
+
+<p>
+So to solve my problem naturally I would like to extend this behaviour to checkbox lists.  I don't always do them in sequence and so the gradual change from "normal" to "hidden" lines nicely illustrates the progress and makes the todo items stand out.
+</p>
+
+<p>
+Just throw the following somewhere and reload the org buffers (close and reopen or toggle <code>fundamental-mode</code> then <code>org-mode</code> again).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>font-lock-add-keywords
+ <span style="color: #e6a8df;">'org-mode</span>
+ `<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"^[ \t]*</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">[-+*]</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">|</span><span style="color: #e9b96e;">[0-9]+[).]</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">[ \t]+</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">\\[@</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">start:</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">?[0-9]+\\][ \t]*</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">?\\[</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">X</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">|</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e;">[0-9]+</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">/\\2</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">\\][</span><span style="color: #ff4b4b;">^</span><span style="color: #e9b96e;">\n]*\n</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">"</span> 1 <span style="color: #e6a8df;">'org-headline-done</span> prepend<span style="color: #888a85;">))</span>
+ <span style="color: #e6a8df;">'append</span><span style="color: #888a85;">)</span>
+</pre>
+</div>
+
+<p>
+Here's how it looks (list shortened for clarity):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #2e3436;">**</span><span style="color: #b4fa70;">* </span><span style="color: #ff6a6a; font-weight: bold;">TODO</span><span style="color: #b4fa70;"> Puppet</span>
+<span style="color: #b4fa70;">    :CLOCK:</span>
+    <span style="color: #b4fa70;">CLOCK:</span> <span style="color: #8cc4ff;">[2017-05-21 Sun 18:00]--[2017-05-21 Sun 21:55]</span> =&gt;  3:55
+<span style="color: #b4fa70;">    :END:</span>
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> cli ::</span> Add youtube-dl
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> org ::</span> Add plantuml.jar
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> emacs ::</span><span style="color: #888a85;"> Add Cask</span>
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> haskell ::</span> Add Cabal sandbox support and build everything in sandboxes
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> php ::</span> Add Composer
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> emacs ::</span> Add EVM
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> ruby ::</span> Add RVM
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> node ::</span> Add NVM
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> node ::</span> Add NPM
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> linux ::</span><span style="color: #888a85;"> Add Wine + Winetricks</span>
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> latin ::</span> Add whitakers-words
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> puppet ::</span> Add support to install "docker" apps
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> setup ::</span><span style="color: #888a85;"> Ensure download-local directory</span>
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> prog ::</span> Install global (6.5 at least)
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> linux ::</span> Install pasystray (git)
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> prog ::</span> Install ag (0.31.0+)
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> cli ::</span><span style="color: #888a85;"> Install tmux (2.0+)</span>
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> linux ::</span> Install twmn
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> desktop ::</span><span style="color: #888a85;"> Install slack (from .deb)</span>
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> cli ::</span> Install fisher
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85;"> cli ::Install ledger (from package + elisp mode from source?)</span>
+<span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> mail ::</span> Install isync
+</pre>
+</div>
+
+<p>
+(Also note that the above is <i>not</i> a screenshot, it is an embedded <code>org-mode</code> snippet in <code>org-mode</code>'s <code>#+BEG_SRC</code> block.  Inception.)
+</p>
+
+<p>
+I stole the regexp from <a href="https://github.com/hlissner/.emacs.d/blob/master/modules/lang/org/config.el">hlissner's emacs.d</a> who apparently came to the same conclusion.  It's a rather nice collection of stuff so check it out, but be warned, it is <i>super</i> idiosyncratic&#x2026; which in Emacs translation basically means awesome :)
+</p>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2017-05-25 00:25</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-05-25-Fontify-done-checkbox-items-in-org-mode.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>
