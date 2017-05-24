@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-05-08 Mon 16:35 -->
+<!-- 2017-05-25 Thu 00:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Annoying prefix argument</title>
@@ -27,36 +27,36 @@
 <div id="content">
 <h1 class="title">Annoying prefix argument</h1>
 
-<div id="outline-container-orgc50c29b" class="outline-2">
-<h2 id="orgc50c29b">Problem</h2>
-<div class="outline-text-2" id="text-orgc50c29b">
+<div id="outline-container-orga7f644e" class="outline-2">
+<h2 id="orga7f644e">Problem</h2>
+<div class="outline-text-2" id="text-orga7f644e">
 <p>
 A prefix argument changes the behaviour of a command in a way which forms a useful stand-alone command.  We don't want to supply the command with the prefix argument all the time.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org3b7f72a" class="outline-2">
-<h2 id="org3b7f72a">Solution</h2>
-<div class="outline-text-2" id="text-org3b7f72a">
+<div id="outline-container-orgbb4eef3" class="outline-2">
+<h2 id="orgbb4eef3">Solution</h2>
+<div class="outline-text-2" id="text-orgbb4eef3">
 <p>
 Write an interactive wrapper and pre-fill the arguments
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgd07d59a" class="outline-2">
-<h2 id="orgd07d59a">Motivation</h2>
-<div class="outline-text-2" id="text-orgd07d59a">
+<div id="outline-container-org6611ada" class="outline-2">
+<h2 id="org6611ada">Motivation</h2>
+<div class="outline-text-2" id="text-org6611ada">
 <p>
 It is awkward and annoying to constantly use prefix-arguments for commonly used operations.  Emacs has a rich history of commands using prefix arguments to subtly (or not so subtly) modify the behaviour of the base command.  If you often use a specialized variant you can save yourself a lot of pain by simply building a specialized solution.  It is not uncommon to see two prefix arguments (<kbd>C-u C-u</kbd>), but I've seen four and even five once or twice.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgf57f876" class="outline-2">
-<h2 id="orgf57f876">Example</h2>
-<div class="outline-text-2" id="text-orgf57f876">
+<div id="outline-container-org92095ca" class="outline-2">
+<h2 id="org92095ca">Example</h2>
+<div class="outline-text-2" id="text-org92095ca">
 <p>
 Emacs comes with this amazing functionality called <i>marks</i>.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the <i>mark ring</i><sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  This allows you to remember multiple marks at the same time and recall them in a lifo order.
 </p>
@@ -82,9 +82,9 @@ How can we solve this?  We write our own interactive wrapper!
 </p>
 </div>
 </div>
-<div id="outline-container-orga21c080" class="outline-2">
-<h2 id="orga21c080">Resolution</h2>
-<div class="outline-text-2" id="text-orga21c080">
+<div id="outline-container-org718d11d" class="outline-2">
+<h2 id="org718d11d">Resolution</h2>
+<div class="outline-text-2" id="text-org718d11d">
 <p>
 First we need to figure out which argument and with what value we will need to pre-fill.  Most of the time reading the documentation with <kbd>C-h f</kbd> will be enough to give us a clue, but sometimes inspecting the source is the only way to be sure.
 </p>
@@ -176,7 +176,7 @@ The moral of the story is that we should always prefer passing the argument dire
 </div></div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-05-08 16:35</div>
+<div style="text-align: left; float: left;">Last updated at: 2017-05-25 00:11</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-04-20-Annoying-prefix-argument.org">Edit on GitHub!</a></div>
 </div>
 </body>
