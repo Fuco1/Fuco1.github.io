@@ -1,0 +1,88 @@
+#+TITLE: Generating all groupings of (1|2)* summing up to m
+#+DATE: [2017-05-28 Sun 18:03]
+
+* DONE Generating all groupings of (1|2)* summing up to m :ignore:
+  CLOSED: [2017-05-28 Sun 18:03]
+  :PROPERTIES:
+  :BLOG_FILENAME: 2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m
+  :END:
+    :LOGBOOK:
+    - State "DONE"       from              [2017-05-28 Sun 18:03]
+    :END:
+    :CLOCK:
+    CLOCK: [2017-05-28 Sun 16:35]
+    :END:
+In a fun article [[https://www.amin.space/blog/2017/5/elemental_speller/][Spelling with Elemental Symbols]] the author explores how to write a program that would spell out words with the symbols of the periodic table.  So for example the word /waste/ might be spelled as /WAsTe/ (=W= for /wolfram/, =As= for /arsenic/ and =Te= for /tellurium/).
+
+In the beginning their first idea was to generate all the possible splits into 1 and 2 letter groups (we cal these strings /groupings/), then try all these combinations matching against the list of the symbols[fn:16257fb7d2d019bb:Yes, this is awfully inefficient.  The author later rectifies this with a beautiful and fast linear algorithm.].  To generate the splits they would generate all the possible strings of 1 and 2 up to the length $m$ and then filter out those which don't sum up to $m$ (the length of the input word).  Little inspection shows that this grows exponentially and really isn't the way to go[fn:c4b217d4ee8ab73:To see this just imagine that 1 and 2 is actually 0 and 1 and you are generating all the binary numbers taking up to $n$ bits.  This results in $(2^n)-1$ options.].  For $m$ = 3 this would generate 15 possible strings (including the empty one) but only 3 are actually valid: $(1,1,1)$, $(1,2)$ and $(2,1)$.
+
+This immediately got me thinking of dynamic programming and induction.  I figured it out in a couple minutes and then worked out a simple proof to show that my algorithm generates all the possible groupings.
+
+** The algorithm
+
+How it works is rather simple:
+
+- If we are generating groupings of strings summing up to 0, return just the empty sequence.
+- If we are generating groupings of strings summing up to 1, return just the sequence =(1)=.
+- Otherwise return all the sequences created by prepending 1 to all
+  the sequences that sum to $n-1$ combined all the sequences created by
+  prepending 2 to all the sequences that sum to $n-2$ (so that the resulting sum is $n$).
+
+The algorithm's nature was begging for a functional implementation so I naturally wrote it down in Lisp:
+
+#+BEGIN_SRC elisp
+(defun generate-groupings (n)
+  (cond
+   ((= n 0) '(()))
+   ((= n 1) '((1)))
+   (:else
+    (append
+     (mapcar (lambda (x) (cons 1 x)) (generate-groupings (- n 1)))
+     (mapcar (lambda (x) (cons 2 x)) (generate-groupings (- n 2)))))))
+#+END_SRC
+
+Here's an equivalent Python version.  Please note I'm not too big into Python :)
+
+#+BEGIN_SRC python
+def prepend(x, list):
+    list.insert(0, x)
+    return list
+
+
+def generate_groupings(n):
+    if n == 0:
+        return [[]]
+    elif n == 1:
+        return [[1]]
+    else:
+        l1 = [prepend(1,x) for x in generate_groupings(n - 1)]
+        l2 = [prepend(2,x) for x in generate_groupings(n - 2)]
+        return l1+l2
+#+END_SRC
+
+** Proof
+
+Proof will be carried out by [[https://en.wikipedia.org/wiki/Mathematical_induction][induction]].  In short, induction works as follows.  You first prove the induction base, which is the base truth from which you will derive all other truths.  In our case this will be the fact that the algorithm works for $n = 0$ and $n = 1$.
+
+Why this is true follows directly from the definition of the first two bullets of the algorithm.  They are just hard-coded enumerations of all the possibilities.
+
+Now the fun part.  If we prove that the proposition is true for $n + 1$ while we /assume/ it works for all $k \leq n$, we proved the proposition for /all/ $n$.  This is called the induction hypothesis.[fn:14868552b9fb2433:We are actually using /strong/ (a.k.a. /complete/) [[https://en.wikipedia.org/wiki/Mathematical_induction#Complete_induction][induction]].  This is equivalent to the simple induction you might have learned at university.]
+
+The whole thing works because it allows us to "turtle all the way" down to the basic fact.  For example, to prove something works for $n = 3$, we first use the basic fact that it works for $n = 1$, then assuming it works (which it does!) we use the induction hypothesis which grants us that the proposition works for $n = 2$.  We repeat again to show that the proposition works for $n = 3$ assuming it works for $n = 2$ (which it does, we just showed it!).  It is a bit magical so thing about it for a bit until it is clear.
+
+Let's introduce some notation:  I will write $g(n)$ to mean the set of all the sequences that sum up to $n$.  When I write $1:x$ this means take the /set/ $x$ and to each element of it prepend a 1.  So that $1:\{(1,1), (2)\}$ = $\{(1,1,1), (1,2)\}$.  I will use $+$ to mean the union of two sets.
+
+Now, for the induction hypothesis we take: $g(n) = 1:g(n-1) + 2:g(n-2)$.  This just translates the last bullet of the algorithm into a "mathematical" form.
+
+We are trying to show that $g(n+1) = 1:g(n) + 2:g(n-1)$ (this is the form of the proposition for $n+1$) /assuming/ it works for $g(n)$.
+
+The proof is now very straight forward.  Assume we have a string which sums up to $n+1 >= 2$ (the cases for 0 and 1 were covered in the basic step).  Then the string must start with either 1 or 2.
+
+If it starts with 1 the rest of it must sum up to $(n + 1) - 1 = n$.  By using the hypothesis we already know that all those strings form the set $1:g(n-1) + 2:g(n-2)$.  When we prepend 1 to each string of this set we get $1:1:g(n-1) + 1:2:g(n-2)$ which really is the same as $1:(1:g(n-1) + 2:g(n-2))$ = $1:g(n)$.  We use the fact that it does not matter if we first prepend and than take the union or first take the union and then prepend (mathematicians say that "the prepending commutes with the union").
+
+Similarly if it starts with 2 the rest of it must sum up to $(n + 1) - 2 = n - 1$ which forms the the set $1:g(n-2) + 2:g(n-3)$.  Prepending 2 in front gives us $2:1:g(n-2) + 2:2:g(n-3)$ = $2:(1:g(n-2) + 2:g(n-3))$ = $2:g(n-1)$.
+
+By taking the union of these two (and only!) options we get $1:g(n) + 2:g(n-1)$ which is the desired result.
+
+If you have any questions leave me a [[https://github.com/Fuco1/Fuco1.github.io/issues][comment]]!
+
