@@ -1,0 +1,100 @@
+#+TITLE: The absolute awesomeness of anchored font-lock matchers
+#+DATE: [2017-06-01 Thu 23:23]
+
+* DONE The absolute awesomeness of anchored font-lock matchers :ignore:
+  CLOSED: [2017-06-01 Thu 23:23] SCHEDULED: <2017-06-01 Thu 20:00>
+  :PROPERTIES:
+  :BLOG_FILENAME: 2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers
+  :END:
+   :LOGBOOK:
+   - State "DONE"       from "NEXT"       [2017-06-01 Thu 23:23]
+   :END:
+   :CLOCK:
+   CLOCK: [2017-06-01 Thu 22:37]
+   :END:
+People who know my rants on Emacs and especially =font-lock-mode= know that I consider it a rather crappy hack.  Parsing complex context sensitive langauges with a bunch of very weak regexes[fn:3df0399a5fc1795:Emacs RE engine is a lot less powerfull than PCRE engines, it doesn't support look-ahead nor backreferences among other less commonly used features] just screams /This is a really bad idea!/  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets =match-data= the same way =re-search-forward= would.
+
+Today I had a problem I thought would finally prove my point about how bad font-lock is and that we should all bikeshed and invent totally awesome [[https://eclipse.org/Xtext/][formal parsers]]... then I went back to the docstring and of course Emacs can actually solve the problem.
+
+The issue is the following:  I'm writing a DSL which looks kind of like Haskell types, but written in sexps.  So where in Haskell one writes
+
+#+BEGIN_SRC haskell
+function :: Int -> String -> (String -> Int) -> [Float]
+#+END_SRC
+
+in my DSL it would look something like
+
+#+BEGIN_EXAMPLE
+(type function :: int -> string -> (string -> int) -> [float])
+#+END_EXAMPLE
+
+Now, how would I fontify those =string= and =int= occurences /only/ when they occur inside the =type= form?  Turns out font lock supports /Anchored matchers/.
+
+The anchored matchers works by first searching for an /anchor/ and only then searching for the thing you want to highlight.  This basically allows you to do look-ahead context-sensitive fontification in the sense that the subsequent matchers are /tried/ but if they fail the process continues *from where the anchor match ended*.[fn:19e432744908e3e6:For those familiar with Parsec, this is basically the =try= combinator].
+
+For the longest time I struggled to understand how the font-lock specifications worked because there is so many different ways to write them.  What actually helped me to understand this once and for all was to simply look into the source code and read how it works.  I remembered the recent post by [[http://irreal.org/blog/?p=6209][Irreal]] on reading source code.  It really is an effective way to learn, especially with software like Emacs being absolutely transparent about everything that is going inside.
+
+A font lock rule starts with a matcher followed by one or more =HIGHLIGHT= forms.  A =HIGHLIGHT= form either specifies how to fontify group matched by the matcher or is actually /another matcher/ (this is the anchored matcher).  The highlight forms are tried in order and applied one after another, whatever their type is.
+
+The specification is not completely recursive because it only allows one level of nesting, so an anchored matcher can not have other anchored matchers inside it.  The anchored matcher has the following syntax:
+
+#+BEGIN_EXAMPLE
+(MATCHER PRE-MATCH-FORM POST-MATCH-FORM MATCH-HIGHLIGHT ...)
+#+END_EXAMPLE
+
+where =MATCHER= is the search regexp that is tried after the anchor was found, =PRE-MATCH-FORM= and =POST-MATCH-FORM= are executed before and after the =MATCHER= is run so you can set search limits and do other magic if necessary.  =MATCH-HIGHLIGHT= are the usual forms with the groups and faces.
+
+The cool and crucial ingredient is is that the =MATCHER= is run in a cycle until the point goes after the limit.  This means that we in a sense "fontify" the region from the anchor to the limit we provide (or end of line by default).  We can then reset the position in the =POST-MATCH-FORM= so the next =HIGHLIGHT= (anchored matcher) will start from the beginning of the same "region" again.  This allows us to define "region specific" font-locking.  So cool!
+
+The final annotated rule looks as follows:
+
+#+BEGIN_SRC elisp
+(font-lock-add-keywords
+ nil
+ ;; the first regexp is the anchor of the fontification, meaning the
+ ;; "starting point" of the region
+ '(("(\\(type\\) +\\(\\(?:\\sw\\|\\s_\\)+\\) +::"
+    ;; fontify the `type' as keyword
+    (1 font-lock-keyword-face)
+    ;; fontify the function name as function
+    (2 font-lock-function-name-face)
+    ;; look for the first symbol after the ::, it is a type
+    ("\\_<\\(\\(?:\\sw\\|\\s_\\)+\\)\\_>"
+     ;; set the limit of search to the current `type' form only
+     (save-excursion (up-list) (point))
+     ;; when we found all the types in the region (`type' form) go
+     ;; back to the `::' marker
+     (re-search-backward "::")
+     ;; fontify the matched symbols as types
+     (0 font-lock-type-face))
+    ;; when done with the symbol, look for the arrows
+    ("->"
+     ;; we are starting from the `::' again, so set the same limit as
+     ;; for the previous search (the `type' form)
+     (save-excursion (up-list) (point))
+     ;; do not move back when we find a match to ensure forward
+     ;; progress as we are done with the form
+     nil
+     ;; fontify the found arrows as variables (whatever...)
+     (0 font-lock-variable-name-face t)))))
+#+END_SRC
+
+And the forms are fontified in very much the same way as the Haskell code above (thanks to Emacs's amazing consistency with font-lock faces, another brilliant design decision).
+
+#+BEGIN_SRC elisp
+(type function :: int -> string -> (string -> int) -> [float])
+(type constant :: int)
+
+(defun string (string int)
+  "The keywords outside of the type form are *not* fontified!")
+#+END_SRC
+
+I repeat it here just for completeness:
+
+#+BEGIN_SRC haskell
+function :: Int -> String -> (String -> Int) -> [Float]
+constant :: Int
+#+END_SRC
+
+Awesome.
+
