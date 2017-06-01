@@ -10,11 +10,11 @@
    - State "DONE"       from "NEXT"       [2017-06-01 Thu 23:23]
    :END:
    :CLOCK:
-   CLOCK: [2017-06-01 Thu 22:37]
+   CLOCK: [2017-06-01 Thu 22:37]--[2017-06-01 Thu 23:37] =>  1:00
    :END:
-People who know my rants on Emacs and especially =font-lock-mode= know that I consider it a rather crappy hack.  Parsing complex context sensitive langauges with a bunch of very weak regexes[fn:3df0399a5fc1795:Emacs RE engine is a lot less powerfull than PCRE engines, it doesn't support look-ahead nor backreferences among other less commonly used features] just screams /This is a really bad idea!/  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets =match-data= the same way =re-search-forward= would.
+People who know my rants on Emacs and especially =font-lock-mode= know that I consider it a rather crappy hack.  Parsing complex context sensitive languages with a bunch of very weak regexes[fn:3df0399a5fc1795:Emacs RE engine is a lot less powerful than PCRE engines, it doesn't support look-ahead nor back-references among other less commonly used features] just screams /This is a really bad idea!/  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets =match-data= the same way =re-search-forward= would.
 
-Today I had a problem I thought would finally prove my point about how bad font-lock is and that we should all bikeshed and invent totally awesome [[https://eclipse.org/Xtext/][formal parsers]]... then I went back to the docstring and of course Emacs can actually solve the problem.
+Today I had a problem I thought would finally prove my point about how bad font-lock is and that we should all bike-shed and invent totally awesome [[https://eclipse.org/Xtext/][formal parsers]]... then I went back to the docstring and of course Emacs can actually solve the problem.
 
 The issue is the following:  I'm writing a DSL which looks kind of like Haskell types, but written in sexps.  So where in Haskell one writes
 
@@ -28,7 +28,7 @@ in my DSL it would look something like
 (type function :: int -> string -> (string -> int) -> [float])
 #+END_EXAMPLE
 
-Now, how would I fontify those =string= and =int= occurences /only/ when they occur inside the =type= form?  Turns out font lock supports /Anchored matchers/.
+Now, how would I fontify those =string= and =int= occurrences /only/ when they occur inside the =type= form?  Turns out font lock supports /Anchored matchers/.
 
 The anchored matchers works by first searching for an /anchor/ and only then searching for the thing you want to highlight.  This basically allows you to do look-ahead context-sensitive fontification in the sense that the subsequent matchers are /tried/ but if they fail the process continues *from where the anchor match ended*.[fn:19e432744908e3e6:For those familiar with Parsec, this is basically the =try= combinator].
 

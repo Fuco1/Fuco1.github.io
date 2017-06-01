@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-01 Thu 23:33 -->
+<!-- 2017-06-01 Thu 23:42 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>The absolute awesomeness of anchored font-lock matchers</title>
@@ -28,11 +28,11 @@
 <h1 class="title">The absolute awesomeness of anchored font-lock matchers</h1>
 
 <p>
-People who know my rants on Emacs and especially <code>font-lock-mode</code> know that I consider it a rather crappy hack.  Parsing complex context sensitive langauges with a bunch of very weak regexes<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> just screams <i>This is a really bad idea!</i>  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets <code>match-data</code> the same way <code>re-search-forward</code> would.
+People who know my rants on Emacs and especially <code>font-lock-mode</code> know that I consider it a rather crappy hack.  Parsing complex context sensitive languages with a bunch of very weak regexes<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> just screams <i>This is a really bad idea!</i>  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets <code>match-data</code> the same way <code>re-search-forward</code> would.
 </p>
 
 <p>
-Today I had a problem I thought would finally prove my point about how bad font-lock is and that we should all bikeshed and invent totally awesome <a href="https://eclipse.org/Xtext/">formal parsers</a>&#x2026; then I went back to the docstring and of course Emacs can actually solve the problem.
+Today I had a problem I thought would finally prove my point about how bad font-lock is and that we should all bike-shed and invent totally awesome <a href="https://eclipse.org/Xtext/">formal parsers</a>&#x2026; then I went back to the docstring and of course Emacs can actually solve the problem.
 </p>
 
 <p>
@@ -53,7 +53,7 @@ in my DSL it would look something like
 </pre>
 
 <p>
-Now, how would I fontify those <code>string</code> and <code>int</code> occurences <i>only</i> when they occur inside the <code>type</code> form?  Turns out font lock supports <i>Anchored matchers</i>.
+Now, how would I fontify those <code>string</code> and <code>int</code> occurrences <i>only</i> when they occur inside the <code>type</code> form?  Turns out font lock supports <i>Anchored matchers</i>.
 </p>
 
 <p>
@@ -150,7 +150,7 @@ Awesome.
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
 
-<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">Emacs RE engine is a lot less powerfull than PCRE engines, it doesn't support look-ahead nor backreferences among other less commonly used features</div></div>
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">Emacs RE engine is a lot less powerful than PCRE engines, it doesn't support look-ahead nor back-references among other less commonly used features</div></div>
 
 <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">For those familiar with Parsec, this is basically the <code>try</code> combinator</div></div>
 
@@ -159,7 +159,7 @@ Awesome.
 </div></div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-06-01 23:33</div>
+<div style="text-align: left; float: left;">Last updated at: 2017-06-01 23:42</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org">Edit on GitHub!</a></div>
 </div>
 </body>
