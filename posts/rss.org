@@ -2,82 +2,94 @@
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html
 :PUBDATE: <2017-06-01>
-:ID:       85b9115c-2451-472a-aac1-6fb7b0618892
+:ID:       03e97383-ed75-487f-b4ca-64dabe13265c
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org" :lines "3-"
 
 * Generating all groupings of (1|2)* summing up to m
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html
 :PUBDATE: <2017-05-28>
-:ID:       a3ff923f-c4ad-40bf-bc9e-487d219f4a6a
+:ID:       05227ffd-d683-49d7-a2ae-c577ee134cc5
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.org" :lines "3-"
 
 * Fontify done checkbox items in org-mode
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
 :PUBDATE: <2017-05-25>
-:ID:       25bf3e1a-496d-4c01-ba66-9e172f358a0c
+:ID:       e4474630-4970-49d1-9c67-4eba0f1a9327
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-05-25-Fontify-done-checkbox-items-in-org-mode.org" :lines "3-"
 
 * Automatically remove inherited tags from tasks after refiling
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html
 :PUBDATE: <2017-05-09>
-:ID:       985ae261-b93f-4c56-9be3-272913e1bef9
+:ID:       f5bb4607-1743-4b59-823d-b4d159c243f7
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.org" :lines "3-"
 
 * Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html
 :PUBDATE: <2017-05-06>
-:ID:       3e968035-a32c-48b6-a941-d5da946ea4c0
+:ID:       39326814-5775-4fd5-8231-10b7df366a5a
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).org" :lines "3-"
 
 * WAR STORY: Prevent point jumping around invisible text
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html
 :PUBDATE: <2017-05-03>
-:ID:       89aad8b2-c98a-44cf-b357-4b0e0844d91b
+:ID:       e1044340-3f93-40d9-bac5-54140e0801cb
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.org" :lines "3-"
 
 * Support for imenu in dired
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html
 :PUBDATE: <2017-05-01>
-:ID:       f11735f3-1374-465f-8220-41e6c3ef0688
+:ID:       3cf60b99-beec-4577-9b76-a145219a2976
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-05-01-Support-for-imenu-in-dired.org" :lines "3-"
 
 * Turn on context-aware modes on shell command output
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html
 :PUBDATE: <2017-04-29>
-:ID:       a7860e30-8de2-4f96-a328-2ef2f56c3b9f
+:ID:       3e4dff0a-8695-4ede-9aa7-eaa4fe2f2b90
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.org" :lines "3-"
 
 * Save write-protected files with sudo automatically
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html
 :PUBDATE: <2017-04-20>
-:ID:       3adaf5d9-dd68-48fc-b179-2875dda72957
+:ID:       7dba8ae7-1a8d-41cd-b25d-4ed014854613
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-04-20-Save-write-protected-files-with-sudo-automatically.org" :lines "3-"
 
 * Archive subtrees under the same hierarchy as original in the archive files
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html
 :PUBDATE: <2017-04-20>
-:ID:       d96a5fc6-b8b9-4541-b8b3-6b833ad773a2
+:ID:       bf8a4186-63df-4584-a9dd-752e761a0c13
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.org" :lines "3-"
 
 * Annoying prefix argument
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html
 :PUBDATE: <2017-04-20>
-:ID:       40e05400-3258-4570-82cd-dc4663ca42f7
+:ID:       eb43954e-257c-42bd-996e-8ef5a26b9f37
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-04-20-Annoying-prefix-argument.org" :lines "3-"
 
 * Ablative of comparison vs quam
 :PROPERTIES:
 :RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html
 :PUBDATE: <2017-04-20>
-:ID:       4bba9921-04b5-4357-a74d-b085ac747a18
+:ID:       84e7eaae-c859-4f87-95ac-2427e0ad9901
 :END:
+#+include: "/home/matus/documents/blog/posts/2017-04-20-Ablative-of-comparison-vs-quam.org" :lines "3-"

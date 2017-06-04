@@ -14,8 +14,8 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Sun, 04 Jun 2017 15:39:53 +0200</pubDate>
-  <lastBuildDate>Sun, 04 Jun 2017 15:39:53 +0200</lastBuildDate>
+  <pubDate>Sun, 04 Jun 2017 15:43:04 +0200</pubDate>
+  <lastBuildDate>Sun, 04 Jun 2017 15:43:04 +0200</lastBuildDate>
   <generator>Emacs 25.2 Org-mode 9.0.7</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
@@ -31,117 +31,1125 @@
     <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html</guid>
     <pubDate>Thu, 01 Jun 2017 00:00:00 +0200</pubDate>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <description><![CDATA[<p>
+    People who know my rants on Emacs and especially <code>font-lock-mode</code> know that I consider it a rather crappy hack.  Parsing complex context sensitive languages with a bunch of very weak regexes<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> just screams <i>This is a really bad idea!</i>  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets <code>match-data</code> the same way <code>re-search-forward</code> would.
+    </p>
 
-  <item>
-    <title>Generating all groupings of (1|2)* summing up to m</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html</guid>
-    <pubDate>Sun, 28 May 2017 00:00:00 +0200</pubDate>
+    <p>
+    Today I had a problem I thought would finally prove my point about how bad font-lock is and that we should all bike-shed and invent totally awesome <a href="https://eclipse.org/Xtext/">formal parsers</a>... then I went back to the docstring and of course Emacs can actually solve the problem.
+    </p>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <p>
+    The issue is the following:  I'm writing a DSL which looks kind of like Haskell types, but written in sexps.  So where in Haskell one writes
+    </p>
 
-  <item>
-    <title>Fontify done checkbox items in org-mode</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</guid>
-    <pubDate>Thu, 25 May 2017 00:00:00 +0200</pubDate>
+    <div class="org-src-container">
+    <pre class="src src-haskell"><span style="color: #fce94f;">function</span> <span style="color: #fcaf3e;">::</span> <span style="color: #8cc4ff;">Int</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #8cc4ff;">String</span> <span style="color: #fcaf3e;">-&gt;</span> (<span style="color: #8cc4ff;">String</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #8cc4ff;">Int</span>) <span style="color: #fcaf3e;">-&gt;</span> [<span style="color: #8cc4ff;">Float</span>]
+    </pre>
+    </div>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <p>
+    in my DSL it would look something like
+    </p>
 
-  <item>
-    <title>Automatically remove inherited tags from tasks after refiling</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html</guid>
-    <pubDate>Tue, 09 May 2017 00:00:00 +0200</pubDate>
+    <pre class="example">
+    (type function :: int -&gt; string -&gt; (string -&gt; int) -&gt; [float])
+    </pre>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <p>
+    Now, how would I fontify those <code>string</code> and <code>int</code> occurrences <i>only</i> when they occur inside the <code>type</code> form?  Turns out font lock supports <i>Anchored matchers</i>.
+    </p>
 
-  <item>
-    <title>Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html</guid>
-    <pubDate>Sat, 06 May 2017 00:00:00 +0200</pubDate>
+    <p>
+    The anchored matchers works by first searching for an <i>anchor</i> and only then searching for the thing you want to highlight.  This basically allows you to do look-ahead context-sensitive fontification in the sense that the subsequent matchers are <i>tried</i> but if they fail the process continues <b>from where the anchor match ended</b>.<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.
+    </p>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <p>
+    For the longest time I struggled to understand how the font-lock specifications worked because there is so many different ways to write them.  What actually helped me to understand this once and for all was to simply look into the source code and read how it works.  I remembered the recent post by <a href="http://irreal.org/blog/?p=6209">Irreal</a> on reading source code.  It really is an effective way to learn, especially with software like Emacs being absolutely transparent about everything that is going inside.
+    </p>
 
-  <item>
-    <title>WAR STORY: Prevent point jumping around invisible text</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html</guid>
-    <pubDate>Wed, 03 May 2017 00:00:00 +0200</pubDate>
+    <p>
+    A font lock rule starts with a matcher followed by one or more <code>HIGHLIGHT</code> forms.  A <code>HIGHLIGHT</code> form either specifies how to fontify group matched by the matcher or is actually <i>another matcher</i> (this is the anchored matcher).  The highlight forms are tried in order and applied one after another, whatever their type is.
+    </p>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <p>
+    The specification is not completely recursive because it only allows one level of nesting, so an anchored matcher can not have other anchored matchers inside it.  The anchored matcher has the following syntax:
+    </p>
 
-  <item>
-    <title>Support for imenu in dired</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html</guid>
-    <pubDate>Mon, 01 May 2017 00:00:00 +0200</pubDate>
+    <pre class="example">
+    (MATCHER PRE-MATCH-FORM POST-MATCH-FORM MATCH-HIGHLIGHT ...)
+    </pre>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <p>
+    where <code>MATCHER</code> is the search regexp that is tried after the anchor was found, <code>PRE-MATCH-FORM</code> and <code>POST-MATCH-FORM</code> are executed before and after the <code>MATCHER</code> is run so you can set search limits and do other magic if necessary.  <code>MATCH-HIGHLIGHT</code> are the usual forms with the groups and faces.
+    </p>
 
-  <item>
-    <title>Turn on context-aware modes on shell command output</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html</guid>
-    <pubDate>Sat, 29 Apr 2017 00:00:00 +0200</pubDate>
+    <p>
+    The cool and crucial ingredient is is that the <code>MATCHER</code> is run in a cycle until the point goes after the limit.  This means that we in a sense "fontify" the region from the anchor to the limit we provide (or end of line by default).  We can then reset the position in the <code>POST-MATCH-FORM</code> so the next <code>HIGHLIGHT</code> (anchored matcher) will start from the beginning of the same "region" again.  This allows us to define "region specific" font-locking.  So cool!
+    </p>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <p>
+    The final annotated rule looks as follows:
+    </p>
 
-  <item>
-    <title>Save write-protected files with sudo automatically</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html</guid>
-    <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+    <div class="org-src-container">
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span>font-lock-add-keywords
+    nil
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">the first regexp is the anchor of the fontification, meaning the</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">"starting point" of the region</span>
+    '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"(</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e;">type</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;"> +</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">\\sw</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">|</span><span style="color: #e9b96e;">\\s_</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">+</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;"> +::"</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify the `</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' as keyword</span>
+    <span style="color: #888a85;">(</span>1 font-lock-keyword-face<span style="color: #888a85;">)</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify the function name as function</span>
+    <span style="color: #888a85;">(</span>2 font-lock-function-name-face<span style="color: #888a85;">)</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">look for the first symbol after the ::, it is a type</span>
+    <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"\\_&lt;</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">\\sw</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">|</span><span style="color: #e9b96e;">\\s_</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">+</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">\\_&gt;"</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">set the limit of search to the current `</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' form only</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span> <span style="color: #888a85;">(</span>up-list<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">when we found all the types in the region (`</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' form) go</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">back to the `</span><span style="color: #e6a8df;">::</span><span style="color: #73d216;">' marker</span>
+    <span style="color: #888a85;">(</span>re-search-backward <span style="color: #e9b96e;">"::"</span><span style="color: #888a85;">)</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify the matched symbols as types</span>
+    <span style="color: #888a85;">(</span>0 font-lock-type-face<span style="color: #888a85;">))</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">when done with the symbol, look for the arrows</span>
+    <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"-&gt;"</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">we are starting from the `</span><span style="color: #e6a8df;">::</span><span style="color: #73d216;">' again, so set the same limit as</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">for the previous search (the `</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' form)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span> <span style="color: #888a85;">(</span>up-list<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">do not move back when we find a match to ensure forward</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">progress as we are done with the form</span>
+    nil
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify the found arrows as variables (whatever...)</span>
+    <span style="color: #888a85;">(</span>0 font-lock-variable-name-face t<span style="color: #888a85;">)))))</span>
+    </pre>
+    </div>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <p>
+    And the forms are fontified in very much the same way as the Haskell code above (thanks to Emacs's amazing consistency with font-lock faces, another brilliant design decision).
+    </p>
 
-  <item>
-    <title>Archive subtrees under the same hierarchy as original in the archive files</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html</guid>
-    <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+    <div class="org-src-container">
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span>type function <span style="color: #ad7fa8;">::</span> int -&gt; string -&gt; <span style="color: #888a85;">(</span>string -&gt; int<span style="color: #888a85;">)</span> -&gt; [float]<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>type constant <span style="color: #ad7fa8;">::</span> int<span style="color: #888a85;">)</span>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">string</span> <span style="color: #888a85;">(</span>string int<span style="color: #888a85;">)</span>
+    <span style="color: #e9b96e;">"The keywords outside of the type form are *not* fontified!"</span><span style="color: #888a85;">)</span>
+    </pre>
+    </div>
 
-  <item>
-    <title>Annoying prefix argument</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html</guid>
-    <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+    <p>
+    I repeat it here just for completeness:
+    </p>
 
-    <description><![CDATA[]]></description>
-  </item>
+    <div class="org-src-container">
+    <pre class="src src-haskell"><span style="color: #fce94f;">function</span> <span style="color: #fcaf3e;">::</span> <span style="color: #8cc4ff;">Int</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #8cc4ff;">String</span> <span style="color: #fcaf3e;">-&gt;</span> (<span style="color: #8cc4ff;">String</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #8cc4ff;">Int</span>) <span style="color: #fcaf3e;">-&gt;</span> [<span style="color: #8cc4ff;">Float</span>]
+    <span style="color: #fce94f;">constant</span> <span style="color: #fcaf3e;">::</span> <span style="color: #8cc4ff;">Int</span>
+    </pre>
+    </div>
 
-  <item>
-    <title>Ablative of comparison vs quam</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html</guid>
-    <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+    <p>
+    Awesome.
+    </p>
+    ]]></description>
+</item>
 
-    <description><![CDATA[]]></description>
-  </item>
-</channel>
+<item>
+  <title>Generating all groupings of (1|2)* summing up to m</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html</guid>
+  <pubDate>Sun, 28 May 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  In a fun article <a href="https://www.amin.space/blog/2017/5/elemental_speller/">Spelling with Elemental Symbols</a> the author explores how to write a program that would spell out words with the symbols of the periodic table.  So for example the word <i>waste</i> might be spelled as <i>WAsTe</i> (<code>W</code> for <i>wolfram</i>, <code>As</code> for <i>arsenic</i> and <code>Te</code> for <i>tellurium</i>).
+  </p>
+
+  <p>
+  In the beginning their first idea was to generate all the possible splits into 1 and 2 letter groups (we call these strings <i>groupings</i>), then try all these combinations matching against the list of the symbols<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup>.  To generate the splits they would generate all the possible strings of 1 and 2 up to the length \(m\) and then filter out those which don't sum up to \(m\) (the length of the input word).  Little inspection shows that this grows exponentially and really isn't the way to go<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup>.  For \(m\) = 3 this would generate 15 possible strings (including the empty one) but only 3 are actually valid: \((1,1,1)\), \((1,2)\) and \((2,1)\).
+  </p>
+
+  <p>
+  This immediately got me thinking of dynamic programming and induction.  I figured it out in a couple minutes and then worked out a simple proof to show that my algorithm generates all the possible groupings.
+  </p>
+  <div id="outline-container-orgf37a5de" class="outline-3">
+  <h3 id="orgf37a5de"><a id="ID-5a06321a-9ef0-4043-993d-fe9cb7281156"></a>The algorithm</h3>
+  <div class="outline-text-3" id="text-orgf37a5de">
+  <p>
+  How it works is rather simple:
+  </p>
+
+  <ul class="org-ul">
+  <li>If we are generating groupings of strings summing up to 0, return just the empty sequence.</li>
+  <li>If we are generating groupings of strings summing up to 1, return just the sequence <code>(1)</code>.</li>
+  <li>Otherwise return all the sequences created by prepending 1 to all
+  the sequences that sum to \(n-1\) combined all the sequences created by
+  prepending 2 to all the sequences that sum to \(n-2\) (so that the resulting sum is \(n\)).</li>
+  </ul>
+
+  <p>
+  The algorithm's nature was begging for a functional implementation so I naturally wrote it down in Lisp:
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">generate-groupings</span> <span style="color: #888a85;">(</span>n<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cond</span>
+  <span style="color: #888a85;">((</span>= n 0<span style="color: #888a85;">)</span> '<span style="color: #888a85;">(()))</span>
+  <span style="color: #888a85;">((</span>= n 1<span style="color: #888a85;">)</span> '<span style="color: #888a85;">((</span>1<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #ad7fa8;">:else</span>
+  <span style="color: #888a85;">(</span>append
+  <span style="color: #888a85;">(</span>mapcar <span style="color: #888a85;">(</span><span style="color: #b4fa70;">lambda</span> <span style="color: #888a85;">(</span>x<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>cons 1 x<span style="color: #888a85;">))</span> <span style="color: #888a85;">(</span>generate-groupings <span style="color: #888a85;">(</span>- n 1<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>mapcar <span style="color: #888a85;">(</span><span style="color: #b4fa70;">lambda</span> <span style="color: #888a85;">(</span>x<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>cons 2 x<span style="color: #888a85;">))</span> <span style="color: #888a85;">(</span>generate-groupings <span style="color: #888a85;">(</span>- n 2<span style="color: #888a85;">)))))))</span>
+  </pre>
+  </div>
+
+  <p>
+  Here's an equivalent Python version.  Please note I'm not too big into Python :)
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-python"><span style="color: #b4fa70;">def</span> <span style="color: #fce94f;">prepend</span>(x, <span style="color: #ad7fa8;">list</span>):
+  <span style="color: #ad7fa8;">list</span>.insert(0, x)
+  <span style="color: #b4fa70;">return</span> <span style="color: #ad7fa8;">list</span>
+
+
+  <span style="color: #b4fa70;">def</span> <span style="color: #fce94f;">generate_groupings</span>(n):
+  <span style="color: #b4fa70;">if</span> n == 0:
+  <span style="color: #b4fa70;">return</span> [[]]
+  <span style="color: #b4fa70;">elif</span> n == 1:
+  <span style="color: #b4fa70;">return</span> [[1]]
+  <span style="color: #b4fa70;">else</span>:
+  <span style="color: #fcaf3e;">l1</span> = [prepend(1,x) <span style="color: #b4fa70;">for</span> x <span style="color: #b4fa70;">in</span> generate_groupings(n - 1)]
+  <span style="color: #fcaf3e;">l2</span> = [prepend(2,x) <span style="color: #b4fa70;">for</span> x <span style="color: #b4fa70;">in</span> generate_groupings(n - 2)]
+  <span style="color: #b4fa70;">return</span> l1+l2
+  </pre>
+  </div>
+  </div>
+  </div>
+
+  <div id="outline-container-orgf858f72" class="outline-3">
+  <h3 id="orgf858f72"><a id="ID-ae246328-b96a-43d3-ba9d-86eb940b6b13"></a>Proof</h3>
+  <div class="outline-text-3" id="text-orgf858f72">
+  <p>
+  Proof will be carried out by <a href="https://en.wikipedia.org/wiki/Mathematical_induction">induction</a>.  In short, induction works as follows.  You first prove the induction base, which is the base truth from which you will derive all other truths.  In our case this will be the fact that the algorithm works for \(n = 0\) and \(n = 1\).
+  </p>
+
+  <p>
+  Why this is true follows directly from the definition of the first two bullets of the algorithm.  They are just hard-coded enumerations of all the possibilities.
+  </p>
+
+  <p>
+  Now the fun part.  If we prove that the proposition is true for \(n + 1\) while we <i>assume</i> it works for all \(k \leq n\), we proved the proposition for <i>all</i> \(n\).  This is called the induction hypothesis.<sup><a id="fnr.5" class="footref" href="#fn.5">5</a></sup>
+  </p>
+
+  <p>
+  The whole thing works because it allows us to "turtle all the way" down to the basic fact.  For example, to prove something works for \(n = 3\), we first use the basic fact that it works for \(n = 1\), then assuming it works (which it does!) we use the induction hypothesis which grants us that the proposition works for \(n = 2\).  We repeat again to show that the proposition works for \(n = 3\) assuming it works for \(n = 2\) (which it does, we just showed it!).  It is a bit magical so think about it for a bit until it is clear.
+  </p>
+
+  <p>
+  Let's introduce some notation:  I will write \(g(n)\) to mean the set of all the sequences that sum up to \(n\).  When I write \(1:x\) this means take the <i>set</i> \(x\) and to each element of it prepend a 1.  So that \(1:\{(1,1), (2)\}\) = \(\{(1,1,1), (1,2)\}\).  I will use \(+\) to mean the union of two sets.
+  </p>
+
+  <p>
+  Now, for the induction hypothesis we take: \(g(n) = 1:g(n-1) + 2:g(n-2)\).  This just translates the last bullet of the algorithm into a "mathematical" form.
+  </p>
+
+  <p>
+  We are trying to show that \(g(n+1) = 1:g(n) + 2:g(n-1)\) (this is the form of the proposition for \(n+1\)) <i>assuming</i> it works for \(g(n)\).
+  </p>
+
+  <p>
+  The proof is now very straight forward.  Assume we have a string which sums up to \(n+1 >= 2\) (the cases for 0 and 1 were covered in the basic step).  Then the string must start with either 1 or 2.
+  </p>
+
+  <p>
+  If it starts with 1 the rest of it must sum up to \((n + 1) - 1 = n\).  By using the hypothesis we already know that all those strings form the set \(1:g(n-1) + 2:g(n-2)\).  When we prepend 1 to each string of this set we get \(1:1:g(n-1) + 1:2:g(n-2)\) which really is the same as \(1:(1:g(n-1) + 2:g(n-2))\) = \(1:g(n)\).  We use the fact that it does not matter if we first prepend and than take the union or first take the union and then prepend (mathematicians say that "the prepending commutes with the union").
+  </p>
+
+  <p>
+  Similarly if it starts with 2 the rest of it must sum up to \((n + 1) - 2 = n - 1\) which forms the the set \(1:g(n-2) + 2:g(n-3)\).  Prepending 2 in front gives us \(2:1:g(n-2) + 2:2:g(n-3)\) = \(2:(1:g(n-2) + 2:g(n-3))\) = \(2:g(n-1)\).
+  </p>
+
+  <p>
+  By taking the union of these two (and only!) options we get \(1:g(n) + 2:g(n-1)\) which is the desired result.
+  </p>
+
+  <p>
+  If you have any questions leave me a <a href="https://github.com/Fuco1/Fuco1.github.io/issues">comment</a>!
+  </p>
+  </div>
+  </div>
+  ]]></description>
+</item>
+
+<item>
+  <title>Fontify done checkbox items in org-mode</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</guid>
+  <pubDate>Thu, 25 May 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  My computer crashed over the weekend and during the re-installation I started migrating my install scripts to puppet (I had roughly 60% covered by puppet prior to that already), so I made a check list in org with all the things to not forget to include.  The list grew quite large and hard to process visually.
+  </p>
+
+  <p>
+  There is a somewhat nice feature of org mode which you can turn on using <code>org-fontify-done-headline</code> flag; if set to <code>t</code>, <code>DONE</code> headlines will be highlighted in <code>org-headline-done</code> face.  I let this face inherit from <code>shadow</code> which effectively removes these lines from my attention.
+  </p>
+
+  <p>
+  So to solve my problem naturally I would like to extend this behaviour to checkbox lists.  I don't always do them in sequence and so the gradual change from "normal" to "hidden" lines nicely illustrates the progress and makes the todo items stand out.
+  </p>
+
+  <p>
+  Just throw the following somewhere and reload the org buffers (close and reopen or toggle <code>fundamental-mode</code> then <code>org-mode</code> again).
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span>font-lock-add-keywords
+  <span style="color: #e6a8df;">'org-mode</span>
+  `<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"^[ \t]*</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">[-+*]</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">|</span><span style="color: #e9b96e;">[0-9]+[).]</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">[ \t]+</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">\\[@</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">start:</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">?[0-9]+\\][ \t]*</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">?\\[</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">X</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">|</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e;">[0-9]+</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">/\\2</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">\\][</span><span style="color: #ff4b4b;">^</span><span style="color: #e9b96e;">\n]*\n</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">"</span> 1 <span style="color: #e6a8df;">'org-headline-done</span> prepend<span style="color: #888a85;">))</span>
+  <span style="color: #e6a8df;">'append</span><span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  Here's how it looks (list shortened for clarity):
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-org"><span style="color: #2e3436;">**</span><span style="color: #b4fa70;">* </span><span style="color: #ff6a6a; font-weight: bold;">TODO</span><span style="color: #b4fa70;"> Puppet</span>
+  <span style="color: #b4fa70;">    :CLOCK:</span>
+  <span style="color: #b4fa70;">CLOCK:</span> <span style="color: #8cc4ff;">[2017-05-21 Sun 18:00]--[2017-05-21 Sun 21:55]</span> =&gt;  3:55
+  <span style="color: #b4fa70;">    :END:</span>
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> cli ::</span> Add youtube-dl
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> org ::</span> Add plantuml.jar
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> emacs ::</span><span style="color: #888a85;"> Add Cask</span>
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> haskell ::</span> Add Cabal sandbox support and build everything in sandboxes
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> php ::</span> Add Composer
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> emacs ::</span> Add EVM
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> ruby ::</span> Add RVM
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> node ::</span> Add NVM
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> node ::</span> Add NPM
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> linux ::</span><span style="color: #888a85;"> Add Wine + Winetricks</span>
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> latin ::</span> Add whitakers-words
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> puppet ::</span> Add support to install "docker" apps
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> setup ::</span><span style="color: #888a85;"> Ensure download-local directory</span>
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> prog ::</span> Install global (6.5 at least)
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> linux ::</span> Install pasystray (git)
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> prog ::</span> Install ag (0.31.0+)
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> cli ::</span><span style="color: #888a85;"> Install tmux (2.0+)</span>
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> linux ::</span> Install twmn
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> desktop ::</span><span style="color: #888a85;"> Install slack (from .deb)</span>
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> cli ::</span> Install fisher
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85;"> cli ::Install ledger (from package + elisp mode from source?)</span>
+  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> mail ::</span> Install isync
+  </pre>
+  </div>
+
+  <p>
+  (Also note that the above is <i>not</i> a screenshot, it is an embedded <code>org-mode</code> snippet in <code>org-mode</code>'s <code>#+BEG_SRC</code> block.  Inception.)
+  </p>
+
+  <p>
+  I stole the regexp from <a href="https://github.com/hlissner/.emacs.d/blob/master/modules/lang/org/config.el">hlissner's emacs.d</a> who apparently came to the same conclusion.  It's a rather nice collection of stuff so check it out, but be warned, it is <i>super</i> idiosyncratic... which in Emacs translation basically means awesome :)
+  </p>
+  ]]></description>
+</item>
+
+<item>
+  <title>Automatically remove inherited tags from tasks after refiling</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html</guid>
+  <pubDate>Tue, 09 May 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  I have a pretty standard <code>org-capture</code> workflow: during the day when an idea comes to mind or I stumble upon a task I can't solve right now or I find an article I would want to read later I use one of the several <a href="https://github.com/Fuco1/.emacs.d/blob/master/files/org-defs.el#L1142">capture templates I set up</a> to quickly file a note and continue with minimal distraction with what I was doing at the time.
+  </p>
+  ]]></description>
+</item>
+
+<item>
+  <title>Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html</guid>
+  <pubDate>Sat, 06 May 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  Two very useful commands are <code>beginning-of-buffer</code> (by default on <code>M-&lt;</code>) and <code>end-of-buffer</code> (<code>M-&gt;</code>).  They do exactly what they advertise: move the point (= jump) to the beginning or end of current buffer.
+  </p>
+
+  <p>
+  This works fine in buffers with text like buffers holding code (<code>emacs-lisp-mode</code>, <code>c-mode</code>...) or text (<code>org-mode</code>, <code>markdown-mode</code>...) because it does exactly what you want.
+  </p>
+
+  <p>
+  One of the beautiful and most clever things in Emacs design to me is that <b>every</b> buffer is just text.  What this means is you can use all the multitude of functions that work on text to also navigate forms, special listings, tables et cetera.  Indeed, the most infuriating feeling when I use something which isn't Emacs, e.g. a GUI program with a table in it, is the inability to just search the contents of the UI: there either is a special search for each control or you simply can't do it at all.  Very annoying.
+  </p>
+
+  <p>
+  However, back in Emacs not everything is perfect :).  When you are in special buffers like <code>dired</code>, <code>vc-dir</code> or <code>occur</code> it makes little sense for <code>beginning-of-buffer</code> to jump to the <i>actual</i> beginning.  What you want 99% of the time is to go to the first logical entry, be it the first file or the first result of search.
+  </p>
+
+  <p>
+  Well, nothing is simpler than to just write a macro that would generate these "better" navigation functions and remap the default functions to the new variants, right?
+  </p>
+
+  <p>
+  The following two macros do just that.  Basically, they wrap the <code>beginning-of-buffer</code> functionality by first going to the real beginning and then invoke provided forms to move the point to the logical beginning.  Almost every special mode provides some sort of <code>...-next-line</code> or <code>...-next-item</code> function you can use to move from the beginning to the first logical item.
+  </p>
+
+  <p>
+  One clever additional functionality is that if the point already is at the logical beginning and you invoke the function again it will actually jump to the real beginning.  Similarly it works for <code>end-of-buffer</code>.  This adds a little bit of <i>dwim</i> flavoring to the commands.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defmacro</span> <span style="color: #fce94f;">my-special-beginning-of-buffer</span> <span style="color: #888a85;">(</span>mode <span style="color: #8cc4ff;">&amp;rest</span> forms<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Define a special version of `</span><span style="color: #e6a8df;">beginning-of-buffer</span><span style="color: #e9b96e;">' in MODE.</span>
+
+  <span style="color: #e9b96e;">The special function is defined such that the point first moves</span>
+  <span style="color: #e9b96e;">to `</span><span style="color: #e6a8df;">point-min</span><span style="color: #e9b96e;">' and then FORMS are evaluated.  If the point did</span>
+  <span style="color: #e9b96e;">not change because of the evaluation of FORMS, jump</span>
+  <span style="color: #e9b96e;">unconditionally to `</span><span style="color: #e6a8df;">point-min</span><span style="color: #e9b96e;">'.  This way repeated invocations</span>
+  <span style="color: #e9b96e;">toggle between real beginning and logical beginning of the</span>
+  <span style="color: #e9b96e;">buffer."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">declare</span> <span style="color: #888a85;">(</span>indent 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>fname <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #e9b96e;">"my-"</span> <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-beginning-of-buffer"</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>mode-map <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-mode-map"</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>mode-hook <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-mode-hook"</span><span style="color: #888a85;">))))</span>
+  `<span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> ,fname <span style="color: #888a85;">()</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>p <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+  ,@forms
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>= p <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">)))))</span>
+  <span style="color: #888a85;">(</span>add-hook ',mode-hook
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">lambda</span> <span style="color: #888a85;">()</span>
+  <span style="color: #888a85;">(</span>define-key ,mode-map
+  [remap beginning-of-buffer] ',fname<span style="color: #888a85;">))))))</span>
+  </pre>
+  </div>
+
+  <p>
+  And a corresponding version for <code>end-of-buffer</code>.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defmacro</span> <span style="color: #fce94f;">my-special-end-of-buffer</span> <span style="color: #888a85;">(</span>mode <span style="color: #8cc4ff;">&amp;rest</span> forms<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Define a special version of `</span><span style="color: #e6a8df;">end-of-buffer</span><span style="color: #e9b96e;">' in MODE.</span>
+
+  <span style="color: #e9b96e;">The special function is defined such that the point first moves</span>
+  <span style="color: #e9b96e;">to `</span><span style="color: #e6a8df;">point-max</span><span style="color: #e9b96e;">' and then FORMS are evaluated.  If the point did</span>
+  <span style="color: #e9b96e;">not change because of the evaluation of FORMS, jump</span>
+  <span style="color: #e9b96e;">unconditionally to `</span><span style="color: #e6a8df;">point-max</span><span style="color: #e9b96e;">'.  This way repeated invocations</span>
+  <span style="color: #e9b96e;">toggle between real end and logical end of the buffer."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">declare</span> <span style="color: #888a85;">(</span>indent 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>fname <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #e9b96e;">"my-"</span> <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-end-of-buffer"</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>mode-map <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-mode-map"</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>mode-hook <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-mode-hook"</span><span style="color: #888a85;">))))</span>
+  `<span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> ,fname <span style="color: #888a85;">()</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>p <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-max<span style="color: #888a85;">))</span>
+  ,@forms
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>= p <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-max<span style="color: #888a85;">)))))</span>
+  <span style="color: #888a85;">(</span>add-hook ',mode-hook
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">lambda</span> <span style="color: #888a85;">()</span>
+  <span style="color: #888a85;">(</span>define-key ,mode-map
+  [remap end-of-buffer] ',fname<span style="color: #888a85;">))))))</span>
+  </pre>
+  </div>
+
+  <p>
+  The key remapping works by remapping the <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Remapping-Commands.html">command</a>;  this is an amazing Emacs feature many people aren't aware of.  What this means in short is that you do not bind a key to the command but rather remap a command to another command.  That is, whatever key you bound to <code>beginning-of-buffer</code> will now instead invoke the special function generated above.  When you remap <code>beginning-of-buffer</code> somewhere globally all the special functions will "automagically" remap as well.
+  </p>
+
+  <p>
+  The macros rely on the Emacs convention where the mode name ends in <code>-mode</code> and the map ends in <code>-mode-map</code>, so far it worked everywhere (but it wouldn't be difficult to change the macro to accept those as arguments---left as an exercise to the reader).
+  </p>
+
+  <p>
+  What follows is all the "overloads" I use in my config, you can use these as an inspiration to add your own.  I'm thinking of how to package this code and provide some simple interface for people to enable these in their configs and contribute more for various other special buffers.  If you want to help out with the packaging leave me a <a href="https://github.com/Fuco1/.emacs.d/issues/new">message</a>.
+  </p>
+  <div id="outline-container-org3541861" class="outline-3">
+  <h3 id="org3541861"><a id="ID-9ee58bb4-474b-4ecc-8852-b22c2fe1a0f0"></a>Dired (<code>M-x dired</code>)</h3>
+  <div class="outline-text-3" id="text-org3541861">
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> dired
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span><span style="color: #b4fa70;">ignore-errors</span> <span style="color: #888a85;">(</span>dired-get-filename<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>dired-next-line 1<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> dired
+  <span style="color: #888a85;">(</span>dired-previous-line 1<span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+  </div>
+  </div>
+
+  <div id="outline-container-org3aaf9a9" class="outline-3">
+  <h3 id="org3aaf9a9"><a id="ID-10588841-6bae-42e2-970a-d5b3ad0afc23"></a>Occur (<code>M-x occur</code>)</h3>
+  <div class="outline-text-3" id="text-org3aaf9a9">
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> occur
+  <span style="color: #888a85;">(</span>occur-next 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> occur
+  <span style="color: #888a85;">(</span>occur-prev 1<span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+  </div>
+  </div>
+
+  <div id="outline-container-orge77fde9" class="outline-3">
+  <h3 id="orge77fde9"><a id="ID-dcf6d9c2-12a9-4bb0-96d0-631ce4d3567b"></a>Ibuffer (<code>M-x ibuffer</code>)</h3>
+  <div class="outline-text-3" id="text-orge77fde9">
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> ibuffer
+  <span style="color: #888a85;">(</span>ibuffer-forward-line 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> ibuffer
+  <span style="color: #888a85;">(</span>ibuffer-backward-line 1<span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+  </div>
+  </div>
+
+  <div id="outline-container-org2179608" class="outline-3">
+  <h3 id="org2179608"><a id="ID-ad4592b5-85bb-43cb-a5a5-896de227a249"></a>vc directory view (<code>M-x vc-dir</code> or <code>C-x v d</code>)</h3>
+  <div class="outline-text-3" id="text-org2179608">
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> vc-dir
+  <span style="color: #888a85;">(</span>vc-dir-next-line 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> vc-dir
+  <span style="color: #888a85;">(</span>vc-dir-previous-line 1<span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+  </div>
+  </div>
+
+  <div id="outline-container-orge922c24" class="outline-3">
+  <h3 id="orge922c24"><a id="ID-72ecb66e-e91d-4f48-829b-529306ca7bd8"></a>bs (<code>M-x bs-show</code>)</h3>
+  <div class="outline-text-3" id="text-orge922c24">
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> bs
+  <span style="color: #888a85;">(</span>bs-down 2<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> bs
+  <span style="color: #888a85;">(</span>bs-up 1<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>bs-down 1<span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+  </div>
+  </div>
+
+  <div id="outline-container-org9390a8d" class="outline-3">
+  <h3 id="org9390a8d"><a id="ID-a51bab0c-96dd-45b0-8ca1-d6929695a450"></a>Recentf (<code>M-x recentf-open-files</code>)</h3>
+  <div class="outline-text-3" id="text-org9390a8d">
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> recentf-dialog
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>re-search-forward <span style="color: #e9b96e;">"^  \\["</span> nil t<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>match-beginning 0<span style="color: #888a85;">))))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> recentf-dialog
+  <span style="color: #888a85;">(</span>re-search-backward <span style="color: #e9b96e;">"^  \\["</span> nil t<span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+  </div>
+  </div>
+
+  <div id="outline-container-org0f4dd64" class="outline-3">
+  <h3 id="org0f4dd64"><a id="ID-2f2d59c7-03ab-4039-8a4d-2bcaba6b3c47"></a>Org Agenda (<code>M-x org-agenda</code>)</h3>
+  <div class="outline-text-3" id="text-org0f4dd64">
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> org-agenda
+  <span style="color: #888a85;">(</span>org-agenda-next-item 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> org-agenda
+  <span style="color: #888a85;">(</span>org-agenda-previous-item 1<span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+  </div>
+  </div>
+
+  <div id="outline-container-org36d8cb9" class="outline-3">
+  <h3 id="org36d8cb9"><a id="ID-0876ce6c-1522-4736-9948-6fbff93a65b5"></a>ag (from <code>ag.el</code> package, <code>M-x ag</code>)</h3>
+  <div class="outline-text-3" id="text-org36d8cb9">
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> ag
+  <span style="color: #888a85;">(</span>compilation-next-error 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> ag
+  <span style="color: #888a85;">(</span>compilation-previous-error 1<span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+  </div>
+  </div>
+
+  <div id="outline-container-orgaef45de" class="outline-3">
+  <h3 id="orgaef45de"><a id="ID-cb9b9501-47bf-411b-b2bd-aabc286ca411"></a>Notmuch (from <code>notmuch</code> package, <code>M-x notmuch-search</code>)</h3>
+  <div class="outline-text-3" id="text-orgaef45de">
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> notmuch-search
+  <span style="color: #888a85;">(</span>notmuch-search-first-thread<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>beginning-of-line<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> notmuch-search
+  <span style="color: #888a85;">(</span>notmuch-search-last-thread<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>end-of-line<span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+  </div>
+  </div>
+
+  <div id="outline-container-org4bb2f57" class="outline-3">
+  <h3 id="org4bb2f57"><a id="ID-890bb9aa-8aa9-4d14-a367-d770ef9a0769"></a>Elfeed (from <code>elfeed</code> package, <code>M-x elfeed</code>)</h3>
+  <div class="outline-text-3" id="text-org4bb2f57">
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> elfeed-search
+  <span style="color: #888a85;">(</span>forward-line -2<span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+  </div>
+  </div>
+  ]]></description>
+</item>
+
+<item>
+  <title>WAR STORY: Prevent point jumping around invisible text</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html</guid>
+  <pubDate>Wed, 03 May 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  When I use <code>org-mode</code> I like to keep the markup syntax hidden so it doesn't get in the way visually.  You can do this by setting <code>org-hide-emphasis-markers</code> to <code>t</code>.  The way this works is rather simple: font-lock will add <code>'invisible</code> property on the markers and adjust the value of <code>buffer-invisibility-spec</code> so that the markers stay hidden.
+  </p>
+
+  <p>
+  This caused an amazingly annoying side-effect to appear.  When I entered text such as (point being at <code>|</code>):
+  </p>
+
+  <pre class="example">
+  This is some text with =verbatim|=
+  </pre>
+
+  <p>
+  I would not see the equals signs (as requested) and the point would be at the end of the line, visually at least.  But to "escape" the markup you would have to <code>C-e</code> to the <i>actual</i> end of line to get past the equals sign to continue with regular text.
+  </p>
+
+  <p>
+  I use a custom function <a href="https://github.com/Fuco1/.emacs.d/blob/master/site-lisp/my-defuns-edit.el">my-end-of-code-or-line</a> that cycles between various "points of interest" like end of code (do not jump into line-ending comment), end of line, end of table cell and so on.
+  </p>
+
+  <p>
+  But every time I invoked this function in the above situation the point moved to the beginning of <i>next line</i>.  It took me about 30 minutes to figure out the culprit.  It happens because runs of invisible texts are "conveniently" skipped over and some redisplay routine then adjust the point such that it is not in the middle of such a sequence.  Apparently being before the newline counts as being inside the sequence.  What was even weirder was that it happend also with other seemingly unrelated commands like <code>save-buffer</code> (this was one major WTF moment!).
+  </p>
+
+  <p>
+  There is of course a solution, but damn is it ugly.  I found somewhere that variable <code>disable-point-adjustment</code> is responsible for this (I was actually reading C sources at that point).  I tried all sorts of things like binding it dynamically with <code>let</code>, setting it before the function in <code>pre-command-hook</code>, everything to no avail.
+  </p>
+
+  <p>
+  The way you are supposed to do this is rather unobvious: set the value of the variable <code>disable-point-adjustment</code> to <code>t</code> at <b>the very end of your command</b>.  Then some hook or redisplay routine reads it and disables itself.  By the time next command is run, Emacs <b>resets</b> its value to <code>nil</code> automatically.
+  </p>
+
+  <p>
+  This is mighty surprising behaviour because most of these flag-variables like <code>inhibit-read-only</code> or <code>case-fold-search</code> are bound with <code>let</code> and so that is the first go-to choice for any seasoned Emacs user.
+  </p>
+
+  <p>
+  Well, you always learn something new :)  Auctex, Org and isearch also use (or used) this in some of their commands if you want to get more inspiration.
+  </p>
+  ]]></description>
+</item>
+
+<item>
+  <title>Support for imenu in dired</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html</guid>
+  <pubDate>Mon, 01 May 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  <code>imenu</code> is a very simple package that builds index of <i>interesting</i> positions in the current buffer and presents them as a menu.  You pick the item and the point moves there.  There is a built-in interface and also one in <a href="https://github.com/Fuco1/sallet">sallet</a>, <a href="https://github.com/emacs-helm/helm">helm</a> or <a href="https://github.com/abo-abo/swiper">counsel</a>.
+  </p>
+
+  <p>
+  Unfortunatelly <code>dired</code> doesn't come with support for it, so here I add some definitions to generate the index of all the inserted directories.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-dired-imenu-prev-index-position</span> <span style="color: #888a85;">(</span><span style="color: #8cc4ff;">&amp;optional</span> arg<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Go to the header line of previous directory."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span> <span style="color: #e9b96e;">"p"</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unless</span> <span style="color: #888a85;">(</span>= <span style="color: #888a85;">(</span>line-number-at-pos<span style="color: #888a85;">)</span> 1<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'dired-prev-subdir</span><span style="color: #888a85;">)</span>
+  t<span style="color: #888a85;">))</span>
+
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-dired-extract-index-name</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Extract name of the current item for imenu."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
+  <span style="color: #888a85;">(</span>back-to-indentation<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>buffer-substring-no-properties
+  <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>1- <span style="color: #888a85;">(</span>re-search-forward <span style="color: #e9b96e;">":$"</span><span style="color: #888a85;">)))))</span>
+
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-dired-imenu-create-index</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Create `</span><span style="color: #e6a8df;">imenu</span><span style="color: #e9b96e;">' index for dired."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>alist <span style="color: #888a85;">(</span>imenu-default-create-index-function<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>uniquified <span style="color: #888a85;">(</span>f-uniquify-alist <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-map</span> <span style="color: #e6a8df;">'car</span> alist<span style="color: #888a85;">))))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">--remove</span>
+  <span style="color: #888a85;">(</span>= 0 <span style="color: #888a85;">(</span>length <span style="color: #888a85;">(</span>car <span style="color: #fcaf3e;">it</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">--map</span> <span style="color: #888a85;">(</span>cons <span style="color: #888a85;">(</span>cdr <span style="color: #888a85;">(</span>assoc <span style="color: #888a85;">(</span>car <span style="color: #fcaf3e;">it</span><span style="color: #888a85;">)</span> uniquified<span style="color: #888a85;">))</span> <span style="color: #888a85;">(</span>cdr <span style="color: #fcaf3e;">it</span><span style="color: #888a85;">))</span>
+  alist<span style="color: #888a85;">))))</span>
+
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-dired-imenu-init</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Initialize `</span><span style="color: #e6a8df;">imenu</span><span style="color: #e9b96e;">' variables in current buffer."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq-local</span> imenu-prev-index-position-function
+  <span style="color: #e6a8df;">'my-dired-imenu-prev-index-position</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq-local</span> imenu-extract-index-name-function
+  <span style="color: #e6a8df;">'my-dired-extract-index-name</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq-local</span> imenu-create-index-function
+  <span style="color: #e6a8df;">'my-dired-imenu-create-index</span><span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+
+  <p>
+  To use this just add <code>my-dired-imenu-init</code> to <code>dired-mode-hook</code>.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'dired-mode-hook</span> <span style="color: #e6a8df;">'my-dired-imenu-init</span><span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  The code depends on <code>f</code> and <code>dash</code>.
+  </p>
+  ]]></description>
+</item>
+
+<item>
+  <title>Turn on context-aware modes on shell command output</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html</guid>
+  <pubDate>Sat, 29 Apr 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  These days I work with PHP quite a lot; and especially with PHP calling REST APIs.  I have written a little snippet to execute current buffer using <code>async-shell-command</code>  and usually run small helper functions or little prototype scripts directly from Emacs as I develop them.
+  </p>
+
+  <p>
+  The return values (really the process output) is JSON most of the time.  So why not have the output buffer in <code>json-mode</code> when appropriate?
+  </p>
+
+  <p>
+  First, let's write a little helper function to guess the appropriate major mode for a buffer.  I only have the JSON logic<sup><a id="fnr.6" class="footref" href="#fn.6">6</a></sup> there but you can of course add more "handlers" to check for XML or TAP output and so on.  <a href="https://github.com/Fuco1/.emacs.d/issues/new">Let me know</a> if you create something awesome!
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp" id="org02fb750"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-shell-guess-major-mode</span> <span style="color: #888a85;">(</span>buffer<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Guess major mode for the content of BUFFER."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-current-buffer</span> buffer
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">ignore-errors</span> <span style="color: #888a85;">(</span>json-read<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>json-mode<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>json-mode-beautify<span style="color: #888a85;">))))</span>
+  </pre>
+  </div>
+
+  <p>
+  The little difficulty here is that the process runs asynchronously so I have to hook into the sentinel to know when things are finished.  I do that with the next advice.  If the process finished, try to parse the buffer and if it contains valid JSON turn on <code>json-mode</code> and beautify the content for easier reading.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp" id="orgbfe0b1f"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">shell-command-sentinel</span> <span style="color: #888a85;">(</span>after enable-better-mode activate<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>memq <span style="color: #888a85;">(</span>process-status <span style="color: #888a85;">(</span>ad-get-arg 0<span style="color: #888a85;">))</span> '<span style="color: #888a85;">(</span>exit signal<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>my-shell-guess-major-mode <span style="color: #888a85;">(</span>process-buffer <span style="color: #888a85;">(</span>ad-get-arg 0<span style="color: #888a85;">)))))</span>
+  </pre>
+  </div>
+
+  <p>
+  Similarly, we advice the synchronous version <code>shell-command</code>.  This function returns the exit status if it runs synchronous command or <code>comint-output-filter</code> if it was used to start an asynchronous command.  We can decide on that and either run the guess routine or leave it to the sentinel above.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp" id="orgf78029a"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">shell-command</span> <span style="color: #888a85;">(</span>after enable-better-mode activate<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unless</span> <span style="color: #888a85;">(</span>eq ad-return-value <span style="color: #e6a8df;">'comint-output-filter</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">(</span>buffer <span style="color: #888a85;">(</span>get-buffer <span style="color: #e9b96e;">"*Shell Command Output*"</span><span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>my-shell-guess-major-mode buffer<span style="color: #888a85;">))))</span>
+  </pre>
+  </div>
+  ]]></description>
+</item>
+
+<item>
+  <title>Save write-protected files with sudo automatically</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html</guid>
+  <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  It probably doesn't happen very often but sometimes you have to edit some root-owned configuration or files owned by other users (such as webservers).  For those times, TRAMP is invaluable as it allows you to open files via <code>sudo</code> directly in Emacs.
+  </p>
+
+  <p>
+  The problem, of course, is that you open the file in read-only mode as <i>you</i> and only then realize that you don't have write access.  One solution is to invoke <code>C-x C-f</code> and just append <code>/sudo::</code> in front of the filename, but then... why do it yourself if Emacs can help!
+  </p>
+
+  <p>
+  When you open a file you can't write to Emacs is helpful enough and loads it in <code>read-only-mode</code>.  Because you really want to edit the file, you disable the <code>read-only-mode</code> with <code>C-x C-q</code> and happily make your changes.  When you hit save, however, Emacs will complain the file is write-protected and asks you if you are sure you want to do that.  This is good as it prevents you from destroying the content by accident.
+  </p>
+
+  <p>
+  Normally, nothing would happen as you still don't have the permissions to change the file so the operation fails with <code>operation not permitted</code> error.
+  </p>
+
+  <p>
+  Here is where the advice comes handy.  It catches the error and tries to save the file with <code>sudo</code> TRAMP method.  After the file is saved, it is reverted back to "non-sudo" version so every one of your further edits would still require confirmation.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">basic-save-buffer-2</span> <span style="color: #888a85;">(</span>around fix-unwritable-save-with-sudo activate<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"When we save a buffer which is write-protected, try to sudo-save it.</span>
+
+  <span style="color: #e9b96e;">When the buffer is write-protected it is usually opened in</span>
+  <span style="color: #e9b96e;">read-only mode.  Use \\[</span><span style="color: #e6a8df;">read-only-mode</span><span style="color: #e9b96e;">] to toggle</span>
+  <span style="color: #e9b96e;">`</span><span style="color: #e6a8df;">read-only-mode</span><span style="color: #e9b96e;">', make your changes and \\[</span><span style="color: #e6a8df;">save-buffer</span><span style="color: #e9b96e;">] to save.</span>
+  <span style="color: #e9b96e;">Emacs will warn you that the buffer is write-protected and asks</span>
+  <span style="color: #e9b96e;">you to confirm if you really want to save.  If you answer yes,</span>
+  <span style="color: #e9b96e;">Emacs will use sudo tramp method to save the file and then</span>
+  <span style="color: #e9b96e;">reverts it, making it read-only again.  The buffer stays</span>
+  <span style="color: #e9b96e;">associated with the original non-sudo filename."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">condition-case</span> err
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
+  ad-do-it<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>file-error
+  <span style="color: #888a85;">(</span>when <span style="color: #888a85;">(</span>string-prefix-p
+  <span style="color: #e9b96e;">"Doing chmod: operation not permitted"</span>
+  <span style="color: #888a85;">(</span>error-message-string err<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>old-buffer-file-name buffer-file-name<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>success nil<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unwind-protect</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> buffer-file-name <span style="color: #888a85;">(</span>concat <span style="color: #e9b96e;">"/sudo::"</span> buffer-file-name<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>save-buffer<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> success t<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> buffer-file-name old-buffer-file-name<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> success
+  <span style="color: #888a85;">(</span>revert-buffer t t<span style="color: #888a85;">))))))))</span>
+  </pre>
+  </div>
+
+  <p>
+  This code doesn't work on remote hosts, so when you TRAMP over <code>ssh</code> you wouldn't be able to <code>sudo</code>-edit a remote file.  If someone's interested I'll be happy to recieve a patch (or I will fix it when I will have the need).  The code sits <a href="https://github.com/Fuco1/.emacs.d/blob/master/site-lisp/my-advices.el#L46">here</a> so feel free to open a <a href="https://github.com/Fuco1/.emacs.d/compare">pull request</a>.
+  </p>
+  ]]></description>
+</item>
+
+<item>
+  <title>Archive subtrees under the same hierarchy as original in the archive files</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html</guid>
+  <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  The way archiving works in <code>org-mode</code> always annoyed me.  Specifically the fact that the tree structure gets flattened when you archive your tasks.  Sure, there is the property <code>ARCHIVE_OLPATH</code> but it is not as visual as having the tasks in trees.  Plus it makes things like clock reports very difficult.
+  </p>
+
+  <p>
+  If your tree equals a project, clockreport with <code>C-c C-x C-r</code> will sum
+  the times properly... well not anymore with flattened structure.  This works so long as you archive the entire project at once, but I often have projects so huge (e.g. <i>Emacs Configuration</i>) that I archive subtress or parts or just single tasks on a regular basis, with the base project being practically never-ending.
+  </p>
+
+  <p>
+  Well, no more, I said, and wrote this handy advice that uses the aforementioned property to reconstruct the tree in the archive file.  If the parent headings don't exist they are created on-demand.  There is one caveat: if you have non-unique headings, this can sometimes file things under wrong tree; the search is done from top to bottom following the hierarchy.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">org-archive-subtree</span> <span style="color: #888a85;">(</span>around fix-hierarchy activate<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>fix-archive-p <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>not current-prefix-arg<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span>use-region-p<span style="color: #888a85;">))))</span>
+  <span style="color: #888a85;">(</span>afile <span style="color: #888a85;">(</span>org-extract-archive-file <span style="color: #888a85;">(</span>org-get-local-archive-location<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>buffer <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> <span style="color: #888a85;">(</span>find-buffer-visiting afile<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>find-file-noselect afile<span style="color: #888a85;">))))</span>
+  ad-do-it
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> fix-archive-p
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-current-buffer</span> buffer
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-max<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>org-up-heading-safe<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>olpath <span style="color: #888a85;">(</span>org-entry-get <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"ARCHIVE_OLPATH"</span><span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>path <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> olpath <span style="color: #888a85;">(</span>split-string olpath <span style="color: #e9b96e;">"/"</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>level 1<span style="color: #888a85;">)</span>
+  tree-text<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> olpath
+  <span style="color: #888a85;">(</span>org-mark-subtree<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> tree-text <span style="color: #888a85;">(</span>buffer-substring <span style="color: #888a85;">(</span>region-beginning<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>region-end<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">(</span>this-command<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>org-cut-subtree<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-restriction</span>
+  <span style="color: #888a85;">(</span>widen<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-each</span> path
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">lambda</span> <span style="color: #888a85;">(</span>heading<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">if</span> <span style="color: #888a85;">(</span>re-search-forward
+  <span style="color: #888a85;">(</span>rx-to-string
+  `<span style="color: #888a85;">(</span>: bol <span style="color: #888a85;">(</span>repeat ,level <span style="color: #e9b96e;">"*"</span><span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>1+ <span style="color: #e9b96e;">" "</span><span style="color: #888a85;">)</span> ,heading<span style="color: #888a85;">))</span> nil t<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-narrow-to-subtree<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-max<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unless</span> <span style="color: #888a85;">(</span>looking-at <span style="color: #e9b96e;">"^"</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>insert <span style="color: #e9b96e;">"\n"</span><span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>insert <span style="color: #888a85;">(</span>make-string level ?*<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">" "</span>
+  heading
+  <span style="color: #e9b96e;">"\n"</span><span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-incf</span> level<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>widen<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-end-of-subtree t t<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-paste-subtree level tree-text<span style="color: #888a85;">))))))))</span>
+  </pre>
+  </div>
+
+  <p>
+  The code uses the old advice system because I like it better (it reads much better, even if it isn't so powerful), plus I still use Emacs 24.  If you test this on new versions and find out it doesn't work, open an <a href="https://github.com/Fuco1/.emacs.d/issues/new">issue</a> or a <a href="https://github.com/Fuco1/.emacs.d/compare">pull request</a>.  It also depends on <a href="https://github.com/magnars/dash.el">dash.el</a> so make sure you have that installed.
+  </p>
+  ]]></description>
+</item>
+
+<item>
+  <title>Annoying prefix argument</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html</guid>
+  <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<div id="outline-container-orgde5c388" class="outline-3">
+  <h3 id="orgde5c388"><a id="ID-5fffafa3-4eaf-4eb9-ac20-0609b93e5435"></a>Problem</h3>
+  <div class="outline-text-3" id="text-orgde5c388">
+  <p>
+  A prefix argument changes the behaviour of a command in a way which forms a useful stand-alone command.  We don't want to supply the command with the prefix argument all the time.
+  </p>
+  </div>
+  </div>
+
+  <div id="outline-container-org4a29b90" class="outline-3">
+  <h3 id="org4a29b90"><a id="ID-f19f57e2-8e9d-4856-9c18-60336972583e"></a>Solution</h3>
+  <div class="outline-text-3" id="text-org4a29b90">
+  <p>
+  Write an interactive wrapper and pre-fill the arguments
+  </p>
+  </div>
+  </div>
+
+  <div id="outline-container-org321373c" class="outline-3">
+  <h3 id="org321373c"><a id="ID-ced49dca-c96b-4663-b4a5-0ba525a35332"></a>Motivation</h3>
+  <div class="outline-text-3" id="text-org321373c">
+  <p>
+  It is awkward and annoying to constantly use prefix-arguments for commonly used operations.  Emacs has a rich history of commands using prefix arguments to subtly (or not so subtly) modify the behaviour of the base command.  If you often use a specialized variant you can save yourself a lot of pain by simply building a specialized solution.  It is not uncommon to see two prefix arguments (<kbd>C-u C-u</kbd>), but I've seen four and even five once or twice.
+  </p>
+  </div>
+  </div>
+
+  <div id="outline-container-org506bde3" class="outline-3">
+  <h3 id="org506bde3"><a id="ID-5039c9a3-7e08-46c9-9c62-88221036afb6"></a>Example</h3>
+  <div class="outline-text-3" id="text-org506bde3">
+  <p>
+  Emacs comes with this amazing functionality called <i>marks</i>.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the <i>mark ring</i><sup><a id="fnr.7" class="footref" href="#fn.7">7</a></sup>.  This allows you to remember multiple marks at the same time and recall them in a lifo order.
+  </p>
+
+  <p>
+  When you move around the buffer, Emacs pushes the position where you started from to the mark ring and lets you jump back by popping the mark.
+  </p>
+
+  <p>
+  Most commands which move the point, like <code>isearch</code>, <code>beginning-of-buffer</code>, <code>imenu</code>, <code>next-defun</code> set the mark in somewhat intelligent way.  For example, if you call <code>next-defun</code> multiple times it pushes the mark only when you call it for the first time.  That way, when you recall the mark you jump to the "original" defun five functions up without having to recall five times.
+  </p>
+
+  <p>
+  This is all good and well, but dealing with marks turned out rather frustrating for me.  The most common action, namely recalling the mark, is bound to arather awkward <kbd>C-u C-SPC</kbd>.  It doesn't help in the least that the command is called <code>set-mark-command</code>, in fact, the same command you use to <i>set</i> the mark, just with a prefix argument.
+  </p>
+
+  <p>
+  Here we can identify a rather common Emacs annoyance: prefix argument changes the behaviour of a command into something completely different; but we want to use both versions in a simple way!
+  </p>
+
+  <p>
+  How can we solve this?  We write our own interactive wrapper!
+  </p>
+  </div>
+  </div>
+  <div id="outline-container-orge00ce52" class="outline-3">
+  <h3 id="orge00ce52"><a id="ID-66c17fce-3178-46c0-b89e-8d995f26b8c3"></a>Resolution</h3>
+  <div class="outline-text-3" id="text-orge00ce52">
+  <p>
+  First we need to figure out which argument and with what value we will need to pre-fill.  Most of the time reading the documentation with <kbd>C-h f</kbd> will be enough to give us a clue, but sometimes inspecting the source is the only way to be sure.
+  </p>
+
+  <p>
+  In our example, we know that we call the function with <kbd>C-u</kbd> which corresponds to Elisp value <code>(4)</code> (that is a list with 4 in it).  Each extra <code>C-u</code> multiplies the number in the list by 4.  There is only one argument to the function <code>set-mark-command</code> so that's the position we will need to fill.  The result is then the following function.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-jump-to-mark</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Jump to the local mark, respecting the `</span><span style="color: #e6a8df;">mark-ring</span><span style="color: #e9b96e;">' order.</span>
+  <span style="color: #e9b96e;">This is the same as using \\[</span><span style="color: #e6a8df;">set-mark-command</span><span style="color: #e9b96e;">] with the prefix argument."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>set-mark-command '<span style="color: #888a85;">(</span>4<span style="color: #888a85;">)))</span>
+  </pre>
+  </div>
+
+  <p>
+  We can bind this command to a simple key binding, for example
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span>global-set-key <span style="color: #888a85;">(</span>kbd <span style="color: #e9b96e;">"M-`"</span><span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'my-jump-to-mark</span><span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  Sometimes, the prefix argument isn't passed as an argument but is read from a special variable <code>current-prefix-arg</code>.  When you call a command using a prefix argument, Emacs automatically sets this variable to the corresponding Elisp value.
+  </p>
+
+  <p>
+  Before we continue, a little excursion into how Emacs maintains value bindings.  When you use <code>let</code> to set the value of a special variable<sup><a id="fnr.8" class="footref" href="#fn.8">8</a></sup>, this value becomes current until the execution of the <code>let</code> block is finished.  This means that this value is available globally for all the subroutines called from the let block, as well as for all the subroutines called from these and so on.
+  </p>
+
+  <p>
+  Armed with this knowledge, we can try it on an example.  The comand <code>align-regexp</code> changes the meaning of its 3rd argument based on the value of the special variable <code>current-prefix-arg</code>.  We will write an interactive wrapper which we will call without any prefix argument.  This means Emacs will set the value of <code>current-prefix-arg</code> to <code>nil</code>.  We will use dynamic binding to set the value to <code>(4)</code> and then call the original function.
+  </p>
+
+  <p>
+  Because we want to respect the interactive behaviour of the original function we will use <code>call-interactively</code> which calls the function providing arguments according to its interactive calling specification.
+  </p>
+
+  <p>
+  The result is then quite simple again.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-align-regexp</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Call `</span><span style="color: #e6a8df;">align-regexp</span><span style="color: #e9b96e;">' with `</span><span style="color: #e6a8df;">current-prefix-arg</span><span style="color: #e9b96e;">' set to (4)."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>current-prefix-arg '<span style="color: #888a85;">(</span>4<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'align-regexp</span><span style="color: #888a85;">)))</span>
+  </pre>
+  </div>
+
+  <p>
+  Notice that we could have used this technique in the first example as well, because the interactive specifications <code>"p"</code> and <code>"P"</code> simply check the value of <code>current-prefix-arg</code> and pass it forward.  The code would look like so:
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-jump-to-mark-2</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Jump to the local mark, respecting the `</span><span style="color: #e6a8df;">mark-ring</span><span style="color: #e9b96e;">' order.</span>
+  <span style="color: #e9b96e;">This is the same as using \\[</span><span style="color: #e6a8df;">set-mark-command</span><span style="color: #e9b96e;">] with the prefix argument."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>current-prefix-arg '<span style="color: #888a85;">(</span>4<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'set-mark-command</span><span style="color: #888a85;">)))</span>
+  </pre>
+  </div>
+
+  <p>
+  We can't, however, use the first method on <code>align-regexp</code> because none of its arguments directly corresponds to the prefix argument&#x2014;it is only inside the body that this is checked.
+  </p>
+
+  <p>
+  The moral of the story is that we should always prefer passing the argument directly as it is cleaner and less magical.  Only if the prefix argument is not direct but checked inside the body of the function we shall use dynamic binding.
+  </p>
+  </div>
+  </div>
+  ]]></description>
+</item>
+
+<item>
+  <title>Ablative of comparison vs quam</title>
+  <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html</guid>
+  <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  In English, the comparative adjective or adverb is connected to the thing being compared with the conjunction <i>than</i>.
+  </p>
+
+  <ul class="org-ul">
+  <li>She is older <i>than</i> he is.</li>
+  <li>I talk to no one with more pleasure <i>than</i> to you.</li>
+  </ul>
+
+  <p>
+  In Latin, the regular particle to express the comparison is <i>quam</i>, so the previous examples would become:
+  </p>
+
+  <ul class="org-ul">
+  <li>Ea senior est <i>quam</i> ille.</li>
+  <li>Cum nūllō libentius colloquor <i>quam</i> tēcum.</li>
+  </ul>
+
+  <p>
+  You can often omit it with numbers and adverbs such as <i>plūs</i> or <i>minus</i>.
+  </p>
+
+  <p>
+  But Latin also has another way to express comparison.  Yes, you guessed it right, the ever-so-flexible ablative.  Using ablative for comparison makes the phrases snappier, shorter and more to the point<sup><a id="fnr.9" class="footref" href="#fn.9">9</a></sup>.
+  </p>
+
+  <p>
+  The basic anatomy of an comparative ablative is to put the thing or person being compared or the property being compared in ablative.  You can imagine this being something akin to ablative of respect or separation.
+  </p>
+
+  <ul class="org-ul">
+  <li><i>Hāc rē</i> nihil contemptius esse potest.</li>
+  <li>Nothing can be more despicable than this act.</li>
+  </ul>
+
+  <p>
+  But there is one thing you need to beware of; you can only use this ablative <b>if the other noun would be in nominative or accusative</b>, otherwise you have to fall back to <i>quam</i>.  To illustrate the difference, observe the following (the adjective <i>studiōsus</i> takes genitive):
+  </p>
+
+  <ul class="org-ul">
+  <li>Tuī studiōsior sum <i>quam illīus.</i></li>
+  <li>I am fonder of you than of him. (i.e. I like you more than him)</li>
+  <li>Tuī studiōsior <i>illō</i> sum.</li>
+  <li>I am fonder of you than he is. (i.e. I like you more than he does)</li>
+  </ul>
+
+  <p>
+  The second example translated to the regular <i>quam</i> construction would read:
+  </p>
+
+  <ul class="org-ul">
+  <li>Tuī studiōsior <i>quam ille</i> sum.</li>
+  </ul>
+
+  <p>
+  which puts the noun in nominative.
+  </p>
+  ]]></description>
+</item>
+<div id="footnotes">
+  <h2 class="footnotes">Footnotes: </h2>
+  <div id="text-footnotes">
+
+    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">Emacs RE engine is a lot less powerful than PCRE engines, it doesn't support look-ahead nor back-references among other less commonly used features</div></div>
+
+    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">For those familiar with Parsec, this is basically the <code>try</code> combinator</div></div>
+
+    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara">Yes, this is awfully inefficient.  The author later rectifies this with a beautiful and fast linear algorithm.</div></div>
+
+    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara">To see this just imagine that 1 and 2 is actually 0 and 1 and you are generating all the binary numbers taking up to \(n\) bits.  This results in \((2^n)-1\) options.</div></div>
+
+    <div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5">5</a></sup> <div class="footpara">We are actually using <i>strong</i> (a.k.a. <i>complete</i>) <a href="https://en.wikipedia.org/wiki/Mathematical_induction#Complete_induction">induction</a>.  This is equivalent to the simple induction you might have learned at university.</div></div>
+
+    <div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6">6</a></sup> <div class="footpara">This code depends on <code>json</code> (built-in) and <code>json-mode</code> (get from MELPA).</div></div>
+
+    <div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7">7</a></sup> <div class="footpara">A ring in Emacs is basically a stack where popped elements go to the bottom</div></div>
+
+    <div class="footdef"><sup><a id="fn.8" class="footnum" href="#fnr.8">8</a></sup> <div class="footpara">A variable is <i>special</i> if defined using <code>defvar</code>.</div></div>
+
+    <div class="footdef"><sup><a id="fn.9" class="footnum" href="#fnr.9">9</a></sup> <div class="footpara">Similar to how Ablative Absolute can make the lengthy <i>temporal cum</i> constructions simpler</div></div>
+
+
+  </div>
+</div></channel>
 </rss>
