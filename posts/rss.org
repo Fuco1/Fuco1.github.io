@@ -1,95 +1,95 @@
 * The absolute awesomeness of anchored font-lock matchers
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html
+:RSS_PERMALINK: 2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html
 :PUBDATE: <2017-06-01>
-:ID:       03e97383-ed75-487f-b4ca-64dabe13265c
+:ID:       f0c9cdac-bd83-4f36-bc55-023e1f727dc7
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org" :lines "3-"
 
 * Generating all groupings of (1|2)* summing up to m
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html
+:RSS_PERMALINK: 2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html
 :PUBDATE: <2017-05-28>
-:ID:       05227ffd-d683-49d7-a2ae-c577ee134cc5
+:ID:       9d968b14-04d2-434e-963a-19fe23857275
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.org" :lines "3-"
 
 * Fontify done checkbox items in org-mode
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
+:RSS_PERMALINK: 2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
 :PUBDATE: <2017-05-25>
-:ID:       e4474630-4970-49d1-9c67-4eba0f1a9327
+:ID:       f1d841fb-e85c-43ac-acd8-b76d94022928
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-25-Fontify-done-checkbox-items-in-org-mode.org" :lines "3-"
 
 * Automatically remove inherited tags from tasks after refiling
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html
+:RSS_PERMALINK: 2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html
 :PUBDATE: <2017-05-09>
-:ID:       f5bb4607-1743-4b59-823d-b4d159c243f7
+:ID:       a0d2efaf-f155-4739-9761-779dfa3eb05e
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.org" :lines "3-"
 
 * Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html
+:RSS_PERMALINK: 2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html
 :PUBDATE: <2017-05-06>
-:ID:       39326814-5775-4fd5-8231-10b7df366a5a
+:ID:       174ecd16-0e56-4f28-acf2-c8a2bc677a95
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).org" :lines "3-"
 
 * WAR STORY: Prevent point jumping around invisible text
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html
+:RSS_PERMALINK: 2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html
 :PUBDATE: <2017-05-03>
-:ID:       e1044340-3f93-40d9-bac5-54140e0801cb
+:ID:       796ebaca-e5f6-483b-b4fb-b480d463a92b
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.org" :lines "3-"
 
 * Support for imenu in dired
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html
+:RSS_PERMALINK: 2017-05-01-Support-for-imenu-in-dired.html
 :PUBDATE: <2017-05-01>
-:ID:       3cf60b99-beec-4577-9b76-a145219a2976
+:ID:       45239135-6882-49a3-a73d-7fe367cc669f
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-01-Support-for-imenu-in-dired.org" :lines "3-"
 
 * Turn on context-aware modes on shell command output
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html
+:RSS_PERMALINK: 2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html
 :PUBDATE: <2017-04-29>
-:ID:       3e4dff0a-8695-4ede-9aa7-eaa4fe2f2b90
+:ID:       11161a98-cf0e-490c-8e96-fe0186381d47
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.org" :lines "3-"
 
 * Save write-protected files with sudo automatically
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html
+:RSS_PERMALINK: 2017-04-20-Save-write-protected-files-with-sudo-automatically.html
 :PUBDATE: <2017-04-20>
-:ID:       7dba8ae7-1a8d-41cd-b25d-4ed014854613
+:ID:       fe0a3081-b18c-4885-9d28-45815e98a68d
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-04-20-Save-write-protected-files-with-sudo-automatically.org" :lines "3-"
 
 * Archive subtrees under the same hierarchy as original in the archive files
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html
+:RSS_PERMALINK: 2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html
 :PUBDATE: <2017-04-20>
-:ID:       bf8a4186-63df-4584-a9dd-752e761a0c13
+:ID:       83f06eca-4da7-4747-8ae1-b5ffc5da4c29
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.org" :lines "3-"
 
 * Annoying prefix argument
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html
+:RSS_PERMALINK: 2017-04-20-Annoying-prefix-argument.html
 :PUBDATE: <2017-04-20>
-:ID:       eb43954e-257c-42bd-996e-8ef5a26b9f37
+:ID:       2efb312a-77ab-4cd7-b4ab-3fff6d474be7
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-04-20-Annoying-prefix-argument.org" :lines "3-"
 
 * Ablative of comparison vs quam
 :PROPERTIES:
-:RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html
+:RSS_PERMALINK: 2017-04-20-Ablative-of-comparison-vs-quam.html
 :PUBDATE: <2017-04-20>
-:ID:       84e7eaae-c859-4f87-95ac-2427e0ad9901
+:ID:       f536f127-046a-4116-bf5d-a5addf7c28b7
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-04-20-Ablative-of-comparison-vs-quam.org" :lines "3-"

@@ -14,8 +14,8 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Sun, 04 Jun 2017 15:43:04 +0200</pubDate>
-  <lastBuildDate>Sun, 04 Jun 2017 15:43:04 +0200</lastBuildDate>
+  <pubDate>Sun, 04 Jun 2017 15:46:20 +0200</pubDate>
+  <lastBuildDate>Sun, 04 Jun 2017 15:46:20 +0200</lastBuildDate>
   <generator>Emacs 25.2 Org-mode 9.0.7</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
@@ -26,9 +26,9 @@
 
   <item>
     <title>The absolute awesomeness of anchored font-lock matchers</title>
-    <link>https://fuco1.github.io/https://fuco1.github.io//2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html</link>
+    <link>https://fuco1.github.io/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html</link>
     <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html</guid>
+    <guid isPermaLink="false">https://fuco1.github.io/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html</guid>
     <pubDate>Thu, 01 Jun 2017 00:00:00 +0200</pubDate>
 
     <description><![CDATA[<p>
@@ -155,9 +155,9 @@
 
 <item>
   <title>Generating all groupings of (1|2)* summing up to m</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html</link>
+  <link>https://fuco1.github.io/2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html</guid>
   <pubDate>Sun, 28 May 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<p>
@@ -283,9 +283,9 @@
 
 <item>
   <title>Fontify done checkbox items in org-mode</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</link>
+  <link>https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</guid>
   <pubDate>Thu, 25 May 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<p>
@@ -358,9 +358,9 @@
 
 <item>
   <title>Automatically remove inherited tags from tasks after refiling</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html</link>
+  <link>https://fuco1.github.io/2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html</guid>
   <pubDate>Tue, 09 May 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<p>
@@ -371,9 +371,9 @@
 
 <item>
   <title>Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html</link>
+  <link>https://fuco1.github.io/2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html</guid>
   <pubDate>Sat, 06 May 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<p>
@@ -613,9 +613,9 @@
 
 <item>
   <title>WAR STORY: Prevent point jumping around invisible text</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html</link>
+  <link>https://fuco1.github.io/2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html</guid>
   <pubDate>Wed, 03 May 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<p>
@@ -662,9 +662,9 @@
 
 <item>
   <title>Support for imenu in dired</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html</link>
+  <link>https://fuco1.github.io/2017-05-01-Support-for-imenu-in-dired.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-05-01-Support-for-imenu-in-dired.html</guid>
   <pubDate>Mon, 01 May 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<p>
@@ -728,9 +728,9 @@
 
 <item>
   <title>Turn on context-aware modes on shell command output</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html</link>
+  <link>https://fuco1.github.io/2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html</guid>
   <pubDate>Sat, 29 Apr 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<p>
@@ -784,9 +784,9 @@
 
 <item>
   <title>Save write-protected files with sudo automatically</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html</link>
+  <link>https://fuco1.github.io/2017-04-20-Save-write-protected-files-with-sudo-automatically.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-04-20-Save-write-protected-files-with-sudo-automatically.html</guid>
   <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<p>
@@ -849,9 +849,9 @@
 
 <item>
   <title>Archive subtrees under the same hierarchy as original in the archive files</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html</link>
+  <link>https://fuco1.github.io/2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html</guid>
   <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<p>
@@ -917,9 +917,9 @@
 
 <item>
   <title>Annoying prefix argument</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html</link>
+  <link>https://fuco1.github.io/2017-04-20-Annoying-prefix-argument.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-04-20-Annoying-prefix-argument.html</guid>
   <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<div id="outline-container-orgde5c388" class="outline-3">
@@ -1063,9 +1063,9 @@
 
 <item>
   <title>Ablative of comparison vs quam</title>
-  <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html</link>
+  <link>https://fuco1.github.io/2017-04-20-Ablative-of-comparison-vs-quam.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html</guid>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-04-20-Ablative-of-comparison-vs-quam.html</guid>
   <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<p>
