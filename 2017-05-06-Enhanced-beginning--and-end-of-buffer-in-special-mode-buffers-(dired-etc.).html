@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-05-25 Thu 00:11 -->
+<!-- 2017-06-04 Sun 14:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)</title>
@@ -20,6 +20,7 @@
   <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
 </div>
 <div style="text-align: right;">
+  <a href="https://fuco1.github.io/sitemap.xml">RSS</a>
   <a href="https://twitter.com/Fuco1337">Twitter</a>
 </div>
 <hr />
@@ -71,7 +72,7 @@ One clever additional functionality is that if the point already is at the logic
         <span style="color: #888a85;">(</span>mode-hook <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-mode-hook"</span><span style="color: #888a85;">))))</span>
     `<span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
        <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> ,fname <span style="color: #888a85;">()</span>
-         <span style="color: #888a85;">(</span>interactive<span style="color: #888a85;">)</span>
+         <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
          <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>p <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
            <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
            ,@forms
@@ -103,7 +104,7 @@ And a corresponding version for <code>end-of-buffer</code>.
         <span style="color: #888a85;">(</span>mode-hook <span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #888a85;">(</span>symbol-name mode<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"-mode-hook"</span><span style="color: #888a85;">))))</span>
     `<span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
        <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> ,fname <span style="color: #888a85;">()</span>
-         <span style="color: #888a85;">(</span>interactive<span style="color: #888a85;">)</span>
+         <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
          <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>p <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
            <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-max<span style="color: #888a85;">))</span>
            ,@forms
@@ -132,10 +133,10 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 <h2 id="org8a68fcb">Dired (<code>M-x dired</code>)</h2>
 <div class="outline-text-2" id="text-org8a68fcb">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer dired
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> dired
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span><span style="color: #b4fa70;">ignore-errors</span> <span style="color: #888a85;">(</span>dired-get-filename<span style="color: #888a85;">)))</span>
     <span style="color: #888a85;">(</span>dired-next-line 1<span style="color: #888a85;">)))</span>
-<span style="color: #888a85;">(</span>my-special-end-of-buffer dired
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> dired
   <span style="color: #888a85;">(</span>dired-previous-line 1<span style="color: #888a85;">))</span>
 </pre>
 </div>
@@ -146,9 +147,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 <h2 id="orga90e6cc">Occur (<code>M-x occur</code>)</h2>
 <div class="outline-text-2" id="text-orga90e6cc">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer occur
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> occur
   <span style="color: #888a85;">(</span>occur-next 1<span style="color: #888a85;">))</span>
-<span style="color: #888a85;">(</span>my-special-end-of-buffer occur
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> occur
   <span style="color: #888a85;">(</span>occur-prev 1<span style="color: #888a85;">))</span>
 </pre>
 </div>
@@ -159,9 +160,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 <h2 id="org8638ca3">Ibuffer (<code>M-x ibuffer</code>)</h2>
 <div class="outline-text-2" id="text-org8638ca3">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer ibuffer
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> ibuffer
   <span style="color: #888a85;">(</span>ibuffer-forward-line 1<span style="color: #888a85;">))</span>
-<span style="color: #888a85;">(</span>my-special-end-of-buffer ibuffer
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> ibuffer
   <span style="color: #888a85;">(</span>ibuffer-backward-line 1<span style="color: #888a85;">))</span>
 </pre>
 </div>
@@ -172,9 +173,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 <h2 id="org6c4745b">vc directory view (<code>M-x vc-dir</code> or <code>C-x v d</code>)</h2>
 <div class="outline-text-2" id="text-org6c4745b">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer vc-dir
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> vc-dir
   <span style="color: #888a85;">(</span>vc-dir-next-line 1<span style="color: #888a85;">))</span>
-<span style="color: #888a85;">(</span>my-special-end-of-buffer vc-dir
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> vc-dir
   <span style="color: #888a85;">(</span>vc-dir-previous-line 1<span style="color: #888a85;">))</span>
 </pre>
 </div>
@@ -185,9 +186,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 <h2 id="orgebfb3d4">bs (<code>M-x bs-show</code>)</h2>
 <div class="outline-text-2" id="text-orgebfb3d4">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer bs
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> bs
   <span style="color: #888a85;">(</span>bs-down 2<span style="color: #888a85;">))</span>
-<span style="color: #888a85;">(</span>my-special-end-of-buffer bs
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> bs
   <span style="color: #888a85;">(</span>bs-up 1<span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span>bs-down 1<span style="color: #888a85;">))</span>
 </pre>
@@ -199,10 +200,10 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 <h2 id="org5016130">Recentf (<code>M-x recentf-open-files</code>)</h2>
 <div class="outline-text-2" id="text-org5016130">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer recentf-dialog
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> recentf-dialog
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>re-search-forward <span style="color: #e9b96e;">"^  \\["</span> nil t<span style="color: #888a85;">)</span>
     <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>match-beginning 0<span style="color: #888a85;">))))</span>
-<span style="color: #888a85;">(</span>my-special-end-of-buffer recentf-dialog
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> recentf-dialog
   <span style="color: #888a85;">(</span>re-search-backward <span style="color: #e9b96e;">"^  \\["</span> nil t<span style="color: #888a85;">))</span>
 </pre>
 </div>
@@ -213,9 +214,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 <h2 id="org6d550e7">Org Agenda (<code>M-x org-agenda</code>)</h2>
 <div class="outline-text-2" id="text-org6d550e7">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer org-agenda
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> org-agenda
   <span style="color: #888a85;">(</span>org-agenda-next-item 1<span style="color: #888a85;">))</span>
-<span style="color: #888a85;">(</span>my-special-end-of-buffer org-agenda
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> org-agenda
   <span style="color: #888a85;">(</span>org-agenda-previous-item 1<span style="color: #888a85;">))</span>
 </pre>
 </div>
@@ -226,9 +227,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 <h2 id="org3862b90">ag (from <code>ag.el</code> package, <code>M-x ag</code>)</h2>
 <div class="outline-text-2" id="text-org3862b90">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer ag
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> ag
   <span style="color: #888a85;">(</span>compilation-next-error 1<span style="color: #888a85;">))</span>
-<span style="color: #888a85;">(</span>my-special-end-of-buffer ag
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> ag
   <span style="color: #888a85;">(</span>compilation-previous-error 1<span style="color: #888a85;">))</span>
 </pre>
 </div>
@@ -239,10 +240,10 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 <h2 id="orgd2fe96d">Notmuch (from <code>notmuch</code> package, <code>M-x notmuch-search</code>)</h2>
 <div class="outline-text-2" id="text-orgd2fe96d">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-beginning-of-buffer notmuch-search
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> notmuch-search
   <span style="color: #888a85;">(</span>notmuch-search-first-thread<span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span>beginning-of-line<span style="color: #888a85;">))</span>
-<span style="color: #888a85;">(</span>my-special-end-of-buffer notmuch-search
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> notmuch-search
   <span style="color: #888a85;">(</span>notmuch-search-last-thread<span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span>end-of-line<span style="color: #888a85;">))</span>
 </pre>
@@ -254,7 +255,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 <h2 id="org2707d57">Elfeed (from <code>elfeed</code> package, <code>M-x elfeed</code>)</h2>
 <div class="outline-text-2" id="text-org2707d57">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span>my-special-end-of-buffer elfeed-search
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> elfeed-search
   <span style="color: #888a85;">(</span>forward-line -2<span style="color: #888a85;">))</span>
 </pre>
 </div>
@@ -263,7 +264,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-05-25 00:11</div>
+<div style="text-align: left; float: left;">Last updated at: 2017-06-04 14:54</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).org">Edit on GitHub!</a></div>
 </div>
 </body>

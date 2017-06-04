@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-05-25 Thu 00:11 -->
+<!-- 2017-06-04 Sun 14:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Annoying prefix argument</title>
@@ -20,6 +20,7 @@
   <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
 </div>
 <div style="text-align: right;">
+  <a href="https://fuco1.github.io/sitemap.xml">RSS</a>
   <a href="https://twitter.com/Fuco1337">Twitter</a>
 </div>
 <hr />
@@ -97,7 +98,7 @@ In our example, we know that we call the function with <kbd>C-u</kbd> which corr
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-jump-to-mark</span> <span style="color: #888a85;">()</span>
   <span style="color: #e9b96e;">"Jump to the local mark, respecting the `</span><span style="color: #e6a8df;">mark-ring</span><span style="color: #e9b96e;">' order.</span>
 <span style="color: #e9b96e;">This is the same as using \\[</span><span style="color: #e6a8df;">set-mark-command</span><span style="color: #e9b96e;">] with the prefix argument."</span>
-  <span style="color: #888a85;">(</span>interactive<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span>set-mark-command '<span style="color: #888a85;">(</span>4<span style="color: #888a85;">)))</span>
 </pre>
 </div>
@@ -134,7 +135,7 @@ The result is then quite simple again.
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-align-regexp</span> <span style="color: #888a85;">()</span>
   <span style="color: #e9b96e;">"Call `</span><span style="color: #e6a8df;">align-regexp</span><span style="color: #e9b96e;">' with `</span><span style="color: #e6a8df;">current-prefix-arg</span><span style="color: #e9b96e;">' set to (4)."</span>
-  <span style="color: #888a85;">(</span>interactive<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>current-prefix-arg '<span style="color: #888a85;">(</span>4<span style="color: #888a85;">)))</span>
     <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'align-regexp</span><span style="color: #888a85;">)))</span>
 </pre>
@@ -148,7 +149,7 @@ Notice that we could have used this technique in the first example as well, beca
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-jump-to-mark-2</span> <span style="color: #888a85;">()</span>
   <span style="color: #e9b96e;">"Jump to the local mark, respecting the `</span><span style="color: #e6a8df;">mark-ring</span><span style="color: #e9b96e;">' order.</span>
 <span style="color: #e9b96e;">This is the same as using \\[</span><span style="color: #e6a8df;">set-mark-command</span><span style="color: #e9b96e;">] with the prefix argument."</span>
-  <span style="color: #888a85;">(</span>interactive<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>current-prefix-arg '<span style="color: #888a85;">(</span>4<span style="color: #888a85;">)))</span>
     <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'set-mark-command</span><span style="color: #888a85;">)))</span>
 </pre>
@@ -176,7 +177,7 @@ The moral of the story is that we should always prefer passing the argument dire
 </div></div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-05-25 00:11</div>
+<div style="text-align: left; float: left;">Last updated at: 2017-06-04 14:54</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-04-20-Annoying-prefix-argument.org">Edit on GitHub!</a></div>
 </div>
 </body>
