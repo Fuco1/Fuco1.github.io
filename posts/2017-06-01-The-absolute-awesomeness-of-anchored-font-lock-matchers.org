@@ -5,6 +5,8 @@
   CLOSED: [2017-06-01 Thu 23:23] SCHEDULED: <2017-06-01 Thu 20:00>
   :PROPERTIES:
   :BLOG_FILENAME: 2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers
+  :PUBDATE:  <2017-06-01 Thu 23:23>
+  :ID:       408b77bb-d91f-49b9-9b06-efc0455590eb
   :END:
    :LOGBOOK:
    - State "DONE"       from "NEXT"       [2017-06-01 Thu 23:23]
@@ -97,4 +99,3 @@ constant :: Int
 #+END_SRC
 
 Awesome.
-

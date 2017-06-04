@@ -5,6 +5,8 @@
   CLOSED: [2017-04-20 Thu 19:48]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-04-20-Save-write-protected-files-with-sudo-automatically
+  :ID:       de0325c4-8542-4a56-a1aa-52fd28ce1657
+  :PUBDATE:  <2017-04-20 Thu 19:48>
   :END:
    :LOGBOOK:
    - State "DONE"       from "NEXT"       [2017-04-20 Thu 19:48]
@@ -54,4 +56,3 @@ associated with the original non-sudo filename."
 #+END_SRC
 
 This code doesn't work on remote hosts, so when you TRAMP over =ssh= you wouldn't be able to =sudo=-edit a remote file.  If someone's interested I'll be happy to recieve a patch (or I will fix it when I will have the need).  The code sits [[https://github.com/Fuco1/.emacs.d/blob/master/site-lisp/my-advices.el#L46][here]] so feel free to open a [[https://github.com/Fuco1/.emacs.d/compare][pull request]].
-

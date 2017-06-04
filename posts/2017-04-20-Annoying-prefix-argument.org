@@ -3,19 +3,35 @@
 
 * DONE Annoying prefix argument                                     :ignore:publish:
   CLOSED: [2017-04-20 Thu 21:49]
+  :PROPERTIES:
+  :ID:       439e9d09-55f4-4f40-83ec-205a86d55d70
+  :PUBDATE:  <2017-04-20 Thu 21:49>
+  :END:
   :LOGBOOK:
   - State "DONE"       from              [2017-04-20 Thu 21:49]
   :END:
 ** Problem
+   :PROPERTIES:
+   :ID:       5fffafa3-4eaf-4eb9-ac20-0609b93e5435
+   :END:
 A prefix argument changes the behaviour of a command in a way which forms a useful stand-alone command.  We don't want to supply the command with the prefix argument all the time.
 
 ** Solution
+   :PROPERTIES:
+   :ID:       f19f57e2-8e9d-4856-9c18-60336972583e
+   :END:
 Write an interactive wrapper and pre-fill the arguments
 
 ** Motivation
+   :PROPERTIES:
+   :ID:       ced49dca-c96b-4663-b4a5-0ba525a35332
+   :END:
 It is awkward and annoying to constantly use prefix-arguments for commonly used operations.  Emacs has a rich history of commands using prefix arguments to subtly (or not so subtly) modify the behaviour of the base command.  If you often use a specialized variant you can save yourself a lot of pain by simply building a specialized solution.  It is not uncommon to see two prefix arguments (~C-u C-u~), but I've seen four and even five once or twice.
 
 ** Example
+   :PROPERTIES:
+   :ID:       5039c9a3-7e08-46c9-9c62-88221036afb6
+   :END:
 Emacs comes with this amazing functionality called /marks/.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the /mark ring/[fn:c0753a19:A ring in Emacs is basically a stack where popped elements go to the bottom].  This allows you to remember multiple marks at the same time and recall them in a lifo order.
 
 When you move around the buffer, Emacs pushes the position where you started from to the mark ring and lets you jump back by popping the mark.
@@ -28,6 +44,9 @@ Here we can identify a rather common Emacs annoyance: prefix argument changes th
 
 How can we solve this?  We write our own interactive wrapper!
 ** Resolution
+   :PROPERTIES:
+   :ID:       66c17fce-3178-46c0-b89e-8d995f26b8c3
+   :END:
 
 First we need to figure out which argument and with what value we will need to pre-fill.  Most of the time reading the documentation with ~C-h f~ will be enough to give us a clue, but sometimes inspecting the source is the only way to be sure.
 
@@ -79,4 +98,3 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 We can't, however, use the first method on =align-regexp= because none of its arguments directly corresponds to the prefix argument---it is only inside the body that this is checked.
 
 The moral of the story is that we should always prefer passing the argument directly as it is cleaner and less magical.  Only if the prefix argument is not direct but checked inside the body of the function we shall use dynamic binding.
-

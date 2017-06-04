@@ -5,6 +5,8 @@
   CLOSED: [2017-05-09 Tue 19:12]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling
+  :ID:       f4d2719c-1f92-4f31-a6a2-e35feb2bb7cc
+  :PUBDATE:  <2017-05-09 Tue 19:12>
   :END:
   :LOGBOOK:
   - State "DONE"       from "TODO"       [2017-05-09 Tue 19:12]
@@ -16,6 +18,9 @@
 I have a pretty standard =org-capture= workflow: during the day when an idea comes to mind or I stumble upon a task I can't solve right now or I find an article I would want to read later I use one of the several [[https://github.com/Fuco1/.emacs.d/blob/master/files/org-defs.el#L1142][capture templates I set up]] to quickly file a note and continue with minimal distraction with what I was doing at the time.
 
 *************** TODO change the link to templates to actual headline in the config when published :noexport:
+                :PROPERTIES:
+                :ID:       baacff86-902d-40a3-8bfa-f350a6139ae8
+                :END:
 
 When I add these tasks I try to tag them with appropriate tags.  So
 

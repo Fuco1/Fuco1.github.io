@@ -5,6 +5,8 @@
   CLOSED: [2017-05-25 Thu 00:10]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-05-25-Fontify-done-checkbox-items-in-org-mode
+  :ID:       77c0b972-21ec-46cd-9bc7-2504c4a1a496
+  :PUBDATE:  <2017-05-25 Thu 00:10>
   :END:
   :CLOCK:
   CLOCK: [2017-05-24 Wed 23:58]--[2017-05-25 Thu 00:25] =>  0:27
@@ -62,4 +64,3 @@ Here's how it looks (list shortened for clarity):
 (Also note that the above is /not/ a screenshot, it is an embedded =org-mode= snippet in =org-mode='s =#+BEG_SRC= block.  Inception.)
 
 I stole the regexp from [[https://github.com/hlissner/.emacs.d/blob/master/modules/lang/org/config.el][hlissner's emacs.d]] who apparently came to the same conclusion.  It's a rather nice collection of stuff so check it out, but be warned, it is /super/ idiosyncratic... which in Emacs translation basically means awesome :)
-

@@ -5,6 +5,8 @@
   CLOSED: [2017-04-20 Thu 18:23]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-04-20-Ablative-of-comparison-vs-quam
+  :ID:       7a6b8baa-0fc7-46f9-8d81-449b649cbf31
+  :PUBDATE:  <2017-04-20 Thu 18:23>
   :END:
      :LOGBOOK:
      - State "DONE"       from              [2017-04-20 Thu 18:23]
@@ -43,4 +45,3 @@ The second example translated to the regular /quam/ construction would read:
 - Tuī studiōsior /quam ille/ sum.
 
 which puts the noun in nominative.
-

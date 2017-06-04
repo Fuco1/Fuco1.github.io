@@ -5,6 +5,8 @@
   CLOSED: [2017-05-03 Wed 22:53]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text
+  :ID:       57765425-84af-4862-96dd-25c44472937d
+  :PUBDATE:  <2017-05-03 Wed 22:53>
   :END:
    :LOGBOOK:
    - State "DONE"       from              [2017-05-03 Wed 22:53]
@@ -34,4 +36,3 @@ The way you are supposed to do this is rather unobvious: set the value of the va
 This is mighty surprising behaviour because most of these flag-variables like =inhibit-read-only= or =case-fold-search= are bound with =let= and so that is the first go-to choice for any seasoned Emacs user.
 
 Well, you always learn something new :)  Auctex, Org and isearch also use (or used) this in some of their commands if you want to get more inspiration.
-

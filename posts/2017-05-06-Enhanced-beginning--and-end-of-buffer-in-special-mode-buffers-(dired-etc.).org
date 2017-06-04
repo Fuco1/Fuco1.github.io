@@ -5,6 +5,8 @@
   CLOSED: [2017-05-06 Sat 16:16]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.)
+  :ID:       d0b942af-b884-40cb-8a54-18ffda9f5ab0
+  :PUBDATE:  <2017-05-06 Sat 16:16>
   :END:
   :LOGBOOK:
   - State "DONE"       from "TODO"       [2017-05-06 Sat 16:16]
@@ -91,6 +93,9 @@ The macros rely on the Emacs convention where the mode name ends in =-mode= and 
 What follows is all the "overloads" I use in my config, you can use these as an inspiration to add your own.  I'm thinking of how to package this code and provide some simple interface for people to enable these in their configs and contribute more for various other special buffers.  If you want to help out with the packaging leave me a [[https://github.com/Fuco1/.emacs.d/issues/new][message]].
 
 ** Dired (=M-x dired=)
+   :PROPERTIES:
+   :ID:       9ee58bb4-474b-4ecc-8852-b22c2fe1a0f0
+   :END:
 #+BEGIN_SRC elisp
 (my-special-beginning-of-buffer dired
   (while (not (ignore-errors (dired-get-filename)))
@@ -100,6 +105,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 #+END_SRC
 
 ** Occur (=M-x occur=)
+   :PROPERTIES:
+   :ID:       10588841-6bae-42e2-970a-d5b3ad0afc23
+   :END:
 #+BEGIN_SRC elisp
 (my-special-beginning-of-buffer occur
   (occur-next 1))
@@ -108,6 +116,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 #+END_SRC
 
 ** Ibuffer (=M-x ibuffer=)
+   :PROPERTIES:
+   :ID:       dcf6d9c2-12a9-4bb0-96d0-631ce4d3567b
+   :END:
 #+BEGIN_SRC elisp
 (my-special-beginning-of-buffer ibuffer
   (ibuffer-forward-line 1))
@@ -116,6 +127,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 #+END_SRC
 
 ** vc directory view (=M-x vc-dir= or =C-x v d=)
+   :PROPERTIES:
+   :ID:       ad4592b5-85bb-43cb-a5a5-896de227a249
+   :END:
 #+BEGIN_SRC elisp
 (my-special-beginning-of-buffer vc-dir
   (vc-dir-next-line 1))
@@ -124,6 +138,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 #+END_SRC
 
 ** bs (=M-x bs-show=)
+   :PROPERTIES:
+   :ID:       72ecb66e-e91d-4f48-829b-529306ca7bd8
+   :END:
 #+BEGIN_SRC elisp
 (my-special-beginning-of-buffer bs
   (bs-down 2))
@@ -133,6 +150,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 #+END_SRC
 
 ** Recentf (=M-x recentf-open-files=)
+   :PROPERTIES:
+   :ID:       a51bab0c-96dd-45b0-8ca1-d6929695a450
+   :END:
 #+BEGIN_SRC elisp
 (my-special-beginning-of-buffer recentf-dialog
   (when (re-search-forward "^  \\[" nil t)
@@ -142,6 +162,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 #+END_SRC
 
 ** Org Agenda (=M-x org-agenda=)
+   :PROPERTIES:
+   :ID:       2f2d59c7-03ab-4039-8a4d-2bcaba6b3c47
+   :END:
 #+BEGIN_SRC elisp
 (my-special-beginning-of-buffer org-agenda
   (org-agenda-next-item 1))
@@ -150,6 +173,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 #+END_SRC
 
 ** ag (from =ag.el= package, =M-x ag=)
+   :PROPERTIES:
+   :ID:       0876ce6c-1522-4736-9948-6fbff93a65b5
+   :END:
 #+BEGIN_SRC elisp
 (my-special-beginning-of-buffer ag
   (compilation-next-error 1))
@@ -158,6 +184,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 #+END_SRC
 
 ** Notmuch (from =notmuch= package, =M-x notmuch-search=)
+   :PROPERTIES:
+   :ID:       cb9b9501-47bf-411b-b2bd-aabc286ca411
+   :END:
 #+BEGIN_SRC elisp
 (my-special-beginning-of-buffer notmuch-search
   (notmuch-search-first-thread)
@@ -168,6 +197,9 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 #+END_SRC
 
 ** Elfeed (from =elfeed= package, =M-x elfeed=)
+   :PROPERTIES:
+   :ID:       890bb9aa-8aa9-4d14-a367-d770ef9a0769
+   :END:
 #+BEGIN_SRC elisp
 (my-special-end-of-buffer elfeed-search
   (forward-line -2))

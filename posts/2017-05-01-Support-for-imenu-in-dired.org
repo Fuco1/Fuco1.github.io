@@ -5,6 +5,8 @@
   CLOSED: [2017-05-01 Mon 14:27]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-05-01-Support-for-imenu-in-dired
+  :ID:       6ae304fa-3ba6-4e9d-a7d3-26c4402e0a8d
+  :PUBDATE:  <2017-05-01 Mon 14:27>
   :END:
   :LOGBOOK:
   - State "DONE"       from              [2017-05-01 Mon 14:27]

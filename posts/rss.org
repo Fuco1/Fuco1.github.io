@@ -1,0 +1,83 @@
+* The absolute awesomeness of anchored font-lock matchers
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html
+:PUBDATE: <2017-06-01>
+:ID:       85b9115c-2451-472a-aac1-6fb7b0618892
+:END:
+
+* Generating all groupings of (1|2)* summing up to m
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html
+:PUBDATE: <2017-05-28>
+:ID:       a3ff923f-c4ad-40bf-bc9e-487d219f4a6a
+:END:
+
+* Fontify done checkbox items in org-mode
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
+:PUBDATE: <2017-05-25>
+:ID:       25bf3e1a-496d-4c01-ba66-9e172f358a0c
+:END:
+
+* Automatically remove inherited tags from tasks after refiling
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html
+:PUBDATE: <2017-05-09>
+:ID:       985ae261-b93f-4c56-9be3-272913e1bef9
+:END:
+
+* Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html
+:PUBDATE: <2017-05-06>
+:ID:       3e968035-a32c-48b6-a941-d5da946ea4c0
+:END:
+
+* WAR STORY: Prevent point jumping around invisible text
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html
+:PUBDATE: <2017-05-03>
+:ID:       89aad8b2-c98a-44cf-b357-4b0e0844d91b
+:END:
+
+* Support for imenu in dired
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html
+:PUBDATE: <2017-05-01>
+:ID:       f11735f3-1374-465f-8220-41e6c3ef0688
+:END:
+
+* Turn on context-aware modes on shell command output
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html
+:PUBDATE: <2017-04-29>
+:ID:       a7860e30-8de2-4f96-a328-2ef2f56c3b9f
+:END:
+
+* Save write-protected files with sudo automatically
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html
+:PUBDATE: <2017-04-20>
+:ID:       3adaf5d9-dd68-48fc-b179-2875dda72957
+:END:
+
+* Archive subtrees under the same hierarchy as original in the archive files
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html
+:PUBDATE: <2017-04-20>
+:ID:       d96a5fc6-b8b9-4541-b8b3-6b833ad773a2
+:END:
+
+* Annoying prefix argument
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html
+:PUBDATE: <2017-04-20>
+:ID:       40e05400-3258-4570-82cd-dc4663ca42f7
+:END:
+
+* Ablative of comparison vs quam
+:PROPERTIES:
+:RSS_PERMALINK: https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html
+:PUBDATE: <2017-04-20>
+:ID:       4bba9921-04b5-4357-a74d-b085ac747a18
+:END:

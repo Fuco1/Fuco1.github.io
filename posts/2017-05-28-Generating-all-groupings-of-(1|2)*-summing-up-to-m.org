@@ -5,6 +5,8 @@
   CLOSED: [2017-05-28 Sun 18:03]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m
+  :ID:       53bf25f1-d131-437a-9e1a-914f4d07fba0
+  :PUBDATE:  <2017-05-28 Sun 18:03>
   :END:
     :LOGBOOK:
     - State "DONE"       from              [2017-05-28 Sun 18:03]
@@ -19,6 +21,9 @@ In the beginning their first idea was to generate all the possible splits into 1
 This immediately got me thinking of dynamic programming and induction.  I figured it out in a couple minutes and then worked out a simple proof to show that my algorithm generates all the possible groupings.
 
 ** The algorithm
+   :PROPERTIES:
+   :ID:       5a06321a-9ef0-4043-993d-fe9cb7281156
+   :END:
 
 How it works is rather simple:
 
@@ -61,6 +66,9 @@ def generate_groupings(n):
 #+END_SRC
 
 ** Proof
+   :PROPERTIES:
+   :ID:       ae246328-b96a-43d3-ba9d-86eb940b6b13
+   :END:
 
 Proof will be carried out by [[https://en.wikipedia.org/wiki/Mathematical_induction][induction]].  In short, induction works as follows.  You first prove the induction base, which is the base truth from which you will derive all other truths.  In our case this will be the fact that the algorithm works for $n = 0$ and $n = 1$.
 
@@ -85,4 +93,3 @@ Similarly if it starts with 2 the rest of it must sum up to $(n + 1) - 2 = n - 1
 By taking the union of these two (and only!) options we get $1:g(n) + 2:g(n-1)$ which is the desired result.
 
 If you have any questions leave me a [[https://github.com/Fuco1/Fuco1.github.io/issues][comment]]!
-

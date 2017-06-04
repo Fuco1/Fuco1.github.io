@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+     xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+     xmlns:georss="http://www.georss.org/georss"
+     xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+     xmlns:media="http://search.yahoo.com/mrss/"><channel>
+  <title>Matus Goljer (Fuco1)</title>
+  <atom:link href="https://fuco1.github.io/rss.xml" rel="self" type="application/rss+xml" />
+  <link>https://fuco1.github.io/</link>
+  <description><![CDATA[]]></description>
+  <language>en</language>
+  <pubDate>Sun, 04 Jun 2017 15:38:11 +0200</pubDate>
+  <lastBuildDate>Sun, 04 Jun 2017 15:38:11 +0200</lastBuildDate>
+  <generator>Emacs 25.2 Org-mode 9.0.7</generator>
+  <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
+  <image>
+    <url>http://orgmode.org/img/org-mode-unicorn-logo.png</url>
+    <title>Matus Goljer (Fuco1)</title>
+    <link>https://fuco1.github.io/</link>
+  </image>
+
+  <item>
+    <title>The absolute awesomeness of anchored font-lock matchers</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html</guid>
+    <pubDate>Thu, 01 Jun 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>Generating all groupings of (1|2)* summing up to m</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html</guid>
+    <pubDate>Sun, 28 May 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>Fontify done checkbox items in org-mode</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</guid>
+    <pubDate>Thu, 25 May 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>Automatically remove inherited tags from tasks after refiling</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html</guid>
+    <pubDate>Tue, 09 May 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html</guid>
+    <pubDate>Sat, 06 May 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>WAR STORY: Prevent point jumping around invisible text</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html</guid>
+    <pubDate>Wed, 03 May 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>Support for imenu in dired</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-05-01-Support-for-imenu-in-dired.html</guid>
+    <pubDate>Mon, 01 May 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>Turn on context-aware modes on shell command output</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html</guid>
+    <pubDate>Sat, 29 Apr 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>Save write-protected files with sudo automatically</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Save-write-protected-files-with-sudo-automatically.html</guid>
+    <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>Archive subtrees under the same hierarchy as original in the archive files</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html</guid>
+    <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>Annoying prefix argument</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Annoying-prefix-argument.html</guid>
+    <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+
+  <item>
+    <title>Ablative of comparison vs quam</title>
+    <link>https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/https://fuco1.github.io//2017-04-20-Ablative-of-comparison-vs-quam.html</guid>
+    <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[]]></description>
+  </item>
+</channel>
+</rss>

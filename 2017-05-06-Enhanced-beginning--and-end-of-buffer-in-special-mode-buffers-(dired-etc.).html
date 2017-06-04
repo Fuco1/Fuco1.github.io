@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-04 Sun 14:54 -->
+<!-- 2017-06-04 Sun 15:38 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)</title>
@@ -130,7 +130,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </p>
 
 <div id="outline-container-org8a68fcb" class="outline-2">
-<h2 id="org8a68fcb">Dired (<code>M-x dired</code>)</h2>
+<h2 id="org8a68fcb"><a id="ID-9ee58bb4-474b-4ecc-8852-b22c2fe1a0f0"></a>Dired (<code>M-x dired</code>)</h2>
 <div class="outline-text-2" id="text-org8a68fcb">
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> dired
@@ -144,7 +144,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 
 <div id="outline-container-orga90e6cc" class="outline-2">
-<h2 id="orga90e6cc">Occur (<code>M-x occur</code>)</h2>
+<h2 id="orga90e6cc"><a id="ID-10588841-6bae-42e2-970a-d5b3ad0afc23"></a>Occur (<code>M-x occur</code>)</h2>
 <div class="outline-text-2" id="text-orga90e6cc">
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> occur
@@ -157,7 +157,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 
 <div id="outline-container-org8638ca3" class="outline-2">
-<h2 id="org8638ca3">Ibuffer (<code>M-x ibuffer</code>)</h2>
+<h2 id="org8638ca3"><a id="ID-dcf6d9c2-12a9-4bb0-96d0-631ce4d3567b"></a>Ibuffer (<code>M-x ibuffer</code>)</h2>
 <div class="outline-text-2" id="text-org8638ca3">
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> ibuffer
@@ -170,7 +170,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 
 <div id="outline-container-org6c4745b" class="outline-2">
-<h2 id="org6c4745b">vc directory view (<code>M-x vc-dir</code> or <code>C-x v d</code>)</h2>
+<h2 id="org6c4745b"><a id="ID-ad4592b5-85bb-43cb-a5a5-896de227a249"></a>vc directory view (<code>M-x vc-dir</code> or <code>C-x v d</code>)</h2>
 <div class="outline-text-2" id="text-org6c4745b">
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> vc-dir
@@ -183,7 +183,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 
 <div id="outline-container-orgebfb3d4" class="outline-2">
-<h2 id="orgebfb3d4">bs (<code>M-x bs-show</code>)</h2>
+<h2 id="orgebfb3d4"><a id="ID-72ecb66e-e91d-4f48-829b-529306ca7bd8"></a>bs (<code>M-x bs-show</code>)</h2>
 <div class="outline-text-2" id="text-orgebfb3d4">
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> bs
@@ -197,7 +197,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 
 <div id="outline-container-org5016130" class="outline-2">
-<h2 id="org5016130">Recentf (<code>M-x recentf-open-files</code>)</h2>
+<h2 id="org5016130"><a id="ID-a51bab0c-96dd-45b0-8ca1-d6929695a450"></a>Recentf (<code>M-x recentf-open-files</code>)</h2>
 <div class="outline-text-2" id="text-org5016130">
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> recentf-dialog
@@ -211,7 +211,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 
 <div id="outline-container-org6d550e7" class="outline-2">
-<h2 id="org6d550e7">Org Agenda (<code>M-x org-agenda</code>)</h2>
+<h2 id="org6d550e7"><a id="ID-2f2d59c7-03ab-4039-8a4d-2bcaba6b3c47"></a>Org Agenda (<code>M-x org-agenda</code>)</h2>
 <div class="outline-text-2" id="text-org6d550e7">
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> org-agenda
@@ -224,7 +224,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 
 <div id="outline-container-org3862b90" class="outline-2">
-<h2 id="org3862b90">ag (from <code>ag.el</code> package, <code>M-x ag</code>)</h2>
+<h2 id="org3862b90"><a id="ID-0876ce6c-1522-4736-9948-6fbff93a65b5"></a>ag (from <code>ag.el</code> package, <code>M-x ag</code>)</h2>
 <div class="outline-text-2" id="text-org3862b90">
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> ag
@@ -237,7 +237,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 
 <div id="outline-container-orgd2fe96d" class="outline-2">
-<h2 id="orgd2fe96d">Notmuch (from <code>notmuch</code> package, <code>M-x notmuch-search</code>)</h2>
+<h2 id="orgd2fe96d"><a id="ID-cb9b9501-47bf-411b-b2bd-aabc286ca411"></a>Notmuch (from <code>notmuch</code> package, <code>M-x notmuch-search</code>)</h2>
 <div class="outline-text-2" id="text-orgd2fe96d">
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> notmuch-search
@@ -252,7 +252,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 
 <div id="outline-container-org2707d57" class="outline-2">
-<h2 id="org2707d57">Elfeed (from <code>elfeed</code> package, <code>M-x elfeed</code>)</h2>
+<h2 id="org2707d57"><a id="ID-890bb9aa-8aa9-4d14-a367-d770ef9a0769"></a>Elfeed (from <code>elfeed</code> package, <code>M-x elfeed</code>)</h2>
 <div class="outline-text-2" id="text-org2707d57">
 <div class="org-src-container">
 <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> elfeed-search
@@ -264,7 +264,7 @@ What follows is all the "overloads" I use in my config, you can use these as an 
 </div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-06-04 14:54</div>
+<div style="text-align: left; float: left;">Last updated at: 2017-06-04 15:38</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).org">Edit on GitHub!</a></div>
 </div>
 </body>

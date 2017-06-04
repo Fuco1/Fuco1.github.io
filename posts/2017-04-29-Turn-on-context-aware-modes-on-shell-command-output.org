@@ -5,6 +5,8 @@
   CLOSED: [2017-04-29 Sat 23:10]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-04-29-Turn-on-context-aware-modes-on-shell-command-output
+  :ID:       72b8b057-213d-4859-aa93-e115a028551b
+  :PUBDATE:  <2017-04-29 Sat 23:10>
   :END:
    :CLOCK:
    CLOCK: [2017-04-30 Sun 16:35]
