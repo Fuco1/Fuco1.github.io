@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2017-06-11 Sun 21:26 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Font-locking with custom matchers</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./sitemap.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://fuco1.github.io/rss.xml">RSS</a>
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">Font-locking with custom matchers</h1>
+
+<p>
+Previously I have written about <a href="./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html#orgdd09046">font-lock anchored matchers</a>.  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
+</p>
+
+<p>
+I now work at a DevOps position and so I have been writing a lot of shell scripts lately to glue all the stuff we do together.  One missing feature that kept bugging me was the font-locking of interpolated variables in <code>sh-mode</code>&#x2026; that is, the fact that there wasn't any!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #fcaf3e;">FOO</span>=<span style="color: #e9b96e;">"hello"</span>
+<span style="color: #73d216;"># </span><span style="color: #73d216;">ugly brown!</span>
+<span style="color: #fcaf3e;">BAR</span>=<span style="color: #e9b96e;">"hello $FOO"</span>
+<span style="color: #73d216;"># </span><span style="color: #73d216;">I would really like to see that $FOO is *not* being interpolated</span>
+<span style="color: #fcaf3e;">BAZ</span>=<span style="color: #e9b96e;">'hello $FOO'</span>
+<span style="color: #73d216;"># </span><span style="color: #73d216;">in regular usage things are highlighted, but you should always quote, right?</span>
+bash $<span style="color: #fcaf3e;">FOO</span> $<span style="color: #fcaf3e;">BAR</span> ${<span style="color: #fcaf3e;">BAZ</span>}
+</pre>
+</div>
+
+<p>
+The problem with shell programming is that you quote 90% of the time and so the font-locking is wasted :/  You might say, well, just throw in the regexp, right?  Not quite.  We do not want to highlight variables in single-quoted strings where they are not interpolated.  This means we need to only match variables in certain syntactic context.
+</p>
+
+<p>
+In the previous post I mentioned you can use custom matchers which are essentially regular elisp functions so long as you conform to the interface of <code>re-search-forward</code>.  So that is exactly what I've done.
+</p>
+
+<p>
+The following function is a bit convoluted because you need to check the parse state.  Note that the function should only "process" <b>one</b> match as <code>font-lock</code> will execute it in a loop until it returns <code>nil</code> or moves point after the <code>limit</code>.
+</p>
+
+<ol class="org-ol">
+<li>Look for the next string matching a variable syntax, which is either
+<ul class="org-ul">
+<li>a <code>$</code> followed by word syntax, or</li>
+<li>a <code>$</code> followed by text enclosed in <code>{}.</code></li>
+</ul></li>
+<li>If no match then return nil.  This will tell the font-lock engine
+there is nothing to do up to <code>limit</code>.  This happens if the
+<code>re-search-forward</code> returns <code>nil</code> right away or eventually runs out of
+matches as we get over <code>limit</code>.</li>
+<li>If match, check if we are inside a double-quoted string.
+<ul class="org-ul">
+<li>If so, great, announce a match with a <code>throw</code> and the point where
+we ended (this is not strictly necessary, you only need to
+return non-nil).</li>
+<li>If not <code>GOTO 1</code>.</li>
+</ul></li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org14c2809"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-match-variables-in-quotes</span> <span style="color: #888a85;">(</span>limit<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Match variables in double-quotes in `</span><span style="color: #e6a8df;">sh-mode</span><span style="color: #e9b96e;">'."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-syntax-table</span> sh-mode-syntax-table
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">catch</span> '<span style="color: #e6a8df;">done</span>
+      <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>re-search-forward
+              <span style="color: #73d216;">;; </span><span style="color: #73d216;">`</span><span style="color: #e6a8df;">rx</span><span style="color: #73d216;">' is cool, mkay.</span>
+              <span style="color: #888a85;">(</span><span style="color: #b4fa70;">rx</span> <span style="color: #888a85;">(</span>group <span style="color: #e9b96e;">"$"</span><span style="color: #888a85;">)</span>
+                  <span style="color: #888a85;">(</span>group
+                   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #e9b96e;">"{"</span> <span style="color: #888a85;">(</span>+? nonl<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"}"</span><span style="color: #888a85;">)</span>
+                       <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> word-start <span style="color: #888a85;">(</span>+? nonl<span style="color: #888a85;">)</span> word-end<span style="color: #888a85;">))))</span>
+              limit t<span style="color: #888a85;">)</span>
+        <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">(</span>string-syntax <span style="color: #888a85;">(</span>nth 3 <span style="color: #888a85;">(</span>syntax-ppss<span style="color: #888a85;">)))</span>
+          <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>= string-syntax 34<span style="color: #888a85;">)</span>
+            <span style="color: #888a85;">(</span><span style="color: #b4fa70;">throw</span> '<span style="color: #e6a8df;">done</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))))))))</span>
+</pre>
+</div>
+
+<p>
+Add the support to the current buffer (use <code>nil</code> as first argument) or <code>sh-mode</code> globally (use <code>'sh-mode</code>):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org73cb773"><span style="color: #888a85;">(</span>font-lock-add-keywords
+ <span style="color: #e6a8df;">'sh-mode</span> '<span style="color: #888a85;">((</span>my-match-variables-in-quotes
+             <span style="color: #888a85;">(</span>1 <span style="color: #e6a8df;">'default</span> t<span style="color: #888a85;">)</span>
+             <span style="color: #888a85;">(</span>2 font-lock-variable-name-face t<span style="color: #888a85;">))))</span>
+</pre>
+</div>
+
+<p>
+Quite simple and the outcome is very satisfying.  Makes reading shell scripts a lot better in my opinion.  If any of you cares to submit this upstream go ahead, I have signed the contributor papers but I hereby withdraw all claims on the above code so you don't have to go through hoops :)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #fcaf3e;">FOO</span>=<span style="color: #e9b96e;">"hello"</span>
+<span style="color: #73d216;"># </span><span style="color: #73d216;">yay</span>
+<span style="color: #fcaf3e;">BAR</span>=<span style="color: #e9b96e;">"hello </span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">FOO</span><span style="color: #e9b96e;"> and also </span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">{FOO}</span><span style="color: #e9b96e;">"</span>
+<span style="color: #73d216;"># </span><span style="color: #73d216;">No interpolation in single-quotes</span>
+<span style="color: #fcaf3e;">BAZ</span>=<span style="color: #e9b96e;">'hello $FOO'</span>
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2017-06-11 21:26</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-06-11-Font-locking-with-custom-matchers.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>
