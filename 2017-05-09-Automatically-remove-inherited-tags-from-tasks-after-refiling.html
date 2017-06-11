@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-04 Sun 15:39 -->
+<!-- 2017-06-11 Sun 21:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Automatically remove inherited tags from tasks after refiling</title>
@@ -31,10 +31,66 @@
 <p>
 I have a pretty standard <code>org-capture</code> workflow: during the day when an idea comes to mind or I stumble upon a task I can't solve right now or I find an article I would want to read later I use one of the several <a href="https://github.com/Fuco1/.emacs.d/blob/master/files/org-defs.el#L1142">capture templates I set up</a> to quickly file a note and continue with minimal distraction with what I was doing at the time.
 </p>
+
+<p>
+When I add these tasks I try to tag them with appropriate tags.  So
+</p>
+
+<ul class="org-ul">
+<li>for articles I add tags according to the area the article relates to (<code>:math:</code>, <code>:programming:</code>&#x2026;)</li>
+<li>for tasks in projects I add the project tags (<code>:emacs:</code>, <code>:smartparens:</code>&#x2026;)</li>
+<li>for chores I add tags about where to do the given task (<code>:home:</code>, <code>:garden:</code>&#x2026;)</li>
+</ul>
+
+<p>
+Well, the point is, I tag the entries to-be-refiled.
+</p>
+
+<p>
+When I get to my daily or weekly review and refiling I had to manually go to the refiled entry and remove the painstakingly added tags.  That is because the tags are already present on the parent headlines most of the time and so get inherited&#x2026; and I hate to have them duplicitly.  On the other hand, not adding the tags also proved painful because sometimes I leave (non-urgent) tasks sitting in the refile log for a couple days and by the time I get to process them there can be quite a few; the tags help me better remember what is going on.
+</p>
+
+<p>
+Of course, the same issue comes up with regular refiling between different hierarchies.
+</p>
+
+<p>
+So there is the problem, fortunately nothing a little bit of hacking can't solve.  Org mode conveniently provides <code>org-after-refile-insert-hook</code> where we can add the little function below to do the work.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-remove-inherited-local-tags</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Remove local tags that can be inherited instead."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>target-tags-local <span style="color: #888a85;">(</span>org-get-tags-at nil <span style="color: #e6a8df;">'local</span><span style="color: #888a85;">))</span>
+         <span style="color: #73d216;">;; </span><span style="color: #73d216;">We have to remove the local tags otherwise they would not</span>
+         <span style="color: #73d216;">;; </span><span style="color: #73d216;">show up as being inherited if they are present on</span>
+         <span style="color: #73d216;">;; </span><span style="color: #73d216;">parents---the local tag would "override" the parent</span>
+         <span style="color: #888a85;">(</span>target-tags-inherited
+          <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unwind-protect</span>
+              <span style="color: #888a85;">(</span><span style="color: #b4fa70;">progn</span>
+                <span style="color: #888a85;">(</span>org-set-tags-to nil<span style="color: #888a85;">)</span>
+                <span style="color: #888a85;">(</span>org-get-tags-at<span style="color: #888a85;">))</span>
+            <span style="color: #888a85;">(</span>org-set-tags-to target-tags-local<span style="color: #888a85;">))))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-each</span> target-tags-local
+      <span style="color: #888a85;">(</span><span style="color: #b4fa70;">lambda</span> <span style="color: #888a85;">(</span>tag<span style="color: #888a85;">)</span>
+        <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>member tag target-tags-inherited<span style="color: #888a85;">)</span>
+          <span style="color: #888a85;">(</span>org-toggle-tag tag <span style="color: #e6a8df;">'off</span><span style="color: #888a85;">))))))</span>
+
+<span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-after-refile-insert-hook</span> <span style="color: #e6a8df;">'my-org-remove-inherited-local-tags</span><span style="color: #888a85;">)</span>
+</pre>
+</div>
+
+<p>
+The function also showcases work with the org tag API which I personally find rather confusing (the naming seems to have been invented on the fly because it doesn't make sense half the time).
+</p>
+
+<p>
+I also wanted to add the functionality to preserve the inherited tags from the original position so that refiling would be tag-neutral operation.  But that actually proved rather annoying because the point of refiling under a differnet hierarchy is to <i>not</i> have the same tags&#x2026; otherwise why would you refile at all.
+</p>
 </div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-06-04 15:39</div>
+<div style="text-align: left; float: left;">Last updated at: 2017-06-11 21:32</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.org">Edit on GitHub!</a></div>
 </div>
 </body>
