@@ -56,10 +56,12 @@ The following function is a bit convoluted because you need to check the parse s
     (catch 'done
       (while (re-search-forward
               ;; `rx' is cool, mkay.
-              (rx (group "$")
+              (rx (or line-start (not (any "\\")))
+                  (group "$")
                   (group
                    (or (and "{" (+? nonl) "}")
-                       (and word-start (+? nonl) word-end))))
+                       (and (+ (any alnum "_")))
+                       (and (any "*" "@" "#" "?" "-" "$" "!" "0" "_")))))
               limit t)
         (-when-let (string-syntax (nth 3 (syntax-ppss)))
           (when (= string-syntax 34)
