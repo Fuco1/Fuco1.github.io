@@ -12,8 +12,13 @@
    - State "DONE"       from "TODO"       [2017-06-11 Sun 20:58]
    :END:
    :CLOCK:
-   CLOCK: [2017-06-11 Sun 20:20]
+   CLOCK: [2017-06-11 Sun 20:20]--[2017-06-11 Sun 21:27] =>  1:07
    :END:
+
+#+NAME: sh-mode-changelog
+|       Date | Change                                                                        |
+|------------+-------------------------------------------------------------------------------|
+| 2017-06-21 | The regexp was fixed to match =$FOO_BAR= and skip escaped dollars (see this [[https://github.com/Fuco1/Fuco1.github.io/pull/6][PR]]) |
 
 Previously I have written about [[file:./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org::*The%20absolute%20awesomeness%20of%20anchored%20font-lock%20matchers][font-lock anchored matchers]].  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
 

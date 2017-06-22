@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-11 Sun 21:26 -->
+<!-- 2017-06-21 Wed 21:41 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Font-locking with custom matchers</title>
@@ -27,6 +27,28 @@
 </div>
 <div id="content">
 <h1 class="title">Font-locking with custom matchers</h1>
+
+<table id="org0f6667e" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Date</th>
+<th scope="col" class="org-left">Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">2017-06-21</td>
+<td class="org-left">The regexp was fixed to match <code>$FOO_BAR</code> and skip escaped dollars (see this <a href="https://github.com/Fuco1/Fuco1.github.io/pull/6">PR</a>)</td>
+</tr>
+</tbody>
+</table>
 
 <p>
 Previously I have written about <a href="./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html#orgdd09046">font-lock anchored matchers</a>.  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
@@ -85,10 +107,12 @@ return non-nil).</li>
     <span style="color: #888a85;">(</span><span style="color: #b4fa70;">catch</span> '<span style="color: #e6a8df;">done</span>
       <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>re-search-forward
               <span style="color: #73d216;">;; </span><span style="color: #73d216;">`</span><span style="color: #e6a8df;">rx</span><span style="color: #73d216;">' is cool, mkay.</span>
-              <span style="color: #888a85;">(</span><span style="color: #b4fa70;">rx</span> <span style="color: #888a85;">(</span>group <span style="color: #e9b96e;">"$"</span><span style="color: #888a85;">)</span>
+              <span style="color: #888a85;">(</span><span style="color: #b4fa70;">rx</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> line-start <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span>any <span style="color: #e9b96e;">"\\"</span><span style="color: #888a85;">)))</span>
+                  <span style="color: #888a85;">(</span>group <span style="color: #e9b96e;">"$"</span><span style="color: #888a85;">)</span>
                   <span style="color: #888a85;">(</span>group
                    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #e9b96e;">"{"</span> <span style="color: #888a85;">(</span>+? nonl<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"}"</span><span style="color: #888a85;">)</span>
-                       <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> word-start <span style="color: #888a85;">(</span>+? nonl<span style="color: #888a85;">)</span> word-end<span style="color: #888a85;">))))</span>
+                       <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>+ <span style="color: #888a85;">(</span>any alnum <span style="color: #e9b96e;">"_"</span><span style="color: #888a85;">)))</span>
+                       <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>any <span style="color: #e9b96e;">"*"</span> <span style="color: #e9b96e;">"@"</span> <span style="color: #e9b96e;">"#"</span> <span style="color: #e9b96e;">"?"</span> <span style="color: #e9b96e;">"-"</span> <span style="color: #e9b96e;">"$"</span> <span style="color: #e9b96e;">"!"</span> <span style="color: #e9b96e;">"0"</span> <span style="color: #e9b96e;">"_"</span><span style="color: #888a85;">)))))</span>
               limit t<span style="color: #888a85;">)</span>
         <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">(</span>string-syntax <span style="color: #888a85;">(</span>nth 3 <span style="color: #888a85;">(</span>syntax-ppss<span style="color: #888a85;">)))</span>
           <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>= string-syntax 34<span style="color: #888a85;">)</span>
@@ -123,7 +147,7 @@ Quite simple and the outcome is very satisfying.  Makes reading shell scripts a 
 </div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-06-11 21:26</div>
+<div style="text-align: left; float: left;">Last updated at: 2017-06-21 21:41</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-06-11-Font-locking-with-custom-matchers.org">Edit on GitHub!</a></div>
 </div>
 </body>
