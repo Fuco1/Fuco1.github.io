@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-04 Sun 23:58 -->
+<!-- 2017-07-03 Mon 20:21 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>The absolute awesomeness of anchored font-lock matchers</title>
@@ -27,6 +27,28 @@
 </div>
 <div id="content">
 <h1 class="title">The absolute awesomeness of anchored font-lock matchers</h1>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Date</th>
+<th scope="col" class="org-left">Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">2017-07-03</td>
+<td class="org-left">The font-lock spec annotations were updated to better reflect the looping nature of the matcher</td>
+</tr>
+</tbody>
+</table>
 
 <p>
 People who know my rants on Emacs and especially <code>font-lock-mode</code> know that I consider it a rather crappy hack.  Parsing complex context sensitive languages with a bunch of very weak regexes<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> just screams <i>This is a really bad idea!</i>  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets <code>match-data</code> the same way <code>re-search-forward</code> would.
@@ -58,11 +80,11 @@ Now, how would I fontify those <code>string</code> and <code>int</code> occurren
 </p>
 
 <p>
-The anchored matchers works by first searching for an <i>anchor</i> and only then searching for the thing you want to highlight.  This basically allows you to do look-ahead context-sensitive fontification in the sense that the subsequent matchers are <i>tried</i> but if they fail the process continues <b>from where the anchor match ended</b>.<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.
+The anchored matchers work by first searching for an <i>anchor</i> and only then searching for the thing you want to highlight.  This basically allows you to do look-ahead context-sensitive fontification in the sense that the subsequent matchers are <i>tried</i> but if they fail the process continues <b>from where the anchor match ended</b>.<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.
 </p>
 
 <p>
-For the longest time I struggled to understand how the font-lock specifications worked because there is so many different ways to write them.  What actually helped me to understand this once and for all was to simply look into the source code and read how it works.  I remembered the recent post by <a href="http://irreal.org/blog/?p=6209">Irreal</a> on reading source code.  It really is an effective way to learn, especially with software like Emacs being absolutely transparent about everything that is going inside.
+For the longest time I struggled to understand how the font-lock specifications worked because there is so many different ways to write them.  What actually helped me to understand this once and for all was to simply look into the source code and read how it works.  I remembered the recent post by <a href="http://irreal.org/blog/?p=6209">Irreal</a> on reading source code.  It really is an effective way to learn, especially with software like Emacs being absolutely transparent about everything that is going on inside.
 </p>
 
 <p>
@@ -82,7 +104,7 @@ where <code>MATCHER</code> is the search regexp that is tried after the anchor w
 </p>
 
 <p>
-The cool and crucial ingredient is is that the <code>MATCHER</code> is run in a cycle until the point goes after the limit.  This means that we in a sense "fontify" the region from the anchor to the limit we provide (or end of line by default).  We can then reset the position in the <code>POST-MATCH-FORM</code> so the next <code>HIGHLIGHT</code> (anchored matcher) will start from the beginning of the same "region" again.  This allows us to define "region specific" font-locking.  So cool!
+The cool and crucial ingredient is that the <code>MATCHER</code> is run in a cycle until the point goes after the limit.  This means that we in a sense "fontify" the region from the anchor to the limit we provide (or end of line by default).  We can then reset the position in the <code>POST-MATCH-FORM</code> so the next <code>HIGHLIGHT</code> (anchored matcher) will start from the beginning of the same "region" again.  This allows us to define "region specific" font-locking.  So cool!
 </p>
 
 <p>
@@ -99,22 +121,22 @@ The final annotated rule looks as follows:
     <span style="color: #888a85;">(</span>1 font-lock-keyword-face<span style="color: #888a85;">)</span>
     <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify the function name as function</span>
     <span style="color: #888a85;">(</span>2 font-lock-function-name-face<span style="color: #888a85;">)</span>
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">look for the first symbol after the ::, it is a type</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">look for symbols after the `</span><span style="color: #e6a8df;">::</span><span style="color: #73d216;">', they are types</span>
     <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"\\_&lt;</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">\\sw</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">|</span><span style="color: #e9b96e;">\\s_</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">+</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">\\_&gt;"</span>
      <span style="color: #73d216;">;; </span><span style="color: #73d216;">set the limit of search to the current `</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' form only</span>
      <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span> <span style="color: #888a85;">(</span>up-list<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span>
      <span style="color: #73d216;">;; </span><span style="color: #73d216;">when we found all the types in the region (`</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' form) go</span>
      <span style="color: #73d216;">;; </span><span style="color: #73d216;">back to the `</span><span style="color: #e6a8df;">::</span><span style="color: #73d216;">' marker</span>
      <span style="color: #888a85;">(</span>re-search-backward <span style="color: #e9b96e;">"::"</span><span style="color: #888a85;">)</span>
-     <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify the matched symbols as types</span>
+     <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify each matched symbol as type</span>
      <span style="color: #888a85;">(</span>0 font-lock-type-face<span style="color: #888a85;">))</span>
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">when done with the symbol, look for the arrows</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">when done with the symbols look for the arrows</span>
     <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"-&gt;"</span>
      <span style="color: #73d216;">;; </span><span style="color: #73d216;">we are starting from the `</span><span style="color: #e6a8df;">::</span><span style="color: #73d216;">' again, so set the same limit as</span>
      <span style="color: #73d216;">;; </span><span style="color: #73d216;">for the previous search (the `</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' form)</span>
      <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span> <span style="color: #888a85;">(</span>up-list<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span>
-     <span style="color: #73d216;">;; </span><span style="color: #73d216;">do not move back when we find a match to ensure forward</span>
-     <span style="color: #73d216;">;; </span><span style="color: #73d216;">progress as we are done with the form</span>
+     <span style="color: #73d216;">;; </span><span style="color: #73d216;">do not move back when we've found all matches to ensure</span>
+     <span style="color: #73d216;">;; </span><span style="color: #73d216;">forward progress.  At this point we are done with the form</span>
      nil
      <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify the found arrows as variables (whatever...)</span>
      <span style="color: #888a85;">(</span>0 font-lock-variable-name-face t<span style="color: #888a85;">)))))</span>
@@ -126,8 +148,8 @@ And the forms are fontified in very much the same way as the Haskell code above 
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">type</span> <span style="color: #fce94f;">function</span> <span style="color: #ad7fa8;">::</span> <span style="color: #8cc4ff;">int</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #8cc4ff;">string</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #888a85;">(</span><span style="color: #8cc4ff;">string</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #8cc4ff;">int</span><span style="color: #888a85;">)</span> <span style="color: #fcaf3e;">-&gt;</span> [<span style="color: #8cc4ff;">float</span>]<span style="color: #888a85;">)</span>
-<span style="color: #888a85;">(</span><span style="color: #b4fa70;">type</span> <span style="color: #fce94f;">constant</span> <span style="color: #ad7fa8;">::</span> <span style="color: #8cc4ff;">int</span><span style="color: #888a85;">)</span>
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>type function <span style="color: #ad7fa8;">::</span> int -&gt; string -&gt; <span style="color: #888a85;">(</span>string -&gt; int<span style="color: #888a85;">)</span> -&gt; [float]<span style="color: #888a85;">)</span>
+<span style="color: #888a85;">(</span>type constant <span style="color: #ad7fa8;">::</span> int<span style="color: #888a85;">)</span>
 
 <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">string</span> <span style="color: #888a85;">(</span>string int<span style="color: #888a85;">)</span>
   <span style="color: #e9b96e;">"The keywords outside of the type form are *not* fontified!"</span><span style="color: #888a85;">)</span>
@@ -160,7 +182,7 @@ Awesome.
 </div></div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-06-04 23:58</div>
+<div style="text-align: left; float: left;">Last updated at: 2017-07-03 20:21</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org">Edit on GitHub!</a></div>
 </div>
 </body>

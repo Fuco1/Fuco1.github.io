@@ -1,6 +1,5 @@
 #+TITLE: Archive
 
-   + [[file:rss.org][2017-06-21 rss]]
    + [[file:2017-06-11-Font-locking-with-custom-matchers.org][2017-06-11 Font-locking with custom matchers]]
    + [[file:2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org][2017-06-01 The absolute awesomeness of anchored font-lock matchers]]
    + [[file:2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.org][2017-05-28 Generating all groupings of (1|2)* summing up to m]]
