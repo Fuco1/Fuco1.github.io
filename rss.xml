@@ -14,8 +14,8 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Mon, 03 Jul 2017 20:21:18 +0200</pubDate>
-  <lastBuildDate>Mon, 03 Jul 2017 20:21:18 +0200</lastBuildDate>
+  <pubDate>Sat, 15 Jul 2017 22:16:12 +0200</pubDate>
+  <lastBuildDate>Sat, 15 Jul 2017 22:16:12 +0200</lastBuildDate>
   <generator>Emacs 25.2 Org-mode 9.0.7</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
@@ -23,6 +23,89 @@
     <title>Matus Goljer (Fuco1)</title>
     <link>https://fuco1.github.io/</link>
   </image>
+
+  <item>
+    <title>Collapse unique nested paths in dired with dired-collapse-mode</title>
+    <link>https://fuco1.github.io/2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.html</guid>
+    <pubDate>Sat, 15 Jul 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[<p>
+    Often times we find ourselves in a situation where a single file or
+    directory is nested in a chain of nested directories with no other
+    content. This is sometimes due to various mandatory layouts demanded by
+    packaging tools or tools generating these deeply-nested "unique" paths
+    to disambiguate architectures or versions (but we often use only one
+    anyway). If the user wants to access these directories they have to
+    quite needlessly drill-down through varying number of "uninteresting"
+    directories to get to the content.
+    </p>
+
+    <p>
+    This minor mode is in main inspired by how GitHub renders these paths:
+    if there is a chain of directories where each one only has one child,
+    they are concatenated together and shown on the first level in this
+    collapsed form. When the user clicks this collapsed directory they are
+    immediately brought to the deepest directory with some actual content.
+    </p>
+
+    <p>
+    In case the deepest directory contains only a single file
+    <code>dired-collapse-mode</code> differs a bit in that this file is displayed
+    instead of the last directory. This way we can get directly to the
+    file itself. This is often helpful with config files which are stored
+    in their own directories, for example in <code>~/.config/foo/config</code> and
+    similar situations.
+    </p>
+
+
+    <div class="figure">
+    <p><img src="http://i.imgur.com/qhCvDws.png" alt="qhCvDws.png" />
+    </p>
+    <p><span class="figure-number">Figure 1: </span>Configurations often require deep but unique nesting</p>
+    </div>
+
+    <p>
+    The files or directories re-inserted in this manner will also have
+    updated permissions, file sizes and modification dates so they truly
+    correspond to the properties of the file being shown.
+    </p>
+
+    <p>
+    The path to the deepest file is dimmed with the <code>shadow</code> face so that it
+    does not distract but at the same time is still available for
+    inspection.
+    </p>
+
+    <p>
+    The mode is integrated with <code>dired-rainbow</code> so the nested files are
+    properly colored according to user's rules.
+    </p>
+
+
+    <div class="figure">
+    <p><img src="http://i.imgur.com/Xje5Nmo.png" alt="Xje5Nmo.png" />
+    </p>
+    <p><span class="figure-number">Figure 2: </span>Before collapse</p>
+    </div>
+
+    <p>
+    After collapsing:
+    </p>
+
+
+    <div class="figure">
+    <p><img src="http://i.imgur.com/mm6gFbX.png" alt="mm6gFbX.png" />
+    </p>
+    <p><span class="figure-number">Figure 3: </span>After collapse</p>
+    </div>
+
+    <p>
+    This package was created mainly due to the excellent <a href="https://github.com/Fuco1/dired-hacks/issues/85">feature request</a> by the GitHub user <a href="https://github.com/kidd">@kidd</a>.  Thanks!
+    </p>
+    ]]></description>
+  </item>
 
   <item>
     <title>Font-locking with custom matchers</title>
