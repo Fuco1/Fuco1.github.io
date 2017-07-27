@@ -34,7 +34,7 @@ in their own directories, for example in =~/.config/foo/config= and
 similar situations.
 
 #+CAPTION: Configurations often require deep but unique nesting
-[[http://i.imgur.com/qhCvDws.png]]
+[[https://i.imgur.com/qhCvDws.png]]
 
 The files or directories re-inserted in this manner will also have
 updated permissions, file sizes and modification dates so they truly
@@ -48,12 +48,12 @@ The mode is integrated with =dired-rainbow= so the nested files are
 properly colored according to user's rules.
 
 #+CAPTION: Before collapse
-[[http://i.imgur.com/Xje5Nmo.png]]
+[[https://i.imgur.com/Xje5Nmo.png]]
 
 After collapsing:
 
 #+CAPTION: After collapse
-[[http://i.imgur.com/mm6gFbX.png]]
+[[https://i.imgur.com/mm6gFbX.png]]
 
 This package was created mainly due to the excellent [[https://github.com/Fuco1/dired-hacks/issues/85][feature request]] by the GitHub user [[https://github.com/kidd][@kidd]].  Thanks!
 
