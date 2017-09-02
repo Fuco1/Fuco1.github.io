@@ -14,8 +14,8 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Sat, 15 Jul 2017 22:16:12 +0200</pubDate>
-  <lastBuildDate>Sat, 15 Jul 2017 22:16:12 +0200</lastBuildDate>
+  <pubDate>Sat, 02 Sep 2017 22:08:06 +0200</pubDate>
+  <lastBuildDate>Sat, 02 Sep 2017 22:08:06 +0200</lastBuildDate>
   <generator>Emacs 25.2 Org-mode 9.0.7</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
@@ -25,212 +25,292 @@
   </image>
 
   <item>
-    <title>Collapse unique nested paths in dired with dired-collapse-mode</title>
-    <link>https://fuco1.github.io/2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.html</link>
+    <title>Maximize the org-capture buffer</title>
+    <link>https://fuco1.github.io/2017-09-02-Maximize-the-org-capture-buffer.html</link>
     <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.html</guid>
-    <pubDate>Sat, 15 Jul 2017 00:00:00 +0200</pubDate>
+    <guid isPermaLink="false">https://fuco1.github.io/2017-09-02-Maximize-the-org-capture-buffer.html</guid>
+    <pubDate>Sat, 02 Sep 2017 00:00:00 +0200</pubDate>
 
     <description><![CDATA[<p>
-    Often times we find ourselves in a situation where a single file or
-    directory is nested in a chain of nested directories with no other
-    content. This is sometimes due to various mandatory layouts demanded by
-    packaging tools or tools generating these deeply-nested "unique" paths
-    to disambiguate architectures or versions (but we often use only one
-    anyway). If the user wants to access these directories they have to
-    quite needlessly drill-down through varying number of "uninteresting"
-    directories to get to the content.
+    I'm a heavy user of <code>org-capture</code> and one behaviour of it always annoyed me:  instead of having the capture popup take the whole screen, it opens a new window.  This window is often small and somewhat inconvenient.  I like to do one thing at a time and so when I'm filing a note or capturing an idea I want to see only the capture buffer and no other distractions.  As we all know distractions kill flow and so we should always find ways to get all the nonsense out of the way.
     </p>
 
     <p>
-    This minor mode is in main inspired by how GitHub renders these paths:
-    if there is a chain of directories where each one only has one child,
-    they are concatenated together and shown on the first level in this
-    collapsed form. When the user clicks this collapsed directory they are
-    immediately brought to the deepest directory with some actual content.
+    Recently I've started using <a href="https://github.com/sprig/org-capture-extension">this awesome extension</a> to capture web content from firefox (works with chrome too).  I've tweaked the protocol handler to not only invoke <code>emacsclient "%u"</code> but also set some frame properties for later.
     </p>
 
     <p>
-    In case the deepest directory contains only a single file
-    <code>dired-collapse-mode</code> differs a bit in that this file is displayed
-    instead of the last directory. This way we can get directly to the
-    file itself. This is often helpful with config files which are stored
-    in their own directories, for example in <code>~/.config/foo/config</code> and
-    similar situations.
+    Here's the bash script I use as the handler
     </p>
 
-
-    <div class="figure">
-    <p><img src="http://i.imgur.com/qhCvDws.png" alt="qhCvDws.png" />
-    </p>
-    <p><span class="figure-number">Figure 1: </span>Configurations often require deep but unique nesting</p>
+    <div class="org-src-container">
+    <pre class="src src-sh"><span style="color: #73d216;">#</span><span style="color: #73d216;">!/bin/</span><span style="color: #b4fa70;">bash</span>
+    emacsclient -c -F <span style="color: #e9b96e;">'((name . "org-protocol-capture"))'</span> <span style="color: #e9b96e;">"</span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">@</span><span style="color: #e9b96e;">"</span>
+    </pre>
     </div>
 
     <p>
-    The files or directories re-inserted in this manner will also have
-    updated permissions, file sizes and modification dates so they truly
-    correspond to the properties of the file being shown.
+    The <code>-F</code> option sets the frame parameters with the specified alist.  Here I only set the name to <code>"org-protocol-capture"</code> I make sure to open new frame with <code>-c</code>.
     </p>
 
     <p>
-    The path to the deepest file is dimmed with the <code>shadow</code> face so that it
-    does not distract but at the same time is still available for
-    inspection.
+    Org capture provides several hooks we can use to tweak the default behaviour.
     </p>
 
     <p>
-    The mode is integrated with <code>dired-rainbow</code> so the nested files are
-    properly colored according to user's rules.
+    First, we make sure the capture buffer window takes the whole frame.  To do this, we first save the current window configuration and then delete all other windows on entering the <code>org-capture-mode</code>.  Unfortunately there is no "before anything happens" hook so we use a before advice instead.
     </p>
 
 
-    <div class="figure">
-    <p><img src="http://i.imgur.com/Xje5Nmo.png" alt="Xje5Nmo.png" />
-    </p>
-    <p><span class="figure-number">Figure 2: </span>Before collapse</p>
+    <div class="org-src-container">
+    <pre class="src src-elisp" id="orgedd0b20"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defvar</span> <span style="color: #fcaf3e;">my-org-capture-before-config</span> nil
+    <span style="color: #e9b96e;">"Window configuration before `</span><span style="color: #e6a8df;">org-capture</span><span style="color: #e9b96e;">'."</span><span style="color: #888a85;">)</span>
+
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">org-capture</span> <span style="color: #888a85;">(</span>before save-config activate<span style="color: #888a85;">)</span>
+    <span style="color: #e9b96e;">"Save the window configuration before `</span><span style="color: #e6a8df;">org-capture</span><span style="color: #e9b96e;">'."</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> my-org-capture-before-config <span style="color: #888a85;">(</span>current-window-configuration<span style="color: #888a85;">)))</span>
+
+    <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-capture-mode-hook</span> <span style="color: #e6a8df;">'delete-other-windows</span><span style="color: #888a85;">)</span>
+    </pre>
     </div>
 
     <p>
-    After collapsing:
+    Next, after we finish the capture work flow (either with success or cancellation) we restore the window configuration saved previously.
+    </p>
+
+    <p>
+    Finally, let's make sure that after we refile the captured content the frame which was possibly created (if capture was invoked with <code>org-protocol</code>) closes itself automatically.  This keeps us in the flow and keeps the distraction of killing the frame manually away.  We use the frame name to decide if we wish to kill the frame or not (this is the <code>-F</code> argument from above).
     </p>
 
 
-    <div class="figure">
-    <p><img src="http://i.imgur.com/mm6gFbX.png" alt="mm6gFbX.png" />
-    </p>
-    <p><span class="figure-number">Figure 3: </span>After collapse</p>
+    <div class="org-src-container">
+    <pre class="src src-elisp" id="orga260a32"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-capture-cleanup</span> <span style="color: #888a85;">()</span>
+    <span style="color: #e9b96e;">"Clean up the frame created while capturing via org-protocol."</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">In case we run capture from emacs itself and not an external app,</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">we want to restore the old window config</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> my-org-capture-before-config
+    <span style="color: #888a85;">(</span>set-window-configuration my-org-capture-before-config<span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">((</span><span style="color: #8cc4ff;">&amp;alist</span> <span style="color: #e6a8df;">'name</span> name<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>frame-parameters<span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>equal name <span style="color: #e9b96e;">"org-protocol-capture"</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>delete-frame<span style="color: #888a85;">))))</span>
+
+    <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-capture-after-finalize-hook</span> <span style="color: #e6a8df;">'my-org-capture-cleanup</span><span style="color: #888a85;">)</span>
+    </pre>
     </div>
 
     <p>
-    This package was created mainly due to the excellent <a href="https://github.com/Fuco1/dired-hacks/issues/85">feature request</a> by the GitHub user <a href="https://github.com/kidd">@kidd</a>.  Thanks!
+    With these tweaks the whole capture experience is much more streamlined for me.  When I invoke capture from anywhere (Emacs or via <code>org-protocol</code>), I get a full screen frame/window where I can quickly jot my thoughts.  After I'm finished everything restores itself to the previous state and I can continue with whatever task I was consumed prior to the capture process.
     </p>
     ]]></description>
-  </item>
+</item>
 
-  <item>
-    <title>Font-locking with custom matchers</title>
-    <link>https://fuco1.github.io/2017-06-11-Font-locking-with-custom-matchers.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2017-06-11-Font-locking-with-custom-matchers.html</guid>
-    <pubDate>Sun, 11 Jun 2017 00:00:00 +0200</pubDate>
+<item>
+  <title>Collapse unique nested paths in dired with dired-collapse-mode</title>
+  <link>https://fuco1.github.io/2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.html</guid>
+  <pubDate>Sat, 15 Jul 2017 00:00:00 +0200</pubDate>
 
-    <description><![CDATA[<table id="orga2fe9f7" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+  <description><![CDATA[<p>
+  Often times we find ourselves in a situation where a single file or
+  directory is nested in a chain of nested directories with no other
+  content. This is sometimes due to various mandatory layouts demanded by
+  packaging tools or tools generating these deeply-nested "unique" paths
+  to disambiguate architectures or versions (but we often use only one
+  anyway). If the user wants to access these directories they have to
+  quite needlessly drill-down through varying number of "uninteresting"
+  directories to get to the content.
+  </p>
+
+  <p>
+  This minor mode is in main inspired by how GitHub renders these paths:
+  if there is a chain of directories where each one only has one child,
+  they are concatenated together and shown on the first level in this
+  collapsed form. When the user clicks this collapsed directory they are
+  immediately brought to the deepest directory with some actual content.
+  </p>
+
+  <p>
+  In case the deepest directory contains only a single file
+  <code>dired-collapse-mode</code> differs a bit in that this file is displayed
+  instead of the last directory. This way we can get directly to the
+  file itself. This is often helpful with config files which are stored
+  in their own directories, for example in <code>~/.config/foo/config</code> and
+  similar situations.
+  </p>
 
 
-    <colgroup>
-    <col  class="org-right" />
+  <div class="figure">
+  <p><img src="http://i.imgur.com/qhCvDws.png" alt="qhCvDws.png" />
+  </p>
+  <p><span class="figure-number">Figure 1: </span>Configurations often require deep but unique nesting</p>
+  </div>
 
-    <col  class="org-left" />
-    </colgroup>
-    <thead>
-    <tr>
-    <th scope="col" class="org-right">Date</th>
-    <th scope="col" class="org-left">Change</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-    <td class="org-right">2017-06-21</td>
-    <td class="org-left">The regexp was fixed to match <code>$FOO_BAR</code> and skip escaped dollars (see this <a href="https://github.com/Fuco1/Fuco1.github.io/pull/6">PR</a>)</td>
-    </tr>
-    </tbody>
-    </table>
+  <p>
+  The files or directories re-inserted in this manner will also have
+  updated permissions, file sizes and modification dates so they truly
+  correspond to the properties of the file being shown.
+  </p>
 
-    <p>
-    Previously I have written about <a href="https://fuco1.github.io/./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html#org874f9d3">font-lock anchored matchers</a>.  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
-    </p>
+  <p>
+  The path to the deepest file is dimmed with the <code>shadow</code> face so that it
+  does not distract but at the same time is still available for
+  inspection.
+  </p>
 
-    <p>
-    I now work at a DevOps position and so I have been writing a lot of shell scripts lately to glue all the stuff we do together.  One missing feature that kept bugging me was the font-locking of interpolated variables in <code>sh-mode</code>... that is, the fact that there wasn't any!
-    </p>
+  <p>
+  The mode is integrated with <code>dired-rainbow</code> so the nested files are
+  properly colored according to user's rules.
+  </p>
 
-    <div class="org-src-container">
-    <pre class="src src-bash"><span style="color: #fcaf3e;">FOO</span>=<span style="color: #e9b96e;">"hello"</span>
-    <span style="color: #73d216;"># </span><span style="color: #73d216;">ugly brown!</span>
-    <span style="color: #fcaf3e;">BAR</span>=<span style="color: #e9b96e;">"hello $FOO"</span>
-    <span style="color: #73d216;"># </span><span style="color: #73d216;">I would really like to see that $FOO is *not* being interpolated</span>
-    <span style="color: #fcaf3e;">BAZ</span>=<span style="color: #e9b96e;">'hello $FOO'</span>
-    <span style="color: #73d216;"># </span><span style="color: #73d216;">in regular usage things are highlighted, but you should always quote, right?</span>
-    bash $<span style="color: #fcaf3e;">FOO</span> $<span style="color: #fcaf3e;">BAR</span> ${<span style="color: #fcaf3e;">BAZ</span>}
-    </pre>
-    </div>
 
-    <p>
-    The problem with shell programming is that you quote 90% of the time and so the font-locking is wasted :/  You might say, well, just throw in the regexp, right?  Not quite.  We do not want to highlight variables in single-quoted strings where they are not interpolated.  This means we need to only match variables in certain syntactic context.
-    </p>
+  <div class="figure">
+  <p><img src="http://i.imgur.com/Xje5Nmo.png" alt="Xje5Nmo.png" />
+  </p>
+  <p><span class="figure-number">Figure 2: </span>Before collapse</p>
+  </div>
 
-    <p>
-    In the previous post I mentioned you can use custom matchers which are essentially regular elisp functions so long as you conform to the interface of <code>re-search-forward</code>.  So that is exactly what I've done.
-    </p>
+  <p>
+  After collapsing:
+  </p>
 
-    <p>
-    The following function is a bit convoluted because you need to check the parse state.  Note that the function should only "process" <b>one</b> match as <code>font-lock</code> will execute it in a loop until it returns <code>nil</code> or moves point after the <code>limit</code>.
-    </p>
 
-    <ol class="org-ol">
-    <li>Look for the next string matching a variable syntax, which is either
-    <ul class="org-ul">
-    <li>a <code>$</code> followed by word syntax, or</li>
-    <li>a <code>$</code> followed by text enclosed in <code>{}.</code></li>
-    </ul></li>
-    <li>If no match then return nil.  This will tell the font-lock engine
-    there is nothing to do up to <code>limit</code>.  This happens if the
-    <code>re-search-forward</code> returns <code>nil</code> right away or eventually runs out of
-    matches as we get over <code>limit</code>.</li>
-    <li>If match, check if we are inside a double-quoted string.
-    <ul class="org-ul">
-    <li>If so, great, announce a match with a <code>throw</code> and the point where
-    we ended (this is not strictly necessary, you only need to
-    return non-nil).</li>
-    <li>If not <code>GOTO 1</code>.</li>
-    </ul></li>
-    </ol>
+  <div class="figure">
+  <p><img src="http://i.imgur.com/mm6gFbX.png" alt="mm6gFbX.png" />
+  </p>
+  <p><span class="figure-number">Figure 3: </span>After collapse</p>
+  </div>
 
-    <div class="org-src-container">
-    <pre class="src src-elisp" id="orge30339b"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-match-variables-in-quotes</span> <span style="color: #888a85;">(</span>limit<span style="color: #888a85;">)</span>
-    <span style="color: #e9b96e;">"Match variables in double-quotes in `</span><span style="color: #e6a8df;">sh-mode</span><span style="color: #e9b96e;">'."</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-syntax-table</span> sh-mode-syntax-table
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">catch</span> '<span style="color: #e6a8df;">done</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>re-search-forward
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">`</span><span style="color: #e6a8df;">rx</span><span style="color: #73d216;">' is cool, mkay.</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">rx</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> line-start <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span>any <span style="color: #e9b96e;">"\\"</span><span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span>group <span style="color: #e9b96e;">"$"</span><span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>group
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #e9b96e;">"{"</span> <span style="color: #888a85;">(</span>+? nonl<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"}"</span><span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>+ <span style="color: #888a85;">(</span>any alnum <span style="color: #e9b96e;">"_"</span><span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>any <span style="color: #e9b96e;">"*"</span> <span style="color: #e9b96e;">"@"</span> <span style="color: #e9b96e;">"#"</span> <span style="color: #e9b96e;">"?"</span> <span style="color: #e9b96e;">"-"</span> <span style="color: #e9b96e;">"$"</span> <span style="color: #e9b96e;">"!"</span> <span style="color: #e9b96e;">"0"</span> <span style="color: #e9b96e;">"_"</span><span style="color: #888a85;">)))))</span>
-    limit t<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">(</span>string-syntax <span style="color: #888a85;">(</span>nth 3 <span style="color: #888a85;">(</span>syntax-ppss<span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>= string-syntax 34<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">throw</span> '<span style="color: #e6a8df;">done</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))))))))</span>
-    </pre>
-    </div>
+  <p>
+  This package was created mainly due to the excellent <a href="https://github.com/Fuco1/dired-hacks/issues/85">feature request</a> by the GitHub user <a href="https://github.com/kidd">@kidd</a>.  Thanks!
+  </p>
+  ]]></description>
+</item>
 
-    <p>
-    Add the support to the current buffer (use <code>nil</code> as first argument) or <code>sh-mode</code> globally (use <code>'sh-mode</code>):
-    </p>
+<item>
+  <title>Font-locking with custom matchers</title>
+  <link>https://fuco1.github.io/2017-06-11-Font-locking-with-custom-matchers.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-06-11-Font-locking-with-custom-matchers.html</guid>
+  <pubDate>Sun, 11 Jun 2017 00:00:00 +0200</pubDate>
 
-    <div class="org-src-container">
-    <pre class="src src-elisp" id="org9348031"><span style="color: #888a85;">(</span>font-lock-add-keywords
-    <span style="color: #e6a8df;">'sh-mode</span> '<span style="color: #888a85;">((</span>my-match-variables-in-quotes
-    <span style="color: #888a85;">(</span>1 <span style="color: #e6a8df;">'default</span> t<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>2 font-lock-variable-name-face t<span style="color: #888a85;">))))</span>
-    </pre>
-    </div>
+  <description><![CDATA[<table id="orga2fe9f7" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
-    <p>
-    Quite simple and the outcome is very satisfying.  Makes reading shell scripts a lot better in my opinion.  If any of you cares to submit this upstream go ahead, I have signed the contributor papers but I hereby withdraw all claims on the above code so you don't have to go through hoops :)
-    </p>
 
-    <div class="org-src-container">
-    <pre class="src src-sh"><span style="color: #fcaf3e;">FOO</span>=<span style="color: #e9b96e;">"hello"</span>
-    <span style="color: #73d216;"># </span><span style="color: #73d216;">yay</span>
-    <span style="color: #fcaf3e;">BAR</span>=<span style="color: #e9b96e;">"hello </span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">FOO</span><span style="color: #e9b96e;"> and also </span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">{FOO}</span><span style="color: #e9b96e;">"</span>
-    <span style="color: #73d216;"># </span><span style="color: #73d216;">No interpolation in single-quotes</span>
-    <span style="color: #fcaf3e;">BAZ</span>=<span style="color: #e9b96e;">'hello $FOO'</span>
-    </pre>
-    </div>
-    ]]></description>
+  <colgroup>
+  <col  class="org-right" />
+
+  <col  class="org-left" />
+  </colgroup>
+  <thead>
+  <tr>
+  <th scope="col" class="org-right">Date</th>
+  <th scope="col" class="org-left">Change</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td class="org-right">2017-06-21</td>
+  <td class="org-left">The regexp was fixed to match <code>$FOO_BAR</code> and skip escaped dollars (see this <a href="https://github.com/Fuco1/Fuco1.github.io/pull/6">PR</a>)</td>
+  </tr>
+  </tbody>
+  </table>
+
+  <p>
+  Previously I have written about <a href="https://fuco1.github.io/./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html#org874f9d3">font-lock anchored matchers</a>.  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
+  </p>
+
+  <p>
+  I now work at a DevOps position and so I have been writing a lot of shell scripts lately to glue all the stuff we do together.  One missing feature that kept bugging me was the font-locking of interpolated variables in <code>sh-mode</code>... that is, the fact that there wasn't any!
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-bash"><span style="color: #fcaf3e;">FOO</span>=<span style="color: #e9b96e;">"hello"</span>
+  <span style="color: #73d216;"># </span><span style="color: #73d216;">ugly brown!</span>
+  <span style="color: #fcaf3e;">BAR</span>=<span style="color: #e9b96e;">"hello $FOO"</span>
+  <span style="color: #73d216;"># </span><span style="color: #73d216;">I would really like to see that $FOO is *not* being interpolated</span>
+  <span style="color: #fcaf3e;">BAZ</span>=<span style="color: #e9b96e;">'hello $FOO'</span>
+  <span style="color: #73d216;"># </span><span style="color: #73d216;">in regular usage things are highlighted, but you should always quote, right?</span>
+  bash $<span style="color: #fcaf3e;">FOO</span> $<span style="color: #fcaf3e;">BAR</span> ${<span style="color: #fcaf3e;">BAZ</span>}
+  </pre>
+  </div>
+
+  <p>
+  The problem with shell programming is that you quote 90% of the time and so the font-locking is wasted :/  You might say, well, just throw in the regexp, right?  Not quite.  We do not want to highlight variables in single-quoted strings where they are not interpolated.  This means we need to only match variables in certain syntactic context.
+  </p>
+
+  <p>
+  In the previous post I mentioned you can use custom matchers which are essentially regular elisp functions so long as you conform to the interface of <code>re-search-forward</code>.  So that is exactly what I've done.
+  </p>
+
+  <p>
+  The following function is a bit convoluted because you need to check the parse state.  Note that the function should only "process" <b>one</b> match as <code>font-lock</code> will execute it in a loop until it returns <code>nil</code> or moves point after the <code>limit</code>.
+  </p>
+
+  <ol class="org-ol">
+  <li>Look for the next string matching a variable syntax, which is either
+  <ul class="org-ul">
+  <li>a <code>$</code> followed by word syntax, or</li>
+  <li>a <code>$</code> followed by text enclosed in <code>{}.</code></li>
+  </ul></li>
+  <li>If no match then return nil.  This will tell the font-lock engine
+  there is nothing to do up to <code>limit</code>.  This happens if the
+  <code>re-search-forward</code> returns <code>nil</code> right away or eventually runs out of
+  matches as we get over <code>limit</code>.</li>
+  <li>If match, check if we are inside a double-quoted string.
+  <ul class="org-ul">
+  <li>If so, great, announce a match with a <code>throw</code> and the point where
+  we ended (this is not strictly necessary, you only need to
+  return non-nil).</li>
+  <li>If not <code>GOTO 1</code>.</li>
+  </ul></li>
+  </ol>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp" id="orge30339b"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-match-variables-in-quotes</span> <span style="color: #888a85;">(</span>limit<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Match variables in double-quotes in `</span><span style="color: #e6a8df;">sh-mode</span><span style="color: #e9b96e;">'."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-syntax-table</span> sh-mode-syntax-table
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">catch</span> '<span style="color: #e6a8df;">done</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>re-search-forward
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">`</span><span style="color: #e6a8df;">rx</span><span style="color: #73d216;">' is cool, mkay.</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">rx</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> line-start <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span>any <span style="color: #e9b96e;">"\\"</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>group <span style="color: #e9b96e;">"$"</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>group
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #e9b96e;">"{"</span> <span style="color: #888a85;">(</span>+? nonl<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"}"</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>+ <span style="color: #888a85;">(</span>any alnum <span style="color: #e9b96e;">"_"</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>any <span style="color: #e9b96e;">"*"</span> <span style="color: #e9b96e;">"@"</span> <span style="color: #e9b96e;">"#"</span> <span style="color: #e9b96e;">"?"</span> <span style="color: #e9b96e;">"-"</span> <span style="color: #e9b96e;">"$"</span> <span style="color: #e9b96e;">"!"</span> <span style="color: #e9b96e;">"0"</span> <span style="color: #e9b96e;">"_"</span><span style="color: #888a85;">)))))</span>
+  limit t<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">(</span>string-syntax <span style="color: #888a85;">(</span>nth 3 <span style="color: #888a85;">(</span>syntax-ppss<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>= string-syntax 34<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">throw</span> '<span style="color: #e6a8df;">done</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))))))))</span>
+  </pre>
+  </div>
+
+  <p>
+  Add the support to the current buffer (use <code>nil</code> as first argument) or <code>sh-mode</code> globally (use <code>'sh-mode</code>):
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp" id="org9348031"><span style="color: #888a85;">(</span>font-lock-add-keywords
+  <span style="color: #e6a8df;">'sh-mode</span> '<span style="color: #888a85;">((</span>my-match-variables-in-quotes
+  <span style="color: #888a85;">(</span>1 <span style="color: #e6a8df;">'default</span> t<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>2 font-lock-variable-name-face t<span style="color: #888a85;">))))</span>
+  </pre>
+  </div>
+
+  <p>
+  Quite simple and the outcome is very satisfying.  Makes reading shell scripts a lot better in my opinion.  If any of you cares to submit this upstream go ahead, I have signed the contributor papers but I hereby withdraw all claims on the above code so you don't have to go through hoops :)
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-sh"><span style="color: #fcaf3e;">FOO</span>=<span style="color: #e9b96e;">"hello"</span>
+  <span style="color: #73d216;"># </span><span style="color: #73d216;">yay</span>
+  <span style="color: #fcaf3e;">BAR</span>=<span style="color: #e9b96e;">"hello </span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">FOO</span><span style="color: #e9b96e;"> and also </span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">{FOO}</span><span style="color: #e9b96e;">"</span>
+  <span style="color: #73d216;"># </span><span style="color: #73d216;">No interpolation in single-quotes</span>
+  <span style="color: #fcaf3e;">BAZ</span>=<span style="color: #e9b96e;">'hello $FOO'</span>
+  </pre>
+  </div>
+  ]]></description>
 </item>
 
 <item>

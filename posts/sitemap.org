@@ -1,5 +1,6 @@
 #+TITLE: Archive
 
+   + [[file:2017-09-02-Maximize-the-org-capture-buffer.org][2017-09-02 Maximize the org-capture buffer]]
    + [[file:2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.org][2017-07-15 Collapse unique nested paths in dired with dired-collapse-mode]]
    + [[file:2017-06-11-Font-locking-with-custom-matchers.org][2017-06-11 Font-locking with custom matchers]]
    + [[file:2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org][2017-06-01 The absolute awesomeness of anchored font-lock matchers]]
