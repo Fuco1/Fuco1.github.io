@@ -14,8 +14,8 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Sat, 02 Sep 2017 22:08:06 +0200</pubDate>
-  <lastBuildDate>Sat, 02 Sep 2017 22:08:06 +0200</lastBuildDate>
+  <pubDate>Sun, 08 Oct 2017 12:26:04 +0200</pubDate>
+  <lastBuildDate>Sun, 08 Oct 2017 12:26:04 +0200</lastBuildDate>
   <generator>Emacs 25.2 Org-mode 9.0.7</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
@@ -23,6 +23,96 @@
     <title>Matus Goljer (Fuco1)</title>
     <link>https://fuco1.github.io/</link>
   </image>
+
+  <item>
+    <title>Using bookmarks with eshell and docker-tramp</title>
+    <link>https://fuco1.github.io/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.html</guid>
+    <pubDate>Sun, 08 Oct 2017 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[<p>
+    Emacs comes with a pretty extensible bookmarking system.  As expected,
+    you can bookmark files (including positions in the file!) in order to
+    quickly navigate to commonly used files.  I use this for my config
+    files, personal/gdt org files, my ledger file and so on.
+    </p>
+
+    <p>
+    Thanks to the Emacs philosophy of everything being a buffer you can
+    also bookmark a plethora of special buffers such as email buffers,
+    elfeed entries, info pages, help pages, dired buffers and many more.
+    Pretty much any buffer which can be reconstructed from a set of input
+    arguments can be bookmarked.
+    </p>
+
+    <p>
+    As a bonus it all works through the same interface, by default bound
+    to <code>C-x r m</code>, so you can just hit that to see if the buffer's type is
+    supported or not.
+    </p>
+
+    <p>
+    Adding support for new buffers is also amazingly simple.  All you need
+    to do is define a function which makes a bookmark <i>record</i>.  A bookmark
+    record is simply an alist with arbitrary data.  You can save any state
+    there that is necessary for the recreation of the buffer.  The only
+    required key is <code>handler</code> which has a function as a value.  This
+    function is given the entire bookmark record and is responsible for
+    recreating the buffer.
+    </p>
+
+    <p>
+    You then locally assign (with <code>setq-local</code>) this record creating
+    function to <code>bookmark-make-record-function</code> which is internally used by
+    <code>bookmark.el</code> when you ask it to create a record.
+    </p>
+
+    <p>
+    Recently I've been using <a href="https://www.docker.com/">docker</a> (especially <a href="https://docs.docker.com/compose/">docker-compose</a>) a lot and
+    one thing that comes up fairly often during development is that you
+    might want to execute some commands inside the container (for example
+    when you are using the <a href="https://medium.com/@alexeiled/docker-pattern-the-build-container-b0d0e86ad601">build container pattern</a>).
+    </p>
+
+    <p>
+    What bothered me was the fact that I had to leave Emacs, jump to the
+    terminal and fire away the commands in there.  Turns out someone
+    clever figured out a way of using TRAMP<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> to connect into docker
+    containers.  Combined with this, I can use eshell to jump into docker
+    container and execute commands in there.  Whoa!
+    </p>
+
+    <pre class="example">
+    [12:15:50]:~/$ docker ps
+    CONTAINER ID        IMAGE                 NAMES
+    e015daa0ceac        fuco1/zathura:0.3.7   focused_hugle
+    [12:15:52]:~/$ cd /docker:focused_hugle:/
+    [12:17:01]:/docker:focused_hugle:$ ls
+    bin   etc     lib    mnt   root  srv  usr      zathura-cb           zathura-ps
+    boot  girara  lib64  opt   run   sys  var      zathura-djvu
+    dev   home    media  proc  sbin  tmp  zathura  zathura-pdf-poppler
+    </pre>
+
+    <p>
+    To tie all of this together I've written a small package
+    <a href="https://github.com/Fuco1/eshell-bookmark">eshell-bookmark</a><sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>
+    which adds bookmark support to eshell buffers.  More specifically,
+    when the bookmark is activated it tries to open an eshell in the
+    directory where the bookmark was created.  If an eshell session
+    already exists, it just =cd=s into that directory.  The entire package
+    is less than 30 lines including docstrings.  This is really the ideal
+    of extensibility.
+    </p>
+
+    <p>
+    Thanks to <code>docker-compose</code> containers having predictable names, I can
+    now bookmark each container's eshell session and quickly jump between
+    them as necessary, all from within Emacs.  No more <code>$ docker-compose
+    exec application ...</code>!
+    </p>
+    ]]></description>
+  </item>
 
   <item>
     <title>Maximize the org-capture buffer</title>
@@ -343,7 +433,7 @@
   </table>
 
   <p>
-  People who know my rants on Emacs and especially <code>font-lock-mode</code> know that I consider it a rather crappy hack.  Parsing complex context sensitive languages with a bunch of very weak regexes<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> just screams <i>This is a really bad idea!</i>  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets <code>match-data</code> the same way <code>re-search-forward</code> would.
+  People who know my rants on Emacs and especially <code>font-lock-mode</code> know that I consider it a rather crappy hack.  Parsing complex context sensitive languages with a bunch of very weak regexes<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup> just screams <i>This is a really bad idea!</i>  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets <code>match-data</code> the same way <code>re-search-forward</code> would.
   </p>
 
   <p>
@@ -372,7 +462,7 @@
   </p>
 
   <p>
-  The anchored matchers work by first searching for an <i>anchor</i> and only then searching for the thing you want to highlight.  This basically allows you to do look-ahead context-sensitive fontification in the sense that the subsequent matchers are <i>tried</i> but if they fail the process continues <b>from where the anchor match ended</b>.<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.
+  The anchored matchers work by first searching for an <i>anchor</i> and only then searching for the thing you want to highlight.  This basically allows you to do look-ahead context-sensitive fontification in the sense that the subsequent matchers are <i>tried</i> but if they fail the process continues <b>from where the anchor match ended</b>.<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup>.
   </p>
 
   <p>
@@ -476,7 +566,7 @@
   </p>
 
   <p>
-  In the beginning their first idea was to generate all the possible splits into 1 and 2 letter groups (we call these strings <i>groupings</i>), then try all these combinations matching against the list of the symbols<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup>.  To generate the splits they would generate all the possible strings of 1 and 2 up to the length \(m\) and then filter out those which don't sum up to \(m\) (the length of the input word).  Little inspection shows that this grows exponentially and really isn't the way to go<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup>.  For \(m\) = 3 this would generate 15 possible strings (including the empty one) but only 3 are actually valid: \((1,1,1)\), \((1,2)\) and \((2,1)\).
+  In the beginning their first idea was to generate all the possible splits into 1 and 2 letter groups (we call these strings <i>groupings</i>), then try all these combinations matching against the list of the symbols<sup><a id="fnr.5" class="footref" href="#fn.5">5</a></sup>.  To generate the splits they would generate all the possible strings of 1 and 2 up to the length \(m\) and then filter out those which don't sum up to \(m\) (the length of the input word).  Little inspection shows that this grows exponentially and really isn't the way to go<sup><a id="fnr.6" class="footref" href="#fn.6">6</a></sup>.  For \(m\) = 3 this would generate 15 possible strings (including the empty one) but only 3 are actually valid: \((1,1,1)\), \((1,2)\) and \((2,1)\).
   </p>
 
   <p>
@@ -549,7 +639,7 @@
   </p>
 
   <p>
-  Now the fun part.  If we prove that the proposition is true for \(n + 1\) while we <i>assume</i> it works for all \(k \leq n\), we proved the proposition for <i>all</i> \(n\).  This is called the induction hypothesis.<sup><a id="fnr.5" class="footref" href="#fn.5">5</a></sup>
+  Now the fun part.  If we prove that the proposition is true for \(n + 1\) while we <i>assume</i> it works for all \(k \leq n\), we proved the proposition for <i>all</i> \(n\).  This is called the induction hypothesis.<sup><a id="fnr.7" class="footref" href="#fn.7">7</a></sup>
   </p>
 
   <p>
@@ -1109,7 +1199,7 @@
   </p>
 
   <p>
-  First, let's write a little helper function to guess the appropriate major mode for a buffer.  I only have the JSON logic<sup><a id="fnr.6" class="footref" href="#fn.6">6</a></sup> there but you can of course add more "handlers" to check for XML or TAP output and so on.  <a href="https://github.com/Fuco1/.emacs.d/issues/new">Let me know</a> if you create something awesome!
+  First, let's write a little helper function to guess the appropriate major mode for a buffer.  I only have the JSON logic<sup><a id="fnr.8" class="footref" href="#fn.8">8</a></sup> there but you can of course add more "handlers" to check for XML or TAP output and so on.  <a href="https://github.com/Fuco1/.emacs.d/issues/new">Let me know</a> if you create something awesome!
   </p>
 
   <div class="org-src-container">
@@ -1320,7 +1410,7 @@
   <h3 id="org506bde3"><a id="ID-5039c9a3-7e08-46c9-9c62-88221036afb6"></a>Example</h3>
   <div class="outline-text-3" id="text-org506bde3">
   <p>
-  Emacs comes with this amazing functionality called <i>marks</i>.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the <i>mark ring</i><sup><a id="fnr.7" class="footref" href="#fn.7">7</a></sup>.  This allows you to remember multiple marks at the same time and recall them in a lifo order.
+  Emacs comes with this amazing functionality called <i>marks</i>.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the <i>mark ring</i><sup><a id="fnr.9" class="footref" href="#fn.9">9</a></sup>.  This allows you to remember multiple marks at the same time and recall them in a lifo order.
   </p>
 
   <p>
@@ -1378,7 +1468,7 @@
   </p>
 
   <p>
-  Before we continue, a little excursion into how Emacs maintains value bindings.  When you use <code>let</code> to set the value of a special variable<sup><a id="fnr.8" class="footref" href="#fn.8">8</a></sup>, this value becomes current until the execution of the <code>let</code> block is finished.  This means that this value is available globally for all the subroutines called from the let block, as well as for all the subroutines called from these and so on.
+  Before we continue, a little excursion into how Emacs maintains value bindings.  When you use <code>let</code> to set the value of a special variable<sup><a id="fnr.10" class="footref" href="#fn.10">10</a></sup>, this value becomes current until the execution of the <code>let</code> block is finished.  This means that this value is available globally for all the subroutines called from the let block, as well as for all the subroutines called from these and so on.
   </p>
 
   <p>
@@ -1458,7 +1548,7 @@
   </p>
 
   <p>
-  But Latin also has another way to express comparison.  Yes, you guessed it right, the ever-so-flexible ablative.  Using ablative for comparison makes the phrases snappier, shorter and more to the point<sup><a id="fnr.9" class="footref" href="#fn.9">9</a></sup>.
+  But Latin also has another way to express comparison.  Yes, you guessed it right, the ever-so-flexible ablative.  Using ablative for comparison makes the phrases snappier, shorter and more to the point<sup><a id="fnr.11" class="footref" href="#fn.11">11</a></sup>.
   </p>
 
   <p>
@@ -1498,23 +1588,28 @@
   <h2 class="footnotes">Footnotes: </h2>
   <div id="text-footnotes">
 
-    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">Emacs RE engine is a lot less powerful than PCRE engines, it doesn't support look-ahead nor back-references among other less commonly used features</div></div>
+    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">The
+    package <a href="https://github.com/emacs-pe/docker-tramp.el">docker-tramp.el</a> is available on MELPA</div></div>
 
-    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">For those familiar with Parsec, this is basically the <code>try</code> combinator</div></div>
+    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">Now available on MELPA/Stable</div></div>
 
-    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara">Yes, this is awfully inefficient.  The author later rectifies this with a beautiful and fast linear algorithm.</div></div>
+    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara">Emacs RE engine is a lot less powerful than PCRE engines, it doesn't support look-ahead nor back-references among other less commonly used features</div></div>
 
-    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara">To see this just imagine that 1 and 2 is actually 0 and 1 and you are generating all the binary numbers taking up to \(n\) bits.  This results in \((2^n)-1\) options.</div></div>
+    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara">For those familiar with Parsec, this is basically the <code>try</code> combinator</div></div>
 
-    <div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5">5</a></sup> <div class="footpara">We are actually using <i>strong</i> (a.k.a. <i>complete</i>) <a href="https://en.wikipedia.org/wiki/Mathematical_induction#Complete_induction">induction</a>.  This is equivalent to the simple induction you might have learned at university.</div></div>
+    <div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5">5</a></sup> <div class="footpara">Yes, this is awfully inefficient.  The author later rectifies this with a beautiful and fast linear algorithm.</div></div>
 
-    <div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6">6</a></sup> <div class="footpara">This code depends on <code>json</code> (built-in) and <code>json-mode</code> (get from MELPA).</div></div>
+    <div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6">6</a></sup> <div class="footpara">To see this just imagine that 1 and 2 is actually 0 and 1 and you are generating all the binary numbers taking up to \(n\) bits.  This results in \((2^n)-1\) options.</div></div>
 
-    <div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7">7</a></sup> <div class="footpara">A ring in Emacs is basically a stack where popped elements go to the bottom</div></div>
+    <div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7">7</a></sup> <div class="footpara">We are actually using <i>strong</i> (a.k.a. <i>complete</i>) <a href="https://en.wikipedia.org/wiki/Mathematical_induction#Complete_induction">induction</a>.  This is equivalent to the simple induction you might have learned at university.</div></div>
 
-    <div class="footdef"><sup><a id="fn.8" class="footnum" href="#fnr.8">8</a></sup> <div class="footpara">A variable is <i>special</i> if defined using <code>defvar</code>.</div></div>
+    <div class="footdef"><sup><a id="fn.8" class="footnum" href="#fnr.8">8</a></sup> <div class="footpara">This code depends on <code>json</code> (built-in) and <code>json-mode</code> (get from MELPA).</div></div>
 
-    <div class="footdef"><sup><a id="fn.9" class="footnum" href="#fnr.9">9</a></sup> <div class="footpara">Similar to how Ablative Absolute can make the lengthy <i>temporal cum</i> constructions simpler</div></div>
+    <div class="footdef"><sup><a id="fn.9" class="footnum" href="#fnr.9">9</a></sup> <div class="footpara">A ring in Emacs is basically a stack where popped elements go to the bottom</div></div>
+
+    <div class="footdef"><sup><a id="fn.10" class="footnum" href="#fnr.10">10</a></sup> <div class="footpara">A variable is <i>special</i> if defined using <code>defvar</code>.</div></div>
+
+    <div class="footdef"><sup><a id="fn.11" class="footnum" href="#fnr.11">11</a></sup> <div class="footpara">Similar to how Ablative Absolute can make the lengthy <i>temporal cum</i> constructions simpler</div></div>
 
 
   </div>
