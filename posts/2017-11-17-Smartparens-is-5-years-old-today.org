@@ -1,0 +1,62 @@
+#+TITLE: Smartparens is 5 years old today
+#+DATE: [2017-11-17 Fri 18:07]
+
+* DONE Smartparens is 5 years old today :ignore:
+CLOSED: [2017-11-17 Fri 18:07]
+:PROPERTIES:
+:BLOG_FILENAME: 2017-11-17-Smartparens-is-5-years-old-today
+:PUBDATE:  [2017-11-17 Fri 18:07]
+:END:
+:LOGBOOK:
+- State "DONE"       from              [2017-11-17 Fri 18:07]
+:END:
+:CLOCK:
+CLOCK: [2017-11-17 Fri 17:50]--[2017-11-17 Fri 18:07] =>  0:17
+:END:
+
+Five years ago I've published the [[https://github.com/Fuco1/smartparens/commit/cf39349e1966d20ce0c9f370d7310500d5da1637][first version]] of Smartparens on
+Github.  To celebrate the occasion I've just released Smartparens
+version [[https://github.com/Fuco1/smartparens/releases/tag/1.11.0][1.11.0]] packed with new features, bug fixes and some
+performance optimizations.
+
+This project has become a huge part of my life and evolved along with
+me over the years.  I have started working on it pretty much on the
+day when I first started using Emacs.  One can almost say that the
+project was only born thanks to my ignorance of Emacs landscape---had
+I known of paredit I would have probably never started, or maybe start
+but a lot later and with different setup in mind.
+
+Today with over 350.000 downloads on MELPA it is one of the biggest
+projects in Emacs land; and I'm aiming for the top!  The ubiquity of
+it still shocks me and every time I randomly read a blog post or an
+article where someone mentions Smartparens it feels just like years
+ago---a sense of deep appreciation and gratefulness, not only for the
+kind words but also simply for the fact that I am able to do something
+like this and can rightly call myself amazingly fortunate.
+
+I had no idea what I was doing but the response from the community was
+amazing and very encouraging.  One special shout out has to go to the
+amazing [[http://batsov.com/][Bozhidar Batsov]] who [[https://twitter.com/bbatsov/status/350889256048279553?lang=en][switched Prelude]] to use Smartparens not
+even half a year after I started the project.  This was a huge deal
+for the growth of the project with thousands of new users coming in
+pretty much over night.
+
+This early success encouraged me to start other (Emacs) projects of
+which I now have well over 50 and I have contributed to countless
+others.
+
+Thanks also go to all the [[https://github.com/Fuco1/smartparens/graphs/contributors][contributors]] who helped to move Smartparens
+to where it is now; and also many others who reported issues and
+provided suggestions for improvements.  I can't name you all but your
+efforts are much appreciated!
+
+I had pretty rough and packed year but I hope to get back on track
+with the release schedule and start a more rapid release cycle.
+Expect more goodies to come soon :)
+
+Thanks again and enjoy the new release everyone!
+
+----
+
+PS: You can send some love through [[https://www.patreon.com/user?u=3282358&ty=h][Patreon]] or [[https://www.paypal.me/MatusGoljer][PayPal]].
+
