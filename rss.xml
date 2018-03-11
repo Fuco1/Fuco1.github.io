@@ -14,8 +14,8 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Fri, 17 Nov 2017 18:41:47 +0100</pubDate>
-  <lastBuildDate>Fri, 17 Nov 2017 18:41:47 +0100</lastBuildDate>
+  <pubDate>Sun, 11 Mar 2018 15:59:05 +0100</pubDate>
+  <lastBuildDate>Sun, 11 Mar 2018 15:59:05 +0100</lastBuildDate>
   <generator>Emacs 25.2 Org-mode 9.1.2</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
@@ -25,248 +25,403 @@
   </image>
 
   <item>
-    <title>Smartparens is 5 years old today</title>
-    <link>https://fuco1.github.io/2017-11-17-Smartparens-is-5-years-old-today.html</link>
+    <title>Use org-radiobutton to select an option from a list</title>
+    <link>https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</link>
     <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2017-11-17-Smartparens-is-5-years-old-today.html</guid>
-    <pubDate>Fri, 17 Nov 2017 00:00:00 +0100</pubDate>
+    <guid isPermaLink="false">https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</guid>
+    <pubDate>Sun, 11 Mar 2018 00:00:00 +0100</pubDate>
 
     <description><![CDATA[<p>
-    Five years ago I've published the <a href="https://github.com/Fuco1/smartparens/commit/cf39349e1966d20ce0c9f370d7310500d5da1637">first version</a> of Smartparens on
-    Github.  To celebrate the occasion I've just released Smartparens
-    version <a href="https://github.com/Fuco1/smartparens/releases/tag/1.11.0">1.11.0</a> packed with new features, bug fixes and some
-    performance optimizations.
+    Ever since I've come across the <a href="http://howardism.org/Technical/Emacs/literate-devops.html">Literate DevOps</a> article I was hooked
+    and immediately started writing down "org notebooks" every time an
+    incident occured along with all the code and steps on how to fix it in
+    case it might happen in the future (protip: it <i>will</i> happen again).
     </p>
 
     <p>
-    This project has become a huge part of my life and evolved along with
-    me over the years.  I have started working on it pretty much on the
-    day when I first started using Emacs.  One can almost say that the
-    project was only born thanks to my ignorance of Emacs landscape---had
-    I known of paredit I would have probably never started, or maybe start
-    but a lot later and with different setup in mind.
+    Recently we had some problems with webhook requests behaving weird and
+    so I created a little notebook to query the mongo database where we
+    store all the requests and some more functions (ranging from elisp to
+    jq to ruby) to process the results.  As you sure know, threading data
+    between code blocks in different languages is painless with <code>org-mode</code>
+    and babel.
     </p>
 
     <p>
-    Today with over 350.000 downloads on MELPA it is one of the biggest
-    projects in Emacs land; and I'm aiming for the top!  The ubiquity of
-    it still shocks me and every time I randomly read a blog post or an
-    article where someone mentions Smartparens it feels just like years
-    ago---a sense of deep appreciation and gratefulness, not only for the
-    kind words but also simply for the fact that I am able to do something
-    like this and can rightly call myself amazingly fortunate.
-    </p>
-
-    <p>
-    I had no idea what I was doing but the response from the community was
-    amazing and very encouraging.  One special shout out has to go to the
-    amazing <a href="http://batsov.com/">Bozhidar Batsov</a> who <a href="https://twitter.com/bbatsov/status/350889256048279553?lang=en">switched Prelude</a> to use Smartparens not
-    even half a year after I started the project.  This was a huge deal
-    for the growth of the project with thousands of new users coming in
-    pretty much over night.
-    </p>
-
-    <p>
-    This early success encouraged me to start other (Emacs) projects of
-    which I now have well over 50 and I have contributed to countless
-    others.
-    </p>
-
-    <p>
-    Thanks also go to all the <a href="https://github.com/Fuco1/smartparens/graphs/contributors">contributors</a> who helped to move Smartparens
-    to where it is now; and also many others who reported issues and
-    provided suggestions for improvements.  I can't name you all but your
-    efforts are much appreciated!
-    </p>
-
-    <p>
-    I had pretty rough and packed year but I hope to get back on track
-    with the release schedule and start a more rapid release cycle.
-    Expect more goodies to come soon :)
-    </p>
-
-    <p>
-    Thanks again and enjoy the new release everyone!
-    </p>
-
-    <p>
-    ----
-    </p>
-
-    <p>
-    PS: You can send some love through <a href="https://www.patreon.com/user?u=3282358&amp;ty=h">Patreon</a> or <a href="https://www.paypal.me/MatusGoljer">PayPal</a>.
-    </p>
-    ]]></description>
-  </item>
-
-  <item>
-    <title>Using bookmarks with eshell and docker-tramp</title>
-    <link>https://fuco1.github.io/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.html</guid>
-    <pubDate>Sun, 08 Oct 2017 00:00:00 +0200</pubDate>
-
-    <description><![CDATA[<p>
-    Emacs comes with a pretty extensible bookmarking system.  As expected,
-    you can bookmark files (including positions in the file!) in order to
-    quickly navigate to commonly used files.  I use this for my config
-    files, personal/gdt org files, my ledger file and so on.
-    </p>
-
-    <p>
-    Thanks to the Emacs philosophy of everything being a buffer you can
-    also bookmark a plethora of special buffers such as email buffers,
-    elfeed entries, info pages, help pages, dired buffers and many more.
-    Pretty much any buffer which can be reconstructed from a set of input
-    arguments can be bookmarked.
-    </p>
-
-    <p>
-    As a bonus it all works through the same interface, by default bound
-    to <code>C-x r m</code>, so you can just hit that to see if the buffer's type is
-    supported or not.
-    </p>
-
-    <p>
-    Adding support for new buffers is also amazingly simple.  All you need
-    to do is define a function which makes a bookmark <i>record</i>.  A bookmark
-    record is simply an alist with arbitrary data.  You can save any state
-    there that is necessary for the recreation of the buffer.  The only
-    required key is <code>handler</code> which has a function as a value.  This
-    function is given the entire bookmark record and is responsible for
-    recreating the buffer.
-    </p>
-
-    <p>
-    You then locally assign (with <code>setq-local</code>) this record creating
-    function to <code>bookmark-make-record-function</code> which is internally used by
-    <code>bookmark.el</code> when you ask it to create a record.
-    </p>
-
-    <p>
-    Recently I've been using <a href="https://www.docker.com/">docker</a> (especially <a href="https://docs.docker.com/compose/">docker-compose</a>) a lot and
-    one thing that comes up fairly often during development is that you
-    might want to execute some commands inside the container (for example
-    when you are using the <a href="https://medium.com/@alexeiled/docker-pattern-the-build-container-b0d0e86ad601">build container pattern</a>).
-    </p>
-
-    <p>
-    What bothered me was the fact that I had to leave Emacs, jump to the
-    terminal and fire away the commands in there.  Turns out someone
-    clever figured out a way of using TRAMP<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> to connect into docker
-    containers.  Combined with this, I can use eshell to jump into docker
-    container and execute commands in there.  Whoa!
-    </p>
-
-    <pre class="example">
-    [12:15:50]:~/$ docker ps
-    CONTAINER ID        IMAGE                 NAMES
-    e015daa0ceac        fuco1/zathura:0.3.7   focused_hugle
-    [12:15:52]:~/$ cd /docker:focused_hugle:/
-    [12:17:01]:/docker:focused_hugle:$ ls
-    bin   etc     lib    mnt   root  srv  usr      zathura-cb           zathura-ps
-    boot  girara  lib64  opt   run   sys  var      zathura-djvu
-    dev   home    media  proc  sbin  tmp  zathura  zathura-pdf-poppler
-    </pre>
-
-    <p>
-    To tie all of this together I've written a small package
-    <a href="https://github.com/Fuco1/eshell-bookmark">eshell-bookmark</a><sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>
-    which adds bookmark support to eshell buffers.  More specifically,
-    when the bookmark is activated it tries to open an eshell in the
-    directory where the bookmark was created.  If an eshell session
-    already exists, it just =cd=s into that directory.  The entire package
-    is less than 30 lines including docstrings.  This is really the ideal
-    of extensibility.
-    </p>
-
-    <p>
-    Thanks to <code>docker-compose</code> containers having predictable names, I can
-    now bookmark each container's eshell session and quickly jump between
-    them as necessary, all from within Emacs.  No more <code>$ docker-compose
-    exec application ...</code>!
-    </p>
-    ]]></description>
-  </item>
-
-  <item>
-    <title>Maximize the org-capture buffer</title>
-    <link>https://fuco1.github.io/2017-09-02-Maximize-the-org-capture-buffer.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2017-09-02-Maximize-the-org-capture-buffer.html</guid>
-    <pubDate>Sat, 02 Sep 2017 00:00:00 +0200</pubDate>
-
-    <description><![CDATA[<p>
-    I'm a heavy user of <code>org-capture</code> and one behaviour of it always annoyed me:  instead of having the capture popup take the whole screen, it opens a new window.  This window is often small and somewhat inconvenient.  I like to do one thing at a time and so when I'm filing a note or capturing an idea I want to see only the capture buffer and no other distractions.  As we all know distractions kill flow and so we should always find ways to get all the nonsense out of the way.
-    </p>
-
-    <p>
-    Recently I've started using <a href="https://github.com/sprig/org-capture-extension">this awesome extension</a> to capture web content from firefox (works with chrome too).  I've tweaked the protocol handler to not only invoke <code>emacsclient "%u"</code> but also set some frame properties for later.
-    </p>
-
-    <p>
-    Here's the bash script I use as the handler
+    So imagine a block like this (using <a href="https://github.com/krisajenkins/ob-mongo">ob-mongo</a>):
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-sh"><span style="color: #73d216;">#</span><span style="color: #73d216;">!/bin/</span><span style="color: #b4fa70;">bash</span>
-    emacsclient -c -F <span style="color: #e9b96e;">'((name . "org-protocol-capture"))'</span> <span style="color: #e9b96e;">"</span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">@</span><span style="color: #e9b96e;">"</span>
+    <pre class="src src-org"><span style="color: #73d216;">#+NAME: query</span>
+    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port 27017</span>
+    db.webhookLogs.find({endpoint: "AddCustomer"}).sort({_id: -1}).limit(1)
+    <span style="color: #b4fa70;">#+END_SRC</span>
     </pre>
     </div>
 
     <p>
-    The <code>-F</code> option sets the frame parameters with the specified alist.  Here I only set the name to <code>"org-protocol-capture"</code> I make sure to open new frame with <code>-c</code>.
+    This gives me the most recent request to the <code>AddCustomer</code> endpoint.
+    The results of this block are then piped into other code blocks to
+    process the request, you can imagine how that looks.
     </p>
 
     <p>
-    Org capture provides several hooks we can use to tweak the default behaviour.
+    Usually I run the entire app stack locally but we also have separate
+    staging and production environments.  So after I run the notebook on
+    my own local stack I want to try it out in staging.
     </p>
 
     <p>
-    First, we make sure the capture buffer window takes the whole frame.  To do this, we first save the current window configuration and then delete all other windows on entering the <code>org-capture-mode</code>.  Unfortunately there is no "before anything happens" hook so we use a before advice instead.
+    I use <a href="https://github.com/rejeep/prodigy.el">prodigy</a> to manage my ssh tunnels and so all I need to do is
+    change the port to one pointing to staging and re-run the notebook.
+    The problem is that I have multiple query blocks and so I have to go
+    and change all of the <code>:port</code> arguments.
     </p>
 
+    <p>
+    I have solved this by creating a block that would work as a source for
+    the port and then reference it dynamically in the header line:
+    </p>
 
     <div class="org-src-container">
-    <pre class="src src-elisp" id="orgedd0b20"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defvar</span> <span style="color: #fcaf3e;">my-org-capture-before-config</span> nil
-    <span style="color: #e9b96e;">"Window configuration before `</span><span style="color: #e6a8df;">org-capture</span><span style="color: #e9b96e;">'."</span><span style="color: #888a85;">)</span>
+    <pre class="src src-org"><span style="color: #73d216;">#+NAME: port</span>
+    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
+    <span style="background-color: #232a2b;">27017</span>
+    <span style="color: #b4fa70;">#+END_SRC</span>
 
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">org-capture</span> <span style="color: #888a85;">(</span>before save-config activate<span style="color: #888a85;">)</span>
-    <span style="color: #e9b96e;">"Save the window configuration before `</span><span style="color: #e6a8df;">org-capture</span><span style="color: #e9b96e;">'."</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> my-org-capture-before-config <span style="color: #888a85;">(</span>current-window-configuration<span style="color: #888a85;">)))</span>
-
-    <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-capture-mode-hook</span> <span style="color: #e6a8df;">'delete-other-windows</span><span style="color: #888a85;">)</span>
+    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
+    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
+    db.webhookLogs.find({endpoint: "AddCustomer"}).sort({_id: -1}).limit(1)
+    <span style="color: #b4fa70;">#+END_SRC</span>
     </pre>
     </div>
 
     <p>
-    Next, after we finish the capture work flow (either with success or cancellation) we restore the window configuration saved previously.
+    Since we can call elisp in the header I use <code>org-babel-ref-resolve</code> and
+    give it the name of the source block and babel will automatically
+    replace it with the value of the block.
     </p>
 
     <p>
-    Finally, let's make sure that after we refile the captured content the frame which was possibly created (if capture was invoked with <code>org-protocol</code>) closes itself automatically.  This keeps us in the flow and keeps the distraction of killing the frame manually away.  We use the frame name to decide if we wish to kill the frame or not (this is the <code>-F</code> argument from above).
+    This solves the problem of changing the constant at one place but as I
+    got to work with more environments I tended to forget what port was
+    what.  So I created a list above the block to remind me of the
+    available values:
     </p>
 
-
     <div class="org-src-container">
-    <pre class="src src-elisp" id="orga260a32"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-capture-cleanup</span> <span style="color: #888a85;">()</span>
-    <span style="color: #e9b96e;">"Clean up the frame created while capturing via org-protocol."</span>
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">In case we run capture from emacs itself and not an external app,</span>
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">we want to restore the old window config</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> my-org-capture-before-config
-    <span style="color: #888a85;">(</span>set-window-configuration my-org-capture-before-config<span style="color: #888a85;">))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">((</span><span style="color: #8cc4ff;">&amp;alist</span> <span style="color: #e6a8df;">'name</span> name<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>frame-parameters<span style="color: #888a85;">))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>equal name <span style="color: #e9b96e;">"org-protocol-capture"</span><span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>delete-frame<span style="color: #888a85;">))))</span>
+    <pre class="src src-org">Use one of the following ports to operate on the given environment:
 
-    <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-capture-after-finalize-hook</span> <span style="color: #e6a8df;">'my-org-capture-cleanup</span><span style="color: #888a85;">)</span>
+    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">localhost ::</span> 27017
+    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">staging ::</span> 27004
+    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">production ::</span> 27005
+
+    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
+    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
+    <span style="background-color: #232a2b;">27017</span>
+    <span style="color: #b4fa70;">#+END_SRC</span>
+
+    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
+    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
+    db.webhookLogs.find({endpoint: "AddCustomer"}).sort({_id: -1}).limit(1)
+    <span style="color: #b4fa70;">#+END_SRC</span>
     </pre>
     </div>
 
     <p>
-    With these tweaks the whole capture experience is much more streamlined for me.  When I invoke capture from anywhere (Emacs or via <code>org-protocol</code>), I get a full screen frame/window where I can quickly jot my thoughts.  After I'm finished everything restores itself to the previous state and I can continue with whatever task I was consumed prior to the capture process.
+    We can use the org mode list description syntax <code>foo ::</code> to attach a
+    label to each item and leave the number as the "value".
+    </p>
+
+    <p>
+    This is starting to look an awful lot like a list of choices I could
+    pick from.  So my thinking goes like this: let's make it a checkbox
+    list and then select the option by checking the option.  The trouble
+    there is that toggling the input would require me to un-toggle the
+    current one and then toggle the desired option.  Ideally, toggling one
+    checkbox would uncheck the other so that there is always exactly one
+    option selected: in other words, I wanted a radiobutton list.
+    </p>
+
+    <p>
+    After a quick google session I've found (via <a href="http://irreal.org/blog/?p=4644">Irreal</a>) that <a href="http://kitchingroup.cheme.cmu.edu/blog/2015/10/05/A-checkbox-list-in-org-mode-with-one-value/">John Kitchin</a>
+    already figured this out.  I took his code and cleaned it up a bit to
+    work with "modern" org mode (the post is three years old) and packaged
+    it as <a href="https://github.com/Fuco1/org-radiobutton">org-radiobutton</a>.
+    </p>
+
+    <p>
+    Now I have a nice menu I can go to and with a single <code>C-c C-c</code> on the
+    option I want I can select the environment where to run the notebook.
+    Org mode is so cool!
+    </p>
+
+    <div class="org-src-container">
+    <pre class="src src-org">Check one of the following ports to operate on the given environment:
+
+    <span style="color: #b4fa70;">#+attr_org:</span><span style="color: #73d216;"> :radio</span>
+    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
+    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> localhost ::</span> 27017
+    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> staging ::</span><span style="color: #888a85;"> 27004</span>
+    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> production ::</span> 27005
+
+    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
+    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-radiobutton-value "port")</span>
+    db.webhookLogs.find({endpoint: "AddCustomer"}).sort({_id: -1}).limit(1)
+    <span style="color: #b4fa70;">#+END_SRC</span>
+    </pre>
+    </div>
+
+    <p>
+    I'm going over all of my notebooks converting all the ugly option
+    hacks to this setup and it is so damn pleasing! :D
     </p>
     ]]></description>
+</item>
+
+<item>
+  <title>Smartparens is 5 years old today</title>
+  <link>https://fuco1.github.io/2017-11-17-Smartparens-is-5-years-old-today.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-11-17-Smartparens-is-5-years-old-today.html</guid>
+  <pubDate>Fri, 17 Nov 2017 00:00:00 +0100</pubDate>
+
+  <description><![CDATA[<p>
+  Five years ago I've published the <a href="https://github.com/Fuco1/smartparens/commit/cf39349e1966d20ce0c9f370d7310500d5da1637">first version</a> of Smartparens on
+  Github.  To celebrate the occasion I've just released Smartparens
+  version <a href="https://github.com/Fuco1/smartparens/releases/tag/1.11.0">1.11.0</a> packed with new features, bug fixes and some
+  performance optimizations.
+  </p>
+
+  <p>
+  This project has become a huge part of my life and evolved along with
+  me over the years.  I have started working on it pretty much on the
+  day when I first started using Emacs.  One can almost say that the
+  project was only born thanks to my ignorance of Emacs landscape---had
+  I known of paredit I would have probably never started, or maybe start
+  but a lot later and with different setup in mind.
+  </p>
+
+  <p>
+  Today with over 350.000 downloads on MELPA it is one of the biggest
+  projects in Emacs land; and I'm aiming for the top!  The ubiquity of
+  it still shocks me and every time I randomly read a blog post or an
+  article where someone mentions Smartparens it feels just like years
+  ago---a sense of deep appreciation and gratefulness, not only for the
+  kind words but also simply for the fact that I am able to do something
+  like this and can rightly call myself amazingly fortunate.
+  </p>
+
+  <p>
+  I had no idea what I was doing but the response from the community was
+  amazing and very encouraging.  One special shout out has to go to the
+  amazing <a href="http://batsov.com/">Bozhidar Batsov</a> who <a href="https://twitter.com/bbatsov/status/350889256048279553?lang=en">switched Prelude</a> to use Smartparens not
+  even half a year after I started the project.  This was a huge deal
+  for the growth of the project with thousands of new users coming in
+  pretty much over night.
+  </p>
+
+  <p>
+  This early success encouraged me to start other (Emacs) projects of
+  which I now have well over 50 and I have contributed to countless
+  others.
+  </p>
+
+  <p>
+  Thanks also go to all the <a href="https://github.com/Fuco1/smartparens/graphs/contributors">contributors</a> who helped to move Smartparens
+  to where it is now; and also many others who reported issues and
+  provided suggestions for improvements.  I can't name you all but your
+  efforts are much appreciated!
+  </p>
+
+  <p>
+  I had pretty rough and packed year but I hope to get back on track
+  with the release schedule and start a more rapid release cycle.
+  Expect more goodies to come soon :)
+  </p>
+
+  <p>
+  Thanks again and enjoy the new release everyone!
+  </p>
+
+  <p>
+  ----
+  </p>
+
+  <p>
+  PS: You can send some love through <a href="https://www.patreon.com/user?u=3282358&amp;ty=h">Patreon</a> or <a href="https://www.paypal.me/MatusGoljer">PayPal</a>.
+  </p>
+  ]]></description>
+</item>
+
+<item>
+  <title>Using bookmarks with eshell and docker-tramp</title>
+  <link>https://fuco1.github.io/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.html</guid>
+  <pubDate>Sun, 08 Oct 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  Emacs comes with a pretty extensible bookmarking system.  As expected,
+  you can bookmark files (including positions in the file!) in order to
+  quickly navigate to commonly used files.  I use this for my config
+  files, personal/gdt org files, my ledger file and so on.
+  </p>
+
+  <p>
+  Thanks to the Emacs philosophy of everything being a buffer you can
+  also bookmark a plethora of special buffers such as email buffers,
+  elfeed entries, info pages, help pages, dired buffers and many more.
+  Pretty much any buffer which can be reconstructed from a set of input
+  arguments can be bookmarked.
+  </p>
+
+  <p>
+  As a bonus it all works through the same interface, by default bound
+  to <code>C-x r m</code>, so you can just hit that to see if the buffer's type is
+  supported or not.
+  </p>
+
+  <p>
+  Adding support for new buffers is also amazingly simple.  All you need
+  to do is define a function which makes a bookmark <i>record</i>.  A bookmark
+  record is simply an alist with arbitrary data.  You can save any state
+  there that is necessary for the recreation of the buffer.  The only
+  required key is <code>handler</code> which has a function as a value.  This
+  function is given the entire bookmark record and is responsible for
+  recreating the buffer.
+  </p>
+
+  <p>
+  You then locally assign (with <code>setq-local</code>) this record creating
+  function to <code>bookmark-make-record-function</code> which is internally used by
+  <code>bookmark.el</code> when you ask it to create a record.
+  </p>
+
+  <p>
+  Recently I've been using <a href="https://www.docker.com/">docker</a> (especially <a href="https://docs.docker.com/compose/">docker-compose</a>) a lot and
+  one thing that comes up fairly often during development is that you
+  might want to execute some commands inside the container (for example
+  when you are using the <a href="https://medium.com/@alexeiled/docker-pattern-the-build-container-b0d0e86ad601">build container pattern</a>).
+  </p>
+
+  <p>
+  What bothered me was the fact that I had to leave Emacs, jump to the
+  terminal and fire away the commands in there.  Turns out someone
+  clever figured out a way of using TRAMP<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> to connect into docker
+  containers.  Combined with this, I can use eshell to jump into docker
+  container and execute commands in there.  Whoa!
+  </p>
+
+  <pre class="example">
+  [12:15:50]:~/$ docker ps
+  CONTAINER ID        IMAGE                 NAMES
+  e015daa0ceac        fuco1/zathura:0.3.7   focused_hugle
+  [12:15:52]:~/$ cd /docker:focused_hugle:/
+  [12:17:01]:/docker:focused_hugle:$ ls
+  bin   etc     lib    mnt   root  srv  usr      zathura-cb           zathura-ps
+  boot  girara  lib64  opt   run   sys  var      zathura-djvu
+  dev   home    media  proc  sbin  tmp  zathura  zathura-pdf-poppler
+  </pre>
+
+  <p>
+  To tie all of this together I've written a small package
+  <a href="https://github.com/Fuco1/eshell-bookmark">eshell-bookmark</a><sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>
+  which adds bookmark support to eshell buffers.  More specifically,
+  when the bookmark is activated it tries to open an eshell in the
+  directory where the bookmark was created.  If an eshell session
+  already exists, it just =cd=s into that directory.  The entire package
+  is less than 30 lines including docstrings.  This is really the ideal
+  of extensibility.
+  </p>
+
+  <p>
+  Thanks to <code>docker-compose</code> containers having predictable names, I can
+  now bookmark each container's eshell session and quickly jump between
+  them as necessary, all from within Emacs.  No more <code>$ docker-compose
+  exec application ...</code>!
+  </p>
+  ]]></description>
+</item>
+
+<item>
+  <title>Maximize the org-capture buffer</title>
+  <link>https://fuco1.github.io/2017-09-02-Maximize-the-org-capture-buffer.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-09-02-Maximize-the-org-capture-buffer.html</guid>
+  <pubDate>Sat, 02 Sep 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  I'm a heavy user of <code>org-capture</code> and one behaviour of it always annoyed me:  instead of having the capture popup take the whole screen, it opens a new window.  This window is often small and somewhat inconvenient.  I like to do one thing at a time and so when I'm filing a note or capturing an idea I want to see only the capture buffer and no other distractions.  As we all know distractions kill flow and so we should always find ways to get all the nonsense out of the way.
+  </p>
+
+  <p>
+  Recently I've started using <a href="https://github.com/sprig/org-capture-extension">this awesome extension</a> to capture web content from firefox (works with chrome too).  I've tweaked the protocol handler to not only invoke <code>emacsclient "%u"</code> but also set some frame properties for later.
+  </p>
+
+  <p>
+  Here's the bash script I use as the handler
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-sh"><span style="color: #73d216;">#</span><span style="color: #73d216;">!/bin/</span><span style="color: #b4fa70;">bash</span>
+  emacsclient -c -F <span style="color: #e9b96e;">'((name . "org-protocol-capture"))'</span> <span style="color: #e9b96e;">"</span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">@</span><span style="color: #e9b96e;">"</span>
+  </pre>
+  </div>
+
+  <p>
+  The <code>-F</code> option sets the frame parameters with the specified alist.  Here I only set the name to <code>"org-protocol-capture"</code> I make sure to open new frame with <code>-c</code>.
+  </p>
+
+  <p>
+  Org capture provides several hooks we can use to tweak the default behaviour.
+  </p>
+
+  <p>
+  First, we make sure the capture buffer window takes the whole frame.  To do this, we first save the current window configuration and then delete all other windows on entering the <code>org-capture-mode</code>.  Unfortunately there is no "before anything happens" hook so we use a before advice instead.
+  </p>
+
+
+  <div class="org-src-container">
+  <pre class="src src-elisp" id="orgedd0b20"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defvar</span> <span style="color: #fcaf3e;">my-org-capture-before-config</span> nil
+  <span style="color: #e9b96e;">"Window configuration before `</span><span style="color: #e6a8df;">org-capture</span><span style="color: #e9b96e;">'."</span><span style="color: #888a85;">)</span>
+
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">org-capture</span> <span style="color: #888a85;">(</span>before save-config activate<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Save the window configuration before `</span><span style="color: #e6a8df;">org-capture</span><span style="color: #e9b96e;">'."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> my-org-capture-before-config <span style="color: #888a85;">(</span>current-window-configuration<span style="color: #888a85;">)))</span>
+
+  <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-capture-mode-hook</span> <span style="color: #e6a8df;">'delete-other-windows</span><span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  Next, after we finish the capture work flow (either with success or cancellation) we restore the window configuration saved previously.
+  </p>
+
+  <p>
+  Finally, let's make sure that after we refile the captured content the frame which was possibly created (if capture was invoked with <code>org-protocol</code>) closes itself automatically.  This keeps us in the flow and keeps the distraction of killing the frame manually away.  We use the frame name to decide if we wish to kill the frame or not (this is the <code>-F</code> argument from above).
+  </p>
+
+
+  <div class="org-src-container">
+  <pre class="src src-elisp" id="orga260a32"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-capture-cleanup</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Clean up the frame created while capturing via org-protocol."</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">In case we run capture from emacs itself and not an external app,</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">we want to restore the old window config</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> my-org-capture-before-config
+  <span style="color: #888a85;">(</span>set-window-configuration my-org-capture-before-config<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">((</span><span style="color: #8cc4ff;">&amp;alist</span> <span style="color: #e6a8df;">'name</span> name<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>frame-parameters<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>equal name <span style="color: #e9b96e;">"org-protocol-capture"</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>delete-frame<span style="color: #888a85;">))))</span>
+
+  <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-capture-after-finalize-hook</span> <span style="color: #e6a8df;">'my-org-capture-cleanup</span><span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  With these tweaks the whole capture experience is much more streamlined for me.  When I invoke capture from anywhere (Emacs or via <code>org-protocol</code>), I get a full screen frame/window where I can quickly jot my thoughts.  After I'm finished everything restores itself to the previous state and I can continue with whatever task I was consumed prior to the capture process.
+  </p>
+  ]]></description>
 </item>
 
 <item>
@@ -306,7 +461,7 @@
 
 
   <div class="figure">
-  <p><img src="http://i.imgur.com/qhCvDws.png" alt="qhCvDws.png" />
+  <p><img src="https://i.imgur.com/qhCvDws.png" alt="qhCvDws.png" />
   </p>
   <p><span class="figure-number">Figure 1: </span>Configurations often require deep but unique nesting</p>
   </div>
@@ -330,7 +485,7 @@
 
 
   <div class="figure">
-  <p><img src="http://i.imgur.com/Xje5Nmo.png" alt="Xje5Nmo.png" />
+  <p><img src="https://i.imgur.com/Xje5Nmo.png" alt="Xje5Nmo.png" />
   </p>
   <p><span class="figure-number">Figure 2: </span>Before collapse</p>
   </div>
@@ -341,7 +496,7 @@
 
 
   <div class="figure">
-  <p><img src="http://i.imgur.com/mm6gFbX.png" alt="mm6gFbX.png" />
+  <p><img src="https://i.imgur.com/mm6gFbX.png" alt="mm6gFbX.png" />
   </p>
   <p><span class="figure-number">Figure 3: </span>After collapse</p>
   </div>
