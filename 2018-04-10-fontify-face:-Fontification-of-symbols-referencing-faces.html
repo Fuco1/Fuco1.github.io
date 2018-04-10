@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-04-10 Tue 21:03 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>fontify-face: Fontification of symbols referencing faces</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./sitemap.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://fuco1.github.io/rss.xml">RSS</a>
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">fontify-face: Fontification of symbols referencing faces</h1>
+
+<p>
+Today I was updating <a href="https://github.com/Fuco1/.emacs.d/tree/master/themes">my theme</a> to support some additional packages.
+I'm a big fan of face inheritance because it makes things very
+consistent across the board.  In particular I'm trying to reuse the
+faces in the <code>font-lock-</code> group as much as possible.
+</p>
+
+<p>
+I have even created a similar hierarchy for the various markup systems
+such as markdown, org mode, rst, textile, latex and others.  It's
+called, unsurprisingly, <code>markup</code> and contains all the common elements
+such as headers, code text, emphasis and so on.  I then make all the
+other modes inherit from this set of faces and thus achieve a
+consistent look and feel across all the markup
+modes.<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  Have a look at the definitions if this
+makes no sense to you yet!
+</p>
+
+<p>
+Anyway, while I was working on adding new faces I got annoyed because
+I couldn't see what I was doing.  I sometimes inherit from multiple
+faces to make combined faces, sometimes I just add a parameter or two
+and it's difficult to see the results. Usually you need to switch to a
+different buffer (with the mode you are theming), find the desired
+element and look what's going on.
+</p>
+
+<p>
+Why couldn't the face name itself be fontified with the face? A ha!  I
+already use <a href="https://elpa.gnu.org/packages/rainbow-mode.html">rainbow-mode</a> which colorizes color references such as
+#fafafa with the color they represent.  So I'm thinking along the same
+lines: the symbols representing faces should be fontified with that
+face.  This will make the feedback loop much shorter and the
+development much faster and more convenient.
+</p>
+
+<p>
+I have quickly turned this idea into a package and called it
+<a href="https://github.com/Fuco1/fontify-face">fontify-face</a>.  The code is rather unsurprising, just a couple lines.
+The most interesting part is the function
+<code>fontify-face-colorize-matched-face</code> which computes the face from the
+matched region and then passes it back to font-lock to do its thing.
+</p>
+
+<p>
+This works because font-lock allows arbitrary forms in every place
+where you can pass a face reference.  The rule is, this form must
+evaluate to
+</p>
+
+<ul class="org-ul">
+<li>a face reference,</li>
+<li>or a plist representing face properties,</li>
+<li>or nil if we don't want do do anything with the match.</li>
+</ul>
+
+<p>
+The form I use is <code>(funcall 'fontify-face-colorize-matched-face)</code>
+because I dislike just passing random blobs of code around.  This way
+I can redefine the function without having to mess around with
+removing the old forms from <code>font-lock-keywords-alist</code>.  This is similar
+in logic to why you shouldn't put lambda forms in hooks.
+</p>
+
+<p>
+So that's it folks.  Finally, here are some pictures:
+</p>
+
+
+<div class="figure">
+<p><img src="https://i.imgur.com/hjJQVyL.png" alt="hjJQVyL.png" />
+</p>
+<p><span class="figure-number">Figure 1: </span>magit and friends</p>
+</div>
+
+
+<div class="figure">
+<p><img src="https://i.imgur.com/1ksWpt3.png" alt="1ksWpt3.png" />
+</p>
+<p><span class="figure-number">Figure 2: </span>markup faces</p>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">I might somehow package this in the future
+but haven't found a good way to plug this into existing themes.  If
+you have ideas let me know!</div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2018-04-10 21:03</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>

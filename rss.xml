@@ -14,8 +14,8 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Sun, 11 Mar 2018 15:59:05 +0100</pubDate>
-  <lastBuildDate>Sun, 11 Mar 2018 15:59:05 +0100</lastBuildDate>
+  <pubDate>Tue, 10 Apr 2018 21:04:07 +0200</pubDate>
+  <lastBuildDate>Tue, 10 Apr 2018 21:04:07 +0200</lastBuildDate>
   <generator>Emacs 25.2 Org-mode 9.1.2</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
@@ -23,6 +23,97 @@
     <title>Matus Goljer (Fuco1)</title>
     <link>https://fuco1.github.io/</link>
   </image>
+
+  <item>
+    <title>fontify-face: Fontification of symbols referencing faces</title>
+    <link>https://fuco1.github.io/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html</guid>
+    <pubDate>Tue, 10 Apr 2018 00:00:00 +0200</pubDate>
+
+    <description><![CDATA[<p>
+    Today I was updating <a href="https://github.com/Fuco1/.emacs.d/tree/master/themes">my theme</a> to support some additional packages.
+    I'm a big fan of face inheritance because it makes things very
+    consistent across the board.  In particular I'm trying to reuse the
+    faces in the <code>font-lock-</code> group as much as possible.
+    </p>
+
+    <p>
+    I have even created a similar hierarchy for the various markup systems
+    such as markdown, org mode, rst, textile, latex and others.  It's
+    called, unsurprisingly, <code>markup</code> and contains all the common elements
+    such as headers, code text, emphasis and so on.  I then make all the
+    other modes inherit from this set of faces and thus achieve a
+    consistent look and feel across all the markup
+    modes.<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  Have a look at the definitions if this
+    makes no sense to you yet!
+    </p>
+
+    <p>
+    Anyway, while I was working on adding new faces I got annoyed because
+    I couldn't see what I was doing.  I sometimes inherit from multiple
+    faces to make combined faces, sometimes I just add a parameter or two
+    and it's difficult to see the results. Usually you need to switch to a
+    different buffer (with the mode you are theming), find the desired
+    element and look what's going on.
+    </p>
+
+    <p>
+    Why couldn't the face name itself be fontified with the face? A ha!  I
+    already use <a href="https://elpa.gnu.org/packages/rainbow-mode.html">rainbow-mode</a> which colorizes color references such as
+    #fafafa with the color they represent.  So I'm thinking along the same
+    lines: the symbols representing faces should be fontified with that
+    face.  This will make the feedback look much shorter and the
+    development much faster and more convenient.
+    </p>
+
+    <p>
+    I have quickly turned this idea into a package and called it
+    <a href="https://github.com/Fuco1/fontify-face">fontify-face</a>.  The code is rather unsurprising, just a couple lines.
+    The most interesting part is the function
+    <code>fontify-face-colorize-matched-face</code> which computes the face from the
+    matched region and then passes it back to font-lock to do its thing.
+    </p>
+
+    <p>
+    This works because font-lock allows arbitrary forms in every place
+    where you can pass a face reference.  The rule is, this form must
+    evaluate to
+    </p>
+
+    <ul class="org-ul">
+    <li>a face reference,</li>
+    <li>or a plist representing face properties,</li>
+    <li>or nil if we don't want do do anything with the match.</li>
+    </ul>
+
+    <p>
+    The form I use is <code>(funcall 'fontify-face-colorize-matched-face)</code>
+    because I dislike just passing random blobs of code around.  This way
+    I can redefine the function without having to mess around with
+    removing the old forms from <code>font-lock-keywords-alist</code>.  This is similar
+    in logic to why you shouldn't put lambda forms in hooks.
+    </p>
+
+    <p>
+    So that's it folks.  Finally, here are some pictures:
+    </p>
+
+
+    <div class="figure">
+    <p><img src="https://i.imgur.com/hjJQVyL.png" alt="hjJQVyL.png" />
+    </p>
+    <p><span class="figure-number">Figure 1: </span>magit and friends</p>
+    </div>
+
+
+    <div class="figure">
+    <p><img src="https://i.imgur.com/1ksWpt3.png" alt="1ksWpt3.png" />
+    </p>
+    <p><span class="figure-number">Figure 2: </span>markup faces</p>
+    </div>
+    ]]></description>
+  </item>
 
   <item>
     <title>Use org-radiobutton to select an option from a list</title>
@@ -308,7 +399,7 @@
   <p>
   What bothered me was the fact that I had to leave Emacs, jump to the
   terminal and fire away the commands in there.  Turns out someone
-  clever figured out a way of using TRAMP<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> to connect into docker
+  clever figured out a way of using TRAMP<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup> to connect into docker
   containers.  Combined with this, I can use eshell to jump into docker
   container and execute commands in there.  Whoa!
   </p>
@@ -326,7 +417,7 @@
 
   <p>
   To tie all of this together I've written a small package
-  <a href="https://github.com/Fuco1/eshell-bookmark">eshell-bookmark</a><sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>
+  <a href="https://github.com/Fuco1/eshell-bookmark">eshell-bookmark</a><sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup>
   which adds bookmark support to eshell buffers.  More specifically,
   when the bookmark is activated it tries to open an eshell in the
   directory where the bookmark was created.  If an eshell session
@@ -463,7 +554,7 @@
   <div class="figure">
   <p><img src="https://i.imgur.com/qhCvDws.png" alt="qhCvDws.png" />
   </p>
-  <p><span class="figure-number">Figure 1: </span>Configurations often require deep but unique nesting</p>
+  <p><span class="figure-number">Figure 3: </span>Configurations often require deep but unique nesting</p>
   </div>
 
   <p>
@@ -487,7 +578,7 @@
   <div class="figure">
   <p><img src="https://i.imgur.com/Xje5Nmo.png" alt="Xje5Nmo.png" />
   </p>
-  <p><span class="figure-number">Figure 2: </span>Before collapse</p>
+  <p><span class="figure-number">Figure 4: </span>Before collapse</p>
   </div>
 
   <p>
@@ -498,7 +589,7 @@
   <div class="figure">
   <p><img src="https://i.imgur.com/mm6gFbX.png" alt="mm6gFbX.png" />
   </p>
-  <p><span class="figure-number">Figure 3: </span>After collapse</p>
+  <p><span class="figure-number">Figure 5: </span>After collapse</p>
   </div>
 
   <p>
@@ -663,7 +754,7 @@
   </table>
 
   <p>
-  People who know my rants on Emacs and especially <code>font-lock-mode</code> know that I consider it a rather crappy hack.  Parsing complex context sensitive languages with a bunch of very weak regexes<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup> just screams <i>This is a really bad idea!</i>  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets <code>match-data</code> the same way <code>re-search-forward</code> would.
+  People who know my rants on Emacs and especially <code>font-lock-mode</code> know that I consider it a rather crappy hack.  Parsing complex context sensitive languages with a bunch of very weak regexes<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup> just screams <i>This is a really bad idea!</i>  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets <code>match-data</code> the same way <code>re-search-forward</code> would.
   </p>
 
   <p>
@@ -692,7 +783,7 @@
   </p>
 
   <p>
-  The anchored matchers work by first searching for an <i>anchor</i> and only then searching for the thing you want to highlight.  This basically allows you to do look-ahead context-sensitive fontification in the sense that the subsequent matchers are <i>tried</i> but if they fail the process continues <b>from where the anchor match ended</b>.<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup>.
+  The anchored matchers work by first searching for an <i>anchor</i> and only then searching for the thing you want to highlight.  This basically allows you to do look-ahead context-sensitive fontification in the sense that the subsequent matchers are <i>tried</i> but if they fail the process continues <b>from where the anchor match ended</b>.<sup><a id="fnr.5" class="footref" href="#fn.5">5</a></sup>.
   </p>
 
   <p>
@@ -796,7 +887,7 @@
   </p>
 
   <p>
-  In the beginning their first idea was to generate all the possible splits into 1 and 2 letter groups (we call these strings <i>groupings</i>), then try all these combinations matching against the list of the symbols<sup><a id="fnr.5" class="footref" href="#fn.5">5</a></sup>.  To generate the splits they would generate all the possible strings of 1 and 2 up to the length \(m\) and then filter out those which don't sum up to \(m\) (the length of the input word).  Little inspection shows that this grows exponentially and really isn't the way to go<sup><a id="fnr.6" class="footref" href="#fn.6">6</a></sup>.  For \(m\) = 3 this would generate 15 possible strings (including the empty one) but only 3 are actually valid: \((1,1,1)\), \((1,2)\) and \((2,1)\).
+  In the beginning their first idea was to generate all the possible splits into 1 and 2 letter groups (we call these strings <i>groupings</i>), then try all these combinations matching against the list of the symbols<sup><a id="fnr.6" class="footref" href="#fn.6">6</a></sup>.  To generate the splits they would generate all the possible strings of 1 and 2 up to the length \(m\) and then filter out those which don't sum up to \(m\) (the length of the input word).  Little inspection shows that this grows exponentially and really isn't the way to go<sup><a id="fnr.7" class="footref" href="#fn.7">7</a></sup>.  For \(m\) = 3 this would generate 15 possible strings (including the empty one) but only 3 are actually valid: \((1,1,1)\), \((1,2)\) and \((2,1)\).
   </p>
 
   <p>
@@ -869,7 +960,7 @@
   </p>
 
   <p>
-  Now the fun part.  If we prove that the proposition is true for \(n + 1\) while we <i>assume</i> it works for all \(k \leq n\), we proved the proposition for <i>all</i> \(n\).  This is called the induction hypothesis.<sup><a id="fnr.7" class="footref" href="#fn.7">7</a></sup>
+  Now the fun part.  If we prove that the proposition is true for \(n + 1\) while we <i>assume</i> it works for all \(k \leq n\), we proved the proposition for <i>all</i> \(n\).  This is called the induction hypothesis.<sup><a id="fnr.8" class="footref" href="#fn.8">8</a></sup>
   </p>
 
   <p>
@@ -1429,7 +1520,7 @@
   </p>
 
   <p>
-  First, let's write a little helper function to guess the appropriate major mode for a buffer.  I only have the JSON logic<sup><a id="fnr.8" class="footref" href="#fn.8">8</a></sup> there but you can of course add more "handlers" to check for XML or TAP output and so on.  <a href="https://github.com/Fuco1/.emacs.d/issues/new">Let me know</a> if you create something awesome!
+  First, let's write a little helper function to guess the appropriate major mode for a buffer.  I only have the JSON logic<sup><a id="fnr.9" class="footref" href="#fn.9">9</a></sup> there but you can of course add more "handlers" to check for XML or TAP output and so on.  <a href="https://github.com/Fuco1/.emacs.d/issues/new">Let me know</a> if you create something awesome!
   </p>
 
   <div class="org-src-container">
@@ -1640,7 +1731,7 @@
   <h3 id="org506bde3"><a id="ID-5039c9a3-7e08-46c9-9c62-88221036afb6"></a>Example</h3>
   <div class="outline-text-3" id="text-org506bde3">
   <p>
-  Emacs comes with this amazing functionality called <i>marks</i>.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the <i>mark ring</i><sup><a id="fnr.9" class="footref" href="#fn.9">9</a></sup>.  This allows you to remember multiple marks at the same time and recall them in a lifo order.
+  Emacs comes with this amazing functionality called <i>marks</i>.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the <i>mark ring</i><sup><a id="fnr.10" class="footref" href="#fn.10">10</a></sup>.  This allows you to remember multiple marks at the same time and recall them in a lifo order.
   </p>
 
   <p>
@@ -1698,7 +1789,7 @@
   </p>
 
   <p>
-  Before we continue, a little excursion into how Emacs maintains value bindings.  When you use <code>let</code> to set the value of a special variable<sup><a id="fnr.10" class="footref" href="#fn.10">10</a></sup>, this value becomes current until the execution of the <code>let</code> block is finished.  This means that this value is available globally for all the subroutines called from the let block, as well as for all the subroutines called from these and so on.
+  Before we continue, a little excursion into how Emacs maintains value bindings.  When you use <code>let</code> to set the value of a special variable<sup><a id="fnr.11" class="footref" href="#fn.11">11</a></sup>, this value becomes current until the execution of the <code>let</code> block is finished.  This means that this value is available globally for all the subroutines called from the let block, as well as for all the subroutines called from these and so on.
   </p>
 
   <p>
@@ -1778,7 +1869,7 @@
   </p>
 
   <p>
-  But Latin also has another way to express comparison.  Yes, you guessed it right, the ever-so-flexible ablative.  Using ablative for comparison makes the phrases snappier, shorter and more to the point<sup><a id="fnr.11" class="footref" href="#fn.11">11</a></sup>.
+  But Latin also has another way to express comparison.  Yes, you guessed it right, the ever-so-flexible ablative.  Using ablative for comparison makes the phrases snappier, shorter and more to the point<sup><a id="fnr.12" class="footref" href="#fn.12">12</a></sup>.
   </p>
 
   <p>
@@ -1818,28 +1909,32 @@
   <h2 class="footnotes">Footnotes: </h2>
   <div id="text-footnotes">
 
-    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">The
+    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">I might somehow package this in the future
+    but haven't found a good way to plug this into existing themes.  If
+    you have ideas let me know!</div></div>
+
+    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">The
     package <a href="https://github.com/emacs-pe/docker-tramp.el">docker-tramp.el</a> is available on MELPA</div></div>
 
-    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">Now available on MELPA/Stable</div></div>
+    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara">Now available on MELPA/Stable</div></div>
 
-    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara">Emacs RE engine is a lot less powerful than PCRE engines, it doesn't support look-ahead nor back-references among other less commonly used features</div></div>
+    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara">Emacs RE engine is a lot less powerful than PCRE engines, it doesn't support look-ahead nor back-references among other less commonly used features</div></div>
 
-    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara">For those familiar with Parsec, this is basically the <code>try</code> combinator</div></div>
+    <div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5">5</a></sup> <div class="footpara">For those familiar with Parsec, this is basically the <code>try</code> combinator</div></div>
 
-    <div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5">5</a></sup> <div class="footpara">Yes, this is awfully inefficient.  The author later rectifies this with a beautiful and fast linear algorithm.</div></div>
+    <div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6">6</a></sup> <div class="footpara">Yes, this is awfully inefficient.  The author later rectifies this with a beautiful and fast linear algorithm.</div></div>
 
-    <div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6">6</a></sup> <div class="footpara">To see this just imagine that 1 and 2 is actually 0 and 1 and you are generating all the binary numbers taking up to \(n\) bits.  This results in \((2^n)-1\) options.</div></div>
+    <div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7">7</a></sup> <div class="footpara">To see this just imagine that 1 and 2 is actually 0 and 1 and you are generating all the binary numbers taking up to \(n\) bits.  This results in \((2^n)-1\) options.</div></div>
 
-    <div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7">7</a></sup> <div class="footpara">We are actually using <i>strong</i> (a.k.a. <i>complete</i>) <a href="https://en.wikipedia.org/wiki/Mathematical_induction#Complete_induction">induction</a>.  This is equivalent to the simple induction you might have learned at university.</div></div>
+    <div class="footdef"><sup><a id="fn.8" class="footnum" href="#fnr.8">8</a></sup> <div class="footpara">We are actually using <i>strong</i> (a.k.a. <i>complete</i>) <a href="https://en.wikipedia.org/wiki/Mathematical_induction#Complete_induction">induction</a>.  This is equivalent to the simple induction you might have learned at university.</div></div>
 
-    <div class="footdef"><sup><a id="fn.8" class="footnum" href="#fnr.8">8</a></sup> <div class="footpara">This code depends on <code>json</code> (built-in) and <code>json-mode</code> (get from MELPA).</div></div>
+    <div class="footdef"><sup><a id="fn.9" class="footnum" href="#fnr.9">9</a></sup> <div class="footpara">This code depends on <code>json</code> (built-in) and <code>json-mode</code> (get from MELPA).</div></div>
 
-    <div class="footdef"><sup><a id="fn.9" class="footnum" href="#fnr.9">9</a></sup> <div class="footpara">A ring in Emacs is basically a stack where popped elements go to the bottom</div></div>
+    <div class="footdef"><sup><a id="fn.10" class="footnum" href="#fnr.10">10</a></sup> <div class="footpara">A ring in Emacs is basically a stack where popped elements go to the bottom</div></div>
 
-    <div class="footdef"><sup><a id="fn.10" class="footnum" href="#fnr.10">10</a></sup> <div class="footpara">A variable is <i>special</i> if defined using <code>defvar</code>.</div></div>
+    <div class="footdef"><sup><a id="fn.11" class="footnum" href="#fnr.11">11</a></sup> <div class="footpara">A variable is <i>special</i> if defined using <code>defvar</code>.</div></div>
 
-    <div class="footdef"><sup><a id="fn.11" class="footnum" href="#fnr.11">11</a></sup> <div class="footpara">Similar to how Ablative Absolute can make the lengthy <i>temporal cum</i> constructions simpler</div></div>
+    <div class="footdef"><sup><a id="fn.12" class="footnum" href="#fnr.12">12</a></sup> <div class="footpara">Similar to how Ablative Absolute can make the lengthy <i>temporal cum</i> constructions simpler</div></div>
 
 
   </div>
