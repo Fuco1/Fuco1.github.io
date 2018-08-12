@@ -1,7 +1,7 @@
 #+TITLE: Turn on context-aware modes on shell command output
 #+DATE: [2017-04-29 Sat 23:10]
 
-* DONE Turn on context-aware modes on shell command output          :ignore:publish:
+* DONE Turn on context-aware modes on shell command output   :ignore:publish:
   CLOSED: [2017-04-29 Sat 23:10]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-04-29-Turn-on-context-aware-modes-on-shell-command-output
@@ -9,7 +9,6 @@
   :PUBDATE:  <2017-04-29 Sat 23:10>
   :END:
    :CLOCK:
-   CLOCK: [2017-04-30 Sun 16:35]
    CLOCK: [2017-04-29 Sat 22:13]--[2017-04-29 Sat 23:11] =>  0:58
    :END:
    :LOGBOOK:

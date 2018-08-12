@@ -1,7 +1,7 @@
 #+TITLE: WAR STORY: Prevent point jumping around invisible text
 #+DATE: [2017-05-03 Wed 22:53]
 
-* DONE WAR STORY: Prevent point jumping around invisible text       :ignore:publish:
+* DONE WAR STORY: Prevent point jumping around invisible text :ignore:publish:
   CLOSED: [2017-05-03 Wed 22:53]
   :PROPERTIES:
   :BLOG_FILENAME: 2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text
@@ -10,9 +10,6 @@
   :END:
    :LOGBOOK:
    - State "DONE"       from              [2017-05-03 Wed 22:53]
-   :END:
-   :CLOCK:
-   CLOCK: [2017-05-03 Wed 22:33]
    :END:
 
 When I use =org-mode= I like to keep the markup syntax hidden so it doesn't get in the way visually.  You can do this by setting =org-hide-emphasis-markers= to =t=.  The way this works is rather simple: font-lock will add ='invisible= property on the markers and adjust the value of =buffer-invisibility-spec= so that the markers stay hidden.

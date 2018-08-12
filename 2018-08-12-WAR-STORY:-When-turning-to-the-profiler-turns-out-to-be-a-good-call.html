@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-08-12 Sun 12:48 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WAR STORY: When turning to the profiler turns out to be a good call</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./sitemap.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://fuco1.github.io/rss.xml">RSS</a>
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">WAR STORY: When turning to the profiler turns out to be a good call</h1>
+
+<p>
+Some of you might have seen the little bit of news circulating around
+about my new project.  It's called <a href="https://github.com/Fuco1/Elsa">Elsa</a> (stands for Emacs Lisp Static
+Analyzer), which is exactly what you would expect: you throw it some
+Elisp code and it analyzes the types, dead code, style and all sorts
+of other rules (stars are the limit!).
+</p>
+
+<p>
+I've been working on this "secretly" in public (the repo was on Github
+from day 1.) for about a year and very early on I've made a couple
+decisions that I now thought doomed me to failure.  These were:
+</p>
+
+<ul class="org-ul">
+<li>I will use <a href="https://www.gnu.org/s/emacs/manual/html_node/eieio/">EIEIO</a> to represent the reader forms and types</li>
+<li>I will use CL <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Generic-Functions.html">generics</a> to process these objects</li>
+</ul>
+
+<p>
+For this kind of a problem where we are walking some recursive
+structure and then doing some "arithmetics" on hierarchies of types,
+classes and methods are a very natural choice.  You can write generic
+implementations and then "pattern match" on specific classes to
+provide more elaborate strategies.
+</p>
+
+<p>
+These two were notoriously known for having very bad performance in
+the past, but nonetheless I decided that the simplicity of the
+implementation has higher priority for me now and that in the worst
+case I can transform it into a manual-dispatch-conds-and-defuns later.
+</p>
+
+<p>
+EIEIO in particular was also known to be quite undebuggable.  They did
+a good job on it with the 25 release and the error messages are now
+pretty helpful.  It's no worse than the rest of Emacs (<code>M-x
+faint-praise</code>).
+</p>
+
+<p>
+When I finally finished the reader module which turns the source file
+into a tree of EIEIO objects, to my horror I found out that it was
+indeed slow. <b>Way slow</b>. I was using <a href="https://github.com/Fuco1/smartparens/blob/master/smartparens.el">smartparens.el</a> as a benchmark: it's
+a single lisp file package of about 10000 lines with enough complexity
+to inhibit most of the features of Elisp.
+</p>
+
+<p>
+It took 42 seconds to analyze.  That is not great when you want to use
+it with something like <a href="http://www.flycheck.org/en/latest/">flycheck</a>.  So I'm pretty much thinking I'm
+screwed at this point and begin thinking about how to get rid of the
+generics, because obviously <i>that</i> must be the issue, right?
+</p>
+
+<p>
+Oh, how wrong I was.  Finally in a stroke of genius I fired up an
+<code>emacs -nw -q</code>, loaded all the necessary things and did <code>M-x
+profiler-start</code>.
+</p>
+
+<p>
+Then I run the analysis in that instance, get the report and get my
+mind blown to pieces: the culprit was the little innocent looking
+function <code>line-number-at-pos</code>.  The reader spent about 90% of all the
+time inside that function.
+</p>
+
+<p>
+What happened?  Every time I read any form I need to remember the line
+and column it was encountered at for error reporting to the user
+later.  So every time I read anything (a symbol, a list, a keyword, a
+string) I would call <code>line-number-at-pos</code> with the token's start
+position to get the line number.
+</p>
+
+<p>
+What this function does is it jumps to the first line of the file,
+then regexp searches for <code>\n</code> until it reaches the <code>point</code> from which it
+was called.
+</p>
+
+<p>
+So you can imagine, in your source code on line <code>8500</code>, a form like
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>very innocent looking form at line 8500<span style="color: #888a85;">)</span>
+</pre>
+</div>
+
+<p>
+would trigger 8 calls to <code>line-number-at-pos</code> which would in turn do
+68000 regexp searches for <code>\n</code>.  The total number of these went way up
+in the lower hundreds of millions, somewhere around the marks of 400
+to 500 million calls.  Now that's <i>a lot</i> of completely useless
+computation.
+</p>
+
+<p>
+So what I did to fix this?  At the beginning of the analysis I run
+through all the lines and place a text property <code>elsa-line</code> on the first
+character with the line number.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>line 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span> <span style="color: #e6a8df;">'elsa-line</span> line<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>= <span style="color: #888a85;">(</span>forward-line<span style="color: #888a85;">)</span> 0<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-incf</span> line<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>min
+                                <span style="color: #888a85;">(</span>buffer-size<span style="color: #888a85;">)</span>
+                                <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span> <span style="color: #e6a8df;">'elsa-line</span> line<span style="color: #888a85;">)))</span>
+</pre>
+</div>
+
+<p>
+Then to get the line number all I need to do is
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>get-text-property <span style="color: #888a85;">(</span>line-beginning-position<span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'elsa-line</span><span style="color: #888a85;">)</span>
+</pre>
+</div>
+
+<p>
+Because the text properties use efficient data structures this access
+is really really fast (something like <code>O(log n)</code> in length of buffer).
+</p>
+
+<p>
+With this little change, the analysis time dropped to 5 seconds,
+almost a factor of 10!  So the moral of the story is, as has been
+repeated to death, when in trouble always bring out the big guns:
+profilers are our friends!  No way in the world I would've guessed
+this function was responsible (I actually started changing a bunch of
+code into <code>defsubst</code> and inlining code before I figured that's
+completely bonkers).
+</p>
+
+<p>
+On a closing note, I'm looking for people to help out on the project,
+there is a lot of things for people of all skill ranging from
+beginners to seasoned hackers.  Check out issues marked <a href="https://github.com/Fuco1/Elsa/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22">help wanted</a> or
+<a href="https://github.com/Fuco1/Elsa/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">good first issue</a> and get involved!  If anything's unclear go ahead and
+ask questions.
+</p>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2018-08-12 12:48</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>

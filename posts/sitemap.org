@@ -1,5 +1,6 @@
 #+TITLE: Archive
 
+- [[file:2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.org][2018-08-12 WAR STORY: When turning to the profiler turns out to be a good call]]
 - [[file:2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.org][2018-04-10 fontify-face: Fontification of symbols referencing faces]]
 - [[file:2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.org][2018-03-11 Use org-radiobutton to select an option from a list]]
 - [[file:2017-11-17-Smartparens-is-5-years-old-today.org][2017-11-17 Smartparens is 5 years old today]]

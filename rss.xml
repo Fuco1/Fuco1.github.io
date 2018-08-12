@@ -14,260 +14,419 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Tue, 10 Apr 2018 21:04:07 +0200</pubDate>
-  <lastBuildDate>Tue, 10 Apr 2018 21:04:07 +0200</lastBuildDate>
-  <generator>Emacs 25.2 Org-mode 9.1.2</generator>
+  <pubDate>Sun, 12 Aug 2018 12:48:17 +0200</pubDate>
+  <lastBuildDate>Sun, 12 Aug 2018 12:48:17 +0200</lastBuildDate>
+  <generator>Emacs 25.2 Org-mode 9.1.13</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
-    <url>http://orgmode.org/img/org-mode-unicorn-logo.png</url>
+    <url>https://orgmode.org/img/org-mode-unicorn-logo.png</url>
     <title>Matus Goljer (Fuco1)</title>
     <link>https://fuco1.github.io/</link>
   </image>
 
   <item>
-    <title>fontify-face: Fontification of symbols referencing faces</title>
-    <link>https://fuco1.github.io/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html</link>
+    <title>WAR STORY: When turning to the profiler turns out to be a good call</title>
+    <link>https://fuco1.github.io/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html</link>
     <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html</guid>
-    <pubDate>Tue, 10 Apr 2018 00:00:00 +0200</pubDate>
+    <guid isPermaLink="false">https://fuco1.github.io/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html</guid>
+    <pubDate>Sun, 12 Aug 2018 00:00:00 +0200</pubDate>
 
     <description><![CDATA[<p>
-    Today I was updating <a href="https://github.com/Fuco1/.emacs.d/tree/master/themes">my theme</a> to support some additional packages.
-    I'm a big fan of face inheritance because it makes things very
-    consistent across the board.  In particular I'm trying to reuse the
-    faces in the <code>font-lock-</code> group as much as possible.
+    Some of you might have seen the little bit of news circulating around
+    about my new project.  It's called <a href="https://github.com/Fuco1/Elsa">Elsa</a> (stands for Emacs Lisp Static
+    Analyzer), which is exactly what you would expect: you throw it some
+    Elisp code and it analyzes the types, dead code, style and all sorts
+    of other rules (stars are the limit!).
     </p>
 
     <p>
-    I have even created a similar hierarchy for the various markup systems
-    such as markdown, org mode, rst, textile, latex and others.  It's
-    called, unsurprisingly, <code>markup</code> and contains all the common elements
-    such as headers, code text, emphasis and so on.  I then make all the
-    other modes inherit from this set of faces and thus achieve a
-    consistent look and feel across all the markup
-    modes.<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  Have a look at the definitions if this
-    makes no sense to you yet!
-    </p>
-
-    <p>
-    Anyway, while I was working on adding new faces I got annoyed because
-    I couldn't see what I was doing.  I sometimes inherit from multiple
-    faces to make combined faces, sometimes I just add a parameter or two
-    and it's difficult to see the results. Usually you need to switch to a
-    different buffer (with the mode you are theming), find the desired
-    element and look what's going on.
-    </p>
-
-    <p>
-    Why couldn't the face name itself be fontified with the face? A ha!  I
-    already use <a href="https://elpa.gnu.org/packages/rainbow-mode.html">rainbow-mode</a> which colorizes color references such as
-    #fafafa with the color they represent.  So I'm thinking along the same
-    lines: the symbols representing faces should be fontified with that
-    face.  This will make the feedback look much shorter and the
-    development much faster and more convenient.
-    </p>
-
-    <p>
-    I have quickly turned this idea into a package and called it
-    <a href="https://github.com/Fuco1/fontify-face">fontify-face</a>.  The code is rather unsurprising, just a couple lines.
-    The most interesting part is the function
-    <code>fontify-face-colorize-matched-face</code> which computes the face from the
-    matched region and then passes it back to font-lock to do its thing.
-    </p>
-
-    <p>
-    This works because font-lock allows arbitrary forms in every place
-    where you can pass a face reference.  The rule is, this form must
-    evaluate to
+    I've been working on this "secretly" in public (the repo was on Github
+    from day 1.) for about a year and very early on I've made a couple
+    decisions that I now thought doomed me to failure.  These were:
     </p>
 
     <ul class="org-ul">
-    <li>a face reference,</li>
-    <li>or a plist representing face properties,</li>
-    <li>or nil if we don't want do do anything with the match.</li>
+    <li>I will use <a href="https://www.gnu.org/s/emacs/manual/html_node/eieio/">EIEIO</a> to represent the reader forms and types</li>
+    <li>I will use CL <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Generic-Functions.html">generics</a> to process these objects</li>
     </ul>
 
     <p>
-    The form I use is <code>(funcall 'fontify-face-colorize-matched-face)</code>
-    because I dislike just passing random blobs of code around.  This way
-    I can redefine the function without having to mess around with
-    removing the old forms from <code>font-lock-keywords-alist</code>.  This is similar
-    in logic to why you shouldn't put lambda forms in hooks.
+    For this kind of a problem where we are walking some recursive
+    structure and then doing some "arithmetics" on hierarchies of types,
+    classes and methods are a very natural choice.  You can write generic
+    implementations and then "pattern match" on specific classes to
+    provide more elaborate strategies.
     </p>
 
     <p>
-    So that's it folks.  Finally, here are some pictures:
-    </p>
-
-
-    <div class="figure">
-    <p><img src="https://i.imgur.com/hjJQVyL.png" alt="hjJQVyL.png" />
-    </p>
-    <p><span class="figure-number">Figure 1: </span>magit and friends</p>
-    </div>
-
-
-    <div class="figure">
-    <p><img src="https://i.imgur.com/1ksWpt3.png" alt="1ksWpt3.png" />
-    </p>
-    <p><span class="figure-number">Figure 2: </span>markup faces</p>
-    </div>
-    ]]></description>
-  </item>
-
-  <item>
-    <title>Use org-radiobutton to select an option from a list</title>
-    <link>https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</guid>
-    <pubDate>Sun, 11 Mar 2018 00:00:00 +0100</pubDate>
-
-    <description><![CDATA[<p>
-    Ever since I've come across the <a href="http://howardism.org/Technical/Emacs/literate-devops.html">Literate DevOps</a> article I was hooked
-    and immediately started writing down "org notebooks" every time an
-    incident occured along with all the code and steps on how to fix it in
-    case it might happen in the future (protip: it <i>will</i> happen again).
+    These two were notoriously known for having very bad performance in
+    the past, but nonetheless I decided that the simplicity of the
+    implementation has higher priority for me now and that in the worst
+    case I can transform it into a manual-dispatch-conds-and-defuns later.
     </p>
 
     <p>
-    Recently we had some problems with webhook requests behaving weird and
-    so I created a little notebook to query the mongo database where we
-    store all the requests and some more functions (ranging from elisp to
-    jq to ruby) to process the results.  As you sure know, threading data
-    between code blocks in different languages is painless with <code>org-mode</code>
-    and babel.
+    EIEIO in particular was also known to be quite undebuggable.  They did
+    a good job on it with the 25 release and the error messages are now
+    pretty helpful.  It's no worse than the rest of Emacs (<code>M-x
+    faint-praise</code>).
     </p>
 
     <p>
-    So imagine a block like this (using <a href="https://github.com/krisajenkins/ob-mongo">ob-mongo</a>):
+    When I finally finished the reader module which turns the source file
+    into a tree of EIEIO objects, to my horror I found out that it was
+    indeed slow. <b>Way slow</b>. I was using <a href="https://github.com/Fuco1/smartparens/blob/master/smartparens.el">smartparens.el</a> as a benchmark: it's
+    a single lisp file package of about 10000 lines with enough complexity
+    to inhibit most of the features of Elisp.
+    </p>
+
+    <p>
+    It took 42 seconds to analyze.  That is not great when you want to use
+    it with something like <a href="http://www.flycheck.org/en/latest/">flycheck</a>.  So I'm pretty much thinking I'm
+    screwed at this point and begin thinking about how to get rid of the
+    generics, because obviously <i>that</i> must be the issue, right?
+    </p>
+
+    <p>
+    Oh, how wrong I was.  Finally in a stroke of genius I fired up an
+    <code>emacs -nw -q</code>, loaded all the necessary things and did <code>M-x
+    profiler-start</code>.
+    </p>
+
+    <p>
+    Then I run the analysis in that instance, get the report and get my
+    mind blown to pieces: the culprit was the little innocent looking
+    function <code>line-number-at-pos</code>.  The reader spent about 90% of all the
+    time inside that function.
+    </p>
+
+    <p>
+    What happened?  Every time I read any form I need to remember the line
+    and column it was encountered at for error reporting to the user
+    later.  So every time I read anything (a symbol, a list, a keyword, a
+    string) I would call <code>line-number-at-pos</code> with the token's start
+    position to get the line number.
+    </p>
+
+    <p>
+    What this function does is it jumps to the first line of the file,
+    then regexp searches for <code>\n</code> until it reaches the <code>point</code> from which it
+    was called.
+    </p>
+
+    <p>
+    So you can imagine, in your source code on line <code>8500</code>, a form like
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-org"><span style="color: #73d216;">#+NAME: query</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port 27017</span>
-    db.webhookLogs.find({endpoint: "AddCustomer"}).sort({_id: -1}).limit(1)
-    <span style="color: #b4fa70;">#+END_SRC</span>
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span>very innocent looking form at line 8500<span style="color: #888a85;">)</span>
     </pre>
     </div>
 
     <p>
-    This gives me the most recent request to the <code>AddCustomer</code> endpoint.
-    The results of this block are then piped into other code blocks to
-    process the request, you can imagine how that looks.
+    would trigger 8 calls to <code>line-number-at-pos</code> which would in turn do
+    68000 regexp searches for <code>\n</code>.  The total number of these went way up
+    in the lower hundreds of millions, somewhere around the marks of 400
+    to 500 million calls.  Now that's <i>a lot</i> of completely useless
+    computation.
     </p>
 
     <p>
-    Usually I run the entire app stack locally but we also have separate
-    staging and production environments.  So after I run the notebook on
-    my own local stack I want to try it out in staging.
-    </p>
-
-    <p>
-    I use <a href="https://github.com/rejeep/prodigy.el">prodigy</a> to manage my ssh tunnels and so all I need to do is
-    change the port to one pointing to staging and re-run the notebook.
-    The problem is that I have multiple query blocks and so I have to go
-    and change all of the <code>:port</code> arguments.
-    </p>
-
-    <p>
-    I have solved this by creating a block that would work as a source for
-    the port and then reference it dynamically in the header line:
+    So what I did to fix this?  At the beginning of the analysis I run
+    through all the lines and place a text property <code>elsa-line</code> on the first
+    character with the line number.
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-org"><span style="color: #73d216;">#+NAME: port</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
-    <span style="background-color: #232a2b;">27017</span>
-    <span style="color: #b4fa70;">#+END_SRC</span>
-
-    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
-    db.webhookLogs.find({endpoint: "AddCustomer"}).sort({_id: -1}).limit(1)
-    <span style="color: #b4fa70;">#+END_SRC</span>
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>line 1<span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span> <span style="color: #e6a8df;">'elsa-line</span> line<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>= <span style="color: #888a85;">(</span>forward-line<span style="color: #888a85;">)</span> 0<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-incf</span> line<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>min
+    <span style="color: #888a85;">(</span>buffer-size<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span> <span style="color: #e6a8df;">'elsa-line</span> line<span style="color: #888a85;">)))</span>
     </pre>
     </div>
 
     <p>
-    Since we can call elisp in the header I use <code>org-babel-ref-resolve</code> and
-    give it the name of the source block and babel will automatically
-    replace it with the value of the block.
-    </p>
-
-    <p>
-    This solves the problem of changing the constant at one place but as I
-    got to work with more environments I tended to forget what port was
-    what.  So I created a list above the block to remind me of the
-    available values:
+    Then to get the line number all I need to do is
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-org">Use one of the following ports to operate on the given environment:
-
-    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">localhost ::</span> 27017
-    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">staging ::</span> 27004
-    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">production ::</span> 27005
-
-    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
-    <span style="background-color: #232a2b;">27017</span>
-    <span style="color: #b4fa70;">#+END_SRC</span>
-
-    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
-    db.webhookLogs.find({endpoint: "AddCustomer"}).sort({_id: -1}).limit(1)
-    <span style="color: #b4fa70;">#+END_SRC</span>
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span>get-text-property <span style="color: #888a85;">(</span>line-beginning-position<span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'elsa-line</span><span style="color: #888a85;">)</span>
     </pre>
     </div>
 
     <p>
-    We can use the org mode list description syntax <code>foo ::</code> to attach a
-    label to each item and leave the number as the "value".
+    Because the text properties use efficient data structures this access
+    is really really fast (something like <code>O(log n)</code> in length of buffer).
     </p>
 
     <p>
-    This is starting to look an awful lot like a list of choices I could
-    pick from.  So my thinking goes like this: let's make it a checkbox
-    list and then select the option by checking the option.  The trouble
-    there is that toggling the input would require me to un-toggle the
-    current one and then toggle the desired option.  Ideally, toggling one
-    checkbox would uncheck the other so that there is always exactly one
-    option selected: in other words, I wanted a radiobutton list.
+    With this little change, the analysis time dropped to 5 seconds,
+    almost a factor of 10!  So the moral of the story is, as has been
+    repeated to death, when in trouble always bring out the big guns:
+    profilers are our friends!  No way in the world I would've guessed
+    this function was responsible (I actually started changing a bunch of
+    code into <code>defsubst</code> and inlining code before I figured that's
+    completely bonkers).
     </p>
 
     <p>
-    After a quick google session I've found (via <a href="http://irreal.org/blog/?p=4644">Irreal</a>) that <a href="http://kitchingroup.cheme.cmu.edu/blog/2015/10/05/A-checkbox-list-in-org-mode-with-one-value/">John Kitchin</a>
-    already figured this out.  I took his code and cleaned it up a bit to
-    work with "modern" org mode (the post is three years old) and packaged
-    it as <a href="https://github.com/Fuco1/org-radiobutton">org-radiobutton</a>.
-    </p>
-
-    <p>
-    Now I have a nice menu I can go to and with a single <code>C-c C-c</code> on the
-    option I want I can select the environment where to run the notebook.
-    Org mode is so cool!
-    </p>
-
-    <div class="org-src-container">
-    <pre class="src src-org">Check one of the following ports to operate on the given environment:
-
-    <span style="color: #b4fa70;">#+attr_org:</span><span style="color: #73d216;"> :radio</span>
-    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
-    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> localhost ::</span> 27017
-    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> staging ::</span><span style="color: #888a85;"> 27004</span>
-    <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> production ::</span> 27005
-
-    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-radiobutton-value "port")</span>
-    db.webhookLogs.find({endpoint: "AddCustomer"}).sort({_id: -1}).limit(1)
-    <span style="color: #b4fa70;">#+END_SRC</span>
-    </pre>
-    </div>
-
-    <p>
-    I'm going over all of my notebooks converting all the ugly option
-    hacks to this setup and it is so damn pleasing! :D
+    On a closing note, I'm looking for people to help out on the project,
+    there is a lot of things for people of all skill ranging from
+    beginners to seasoned hackers.  Check out issues marked <a href="https://github.com/Fuco1/Elsa/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22">help wanted</a> or
+    <a href="https://github.com/Fuco1/Elsa/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">good first issue</a> and get involved!  If anything's unclear go ahead and
+    ask questions.
     </p>
     ]]></description>
+</item>
+
+<item>
+  <title>fontify-face: Fontification of symbols referencing faces</title>
+  <link>https://fuco1.github.io/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html</guid>
+  <pubDate>Tue, 10 Apr 2018 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  Today I was updating <a href="https://github.com/Fuco1/.emacs.d/tree/master/themes">my theme</a> to support some additional packages.
+  I'm a big fan of face inheritance because it makes things very
+  consistent across the board.  In particular I'm trying to reuse the
+  faces in the <code>font-lock-</code> group as much as possible.
+  </p>
+
+  <p>
+  I have even created a similar hierarchy for the various markup systems
+  such as markdown, org mode, rst, textile, latex and others.  It's
+  called, unsurprisingly, <code>markup</code> and contains all the common elements
+  such as headers, code text, emphasis and so on.  I then make all the
+  other modes inherit from this set of faces and thus achieve a
+  consistent look and feel across all the markup
+  modes.<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  Have a look at the definitions if this
+  makes no sense to you yet!
+  </p>
+
+  <p>
+  Anyway, while I was working on adding new faces I got annoyed because
+  I couldn't see what I was doing.  I sometimes inherit from multiple
+  faces to make combined faces, sometimes I just add a parameter or two
+  and it's difficult to see the results. Usually you need to switch to a
+  different buffer (with the mode you are theming), find the desired
+  element and look what's going on.
+  </p>
+
+  <p>
+  Why couldn't the face name itself be fontified with the face? A ha!  I
+  already use <a href="https://elpa.gnu.org/packages/rainbow-mode.html">rainbow-mode</a> which colorizes color references such as
+  #fafafa with the color they represent.  So I'm thinking along the same
+  lines: the symbols representing faces should be fontified with that
+  face.  This will make the feedback loop much shorter and the
+  development much faster and more convenient.
+  </p>
+
+  <p>
+  I have quickly turned this idea into a package and called it
+  <a href="https://github.com/Fuco1/fontify-face">fontify-face</a>.  The code is rather unsurprising, just a couple lines.
+  The most interesting part is the function
+  <code>fontify-face-colorize-matched-face</code> which computes the face from the
+  matched region and then passes it back to font-lock to do its thing.
+  </p>
+
+  <p>
+  This works because font-lock allows arbitrary forms in every place
+  where you can pass a face reference.  The rule is, this form must
+  evaluate to
+  </p>
+
+  <ul class="org-ul">
+  <li>a face reference,</li>
+  <li>or a plist representing face properties,</li>
+  <li>or nil if we don't want do do anything with the match.</li>
+  </ul>
+
+  <p>
+  The form I use is <code>(funcall 'fontify-face-colorize-matched-face)</code>
+  because I dislike just passing random blobs of code around.  This way
+  I can redefine the function without having to mess around with
+  removing the old forms from <code>font-lock-keywords-alist</code>.  This is similar
+  in logic to why you shouldn't put lambda forms in hooks.
+  </p>
+
+  <p>
+  So that's it folks.  Finally, here are some pictures:
+  </p>
+
+
+  <div class="figure">
+  <p><img src="https://i.imgur.com/hjJQVyL.png" alt="hjJQVyL.png" />
+  </p>
+  <p><span class="figure-number">Figure 1: </span>magit and friends</p>
+  </div>
+
+
+  <div class="figure">
+  <p><img src="https://i.imgur.com/1ksWpt3.png" alt="1ksWpt3.png" />
+  </p>
+  <p><span class="figure-number">Figure 2: </span>markup faces</p>
+  </div>
+  ]]></description>
+</item>
+
+<item>
+  <title>Use org-radiobutton to select an option from a list</title>
+  <link>https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</guid>
+  <pubDate>Sun, 11 Mar 2018 00:00:00 +0100</pubDate>
+
+  <description><![CDATA[<p>
+  Ever since I've come across the <a href="http://howardism.org/Technical/Emacs/literate-devops.html">Literate DevOps</a> article I was hooked
+  and immediately started writing down "org notebooks" every time an
+  incident occured along with all the code and steps on how to fix it in
+  case it might happen in the future (protip: it <i>will</i> happen again).
+  </p>
+
+  <p>
+  Recently we had some problems with webhook requests behaving weird and
+  so I created a little notebook to query the mongo database where we
+  store all the requests and some more functions (ranging from elisp to
+  jq to ruby) to process the results.  As you sure know, threading data
+  between code blocks in different languages is painless with <code>org-mode</code>
+  and babel.
+  </p>
+
+  <p>
+  So imagine a block like this (using <a href="https://github.com/krisajenkins/ob-mongo">ob-mongo</a>):
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-org"><span style="color: #73d216;">#+NAME: query</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port 27017</span>
+  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+  </pre>
+  </div>
+
+  <p>
+  This gives me the most recent request to the <code>AddCustomer</code> endpoint.
+  The results of this block are then piped into other code blocks to
+  process the request, you can imagine how that looks.
+  </p>
+
+  <p>
+  Usually I run the entire app stack locally but we also have separate
+  staging and production environments.  So after I run the notebook on
+  my own local stack I want to try it out in staging.
+  </p>
+
+  <p>
+  I use <a href="https://github.com/rejeep/prodigy.el">prodigy</a> to manage my ssh tunnels and so all I need to do is
+  change the port to one pointing to staging and re-run the notebook.
+  The problem is that I have multiple query blocks and so I have to go
+  and change all of the <code>:port</code> arguments.
+  </p>
+
+  <p>
+  I have solved this by creating a block that would work as a source for
+  the port and then reference it dynamically in the header line:
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-org"><span style="color: #73d216;">#+NAME: port</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
+  <span style="background-color: #232a2b;">27017</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+
+  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
+  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+  </pre>
+  </div>
+
+  <p>
+  Since we can call elisp in the header I use <code>org-babel-ref-resolve</code> and
+  give it the name of the source block and babel will automatically
+  replace it with the value of the block.
+  </p>
+
+  <p>
+  This solves the problem of changing the constant at one place but as I
+  got to work with more environments I tended to forget what port was
+  what.  So I created a list above the block to remind me of the
+  available values:
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-org">Use one of the following ports to operate on the given environment:
+
+  <span style="color: #8cc4ff; font-weight: bold;">- localhost ::</span> 27017
+  <span style="color: #8cc4ff; font-weight: bold;">- staging ::</span> 27004
+  <span style="color: #8cc4ff; font-weight: bold;">- production ::</span> 27005
+
+  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
+  <span style="background-color: #232a2b;">27017</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+
+  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
+  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+  </pre>
+  </div>
+
+  <p>
+  We can use the org mode list description syntax <code>foo ::</code> to attach a
+  label to each item and leave the number as the "value".
+  </p>
+
+  <p>
+  This is starting to look an awful lot like a list of choices I could
+  pick from.  So my thinking goes like this: let's make it a checkbox
+  list and then select the option by checking the option.  The trouble
+  there is that toggling the input would require me to un-toggle the
+  current one and then toggle the desired option.  Ideally, toggling one
+  checkbox would uncheck the other so that there is always exactly one
+  option selected: in other words, I wanted a radiobutton list.
+  </p>
+
+  <p>
+  After a quick google session I've found (via <a href="http://irreal.org/blog/?p=4644">Irreal</a>) that <a href="http://kitchingroup.cheme.cmu.edu/blog/2015/10/05/A-checkbox-list-in-org-mode-with-one-value/">John Kitchin</a>
+  already figured this out.  I took his code and cleaned it up a bit to
+  work with "modern" org mode (the post is three years old) and packaged
+  it as <a href="https://github.com/Fuco1/org-radiobutton">org-radiobutton</a>.
+  </p>
+
+  <p>
+  Now I have a nice menu I can go to and with a single <code>C-c C-c</code> on the
+  option I want I can select the environment where to run the notebook.
+  Org mode is so cool!
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-org">Check one of the following ports to operate on the given environment:
+
+  <span style="color: #b4fa70;">#+attr_org:</span><span style="color: #73d216;"> :radio</span>
+  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> localhost ::</span> 27017
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> staging ::</span><span style="color: #888a85;"> 27004</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> production ::</span> 27005
+
+  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-radiobutton-value "port")</span>
+  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+  </pre>
+  </div>
+
+  <p>
+  I'm going over all of my notebooks converting all the ugly option
+  hacks to this setup and it is so damn pleasing! :D
+  </p>
+  ]]></description>
 </item>
 
 <item>
@@ -628,7 +787,7 @@
   </table>
 
   <p>
-  Previously I have written about <a href="https://fuco1.github.io/./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html#org874f9d3">font-lock anchored matchers</a>.  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
+  Previously I have written about <a href="./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html#org15ad473">font-lock anchored matchers</a>.  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
   </p>
 
   <p>
@@ -1043,28 +1202,28 @@
   <span style="color: #b4fa70;">    :CLOCK:</span>
   <span style="color: #b4fa70;">CLOCK:</span> <span style="color: #8cc4ff;">[2017-05-21 Sun 18:00]--[2017-05-21 Sun 21:55]</span> =&gt;  3:55
   <span style="color: #b4fa70;">    :END:</span>
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> cli ::</span> Add youtube-dl
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> org ::</span> Add plantuml.jar
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> emacs ::</span><span style="color: #888a85;"> Add Cask</span>
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> haskell ::</span> Add Cabal sandbox support and build everything in sandboxes
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> php ::</span> Add Composer
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> emacs ::</span> Add EVM
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> ruby ::</span> Add RVM
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> node ::</span> Add NVM
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> node ::</span> Add NPM
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> linux ::</span><span style="color: #888a85;"> Add Wine + Winetricks</span>
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> latin ::</span> Add whitakers-words
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> puppet ::</span> Add support to install "docker" apps
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> setup ::</span><span style="color: #888a85;"> Ensure download-local directory</span>
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> prog ::</span> Install global (6.5 at least)
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> linux ::</span> Install pasystray (git)
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> prog ::</span> Install ag (0.31.0+)
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> cli ::</span><span style="color: #888a85;"> Install tmux (2.0+)</span>
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> linux ::</span> Install twmn
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> desktop ::</span><span style="color: #888a85;"> Install slack (from .deb)</span>
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> cli ::</span> Install fisher
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85;"> cli ::Install ledger (from package + elisp mode from source?)</span>
-  <span style="color: #8cc4ff; font-weight: bold;">-</span> <span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> mail ::</span> Install isync
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> cli ::</span> Add youtube-dl
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> org ::</span> Add plantuml.jar
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> emacs ::</span><span style="color: #888a85;"> Add Cask</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> haskell ::</span> Add Cabal sandbox support and build everything in sandboxes
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> php ::</span> Add Composer
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> emacs ::</span> Add EVM
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> ruby ::</span> Add RVM
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> node ::</span> Add NVM
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> node ::</span> Add NPM
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> linux ::</span><span style="color: #888a85;"> Add Wine + Winetricks</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> latin ::</span> Add whitakers-words
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> puppet ::</span> Add support to install "docker" apps
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> setup ::</span><span style="color: #888a85;"> Ensure download-local directory</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> prog ::</span> Install global (6.5 at least)
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> linux ::</span> Install pasystray (git)
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> prog ::</span> Install ag (0.31.0+)
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> cli ::</span><span style="color: #888a85;"> Install tmux (2.0+)</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> linux ::</span> Install twmn
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> desktop ::</span><span style="color: #888a85;"> Install slack (from .deb)</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> cli ::</span> Install fisher
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85;"> cli ::Install ledger (from package + elisp mode from source?)</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> mail ::</span> Install isync
   </pre>
   </div>
 

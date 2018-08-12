@@ -1,0 +1,125 @@
+#+TITLE: WAR STORY: When turning to the profiler turns out to be a good call
+#+DATE: [2018-08-12 Sun 12:36]
+
+* DONE WAR STORY: When turning to the profiler turns out to be a good call :ignore:
+CLOSED: [2018-08-12 Sun 12:36]
+:PROPERTIES:
+:BLOG_FILENAME: 2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call
+:PUBDATE:  [2018-08-12 Sun 12:36]
+:END:
+:LOGBOOK:
+- State "DONE"       from              [2018-08-12 Sun 12:36]
+:END:
+:CLOCK:
+CLOCK: [2018-08-12 Sun 12:05]
+:END:
+
+Some of you might have seen the little bit of news circulating around
+about my new project.  It's called [[https://github.com/Fuco1/Elsa][Elsa]] (stands for Emacs Lisp Static
+Analyzer), which is exactly what you would expect: you throw it some
+Elisp code and it analyzes the types, dead code, style and all sorts
+of other rules (stars are the limit!).
+
+I've been working on this "secretly" in public (the repo was on Github
+from day 1.) for about a year and very early on I've made a couple
+decisions that I now thought doomed me to failure.  These were:
+
+- I will use [[https://www.gnu.org/s/emacs/manual/html_node/eieio/][EIEIO]] to represent the reader forms and types
+- I will use CL [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Generic-Functions.html][generics]] to process these objects
+
+For this kind of a problem where we are walking some recursive
+structure and then doing some "arithmetics" on hierarchies of types,
+classes and methods are a very natural choice.  You can write generic
+implementations and then "pattern match" on specific classes to
+provide more elaborate strategies.
+
+These two were notoriously known for having very bad performance in
+the past, but nonetheless I decided that the simplicity of the
+implementation has higher priority for me now and that in the worst
+case I can transform it into a manual-dispatch-conds-and-defuns later.
+
+EIEIO in particular was also known to be quite undebuggable.  They did
+a good job on it with the 25 release and the error messages are now
+pretty helpful.  It's no worse than the rest of Emacs (=M-x
+faint-praise=).
+
+When I finally finished the reader module which turns the source file
+into a tree of EIEIO objects, to my horror I found out that it was
+indeed slow. *Way slow*. I was using [[https://github.com/Fuco1/smartparens/blob/master/smartparens.el][smartparens.el]] as a benchmark: it's
+a single lisp file package of about 10000 lines with enough complexity
+to inhibit most of the features of Elisp.
+
+It took 42 seconds to analyze.  That is not great when you want to use
+it with something like [[http://www.flycheck.org/en/latest/][flycheck]].  So I'm pretty much thinking I'm
+screwed at this point and begin thinking about how to get rid of the
+generics, because obviously /that/ must be the issue, right?
+
+Oh, how wrong I was.  Finally in a stroke of genius I fired up an
+=emacs -nw -q=, loaded all the necessary things and did =M-x
+profiler-start=.
+
+Then I run the analysis in that instance, get the report and get my
+mind blown to pieces: the culprit was the little innocent looking
+function =line-number-at-pos=.  The reader spent about 90% of all the
+time inside that function.
+
+What happened?  Every time I read any form I need to remember the line
+and column it was encountered at for error reporting to the user
+later.  So every time I read anything (a symbol, a list, a keyword, a
+string) I would call =line-number-at-pos= with the token's start
+position to get the line number.
+
+What this function does is it jumps to the first line of the file,
+then regexp searches for =\n= until it reaches the =point= from which it
+was called.
+
+So you can imagine, in your source code on line =8500=, a form like
+
+#+BEGIN_SRC elisp
+(very innocent looking form at line 8500)
+#+END_SRC
+
+would trigger 8 calls to =line-number-at-pos= which would in turn do
+68000 regexp searches for =\n=.  The total number of these went way up
+in the lower hundreds of millions, somewhere around the marks of 400
+to 500 million calls.  Now that's /a lot/ of completely useless
+computation.
+
+So what I did to fix this?  At the beginning of the analysis I run
+through all the lines and place a text property =elsa-line= on the first
+character with the line number.
+
+#+BEGIN_SRC elisp
+(goto-char (point-min))
+(let ((line 1))
+  (put-text-property (point) (1+ (point)) 'elsa-line line)
+  (while (= (forward-line) 0)
+    (cl-incf line)
+    (put-text-property (point) (min
+                                (buffer-size)
+                                (1+ (point))) 'elsa-line line)))
+#+END_SRC
+
+Then to get the line number all I need to do is
+
+#+BEGIN_SRC elisp
+(get-text-property (line-beginning-position) 'elsa-line)
+#+END_SRC
+
+Because the text properties use efficient data structures this access
+is really really fast (something like =O(log n)= in length of buffer).
+
+With this little change, the analysis time dropped to 5 seconds,
+almost a factor of 10!  So the moral of the story is, as has been
+repeated to death, when in trouble always bring out the big guns:
+profilers are our friends!  No way in the world I would've guessed
+this function was responsible (I actually started changing a bunch of
+code into =defsubst= and inlining code before I figured that's
+completely bonkers).
+
+On a closing note, I'm looking for people to help out on the project,
+there is a lot of things for people of all skill ranging from
+beginners to seasoned hackers.  Check out issues marked [[https://github.com/Fuco1/Elsa/issues?q=is%253Aissue+is%253Aopen+label%253A%2522help+wanted%2522][help wanted]] or
+[[https://github.com/Fuco1/Elsa/issues?q=is%253Aissue+is%253Aopen+label%253A%2522good+first+issue%2522][good first issue]] and get involved!  If anything's unclear go ahead and
+ask questions.
+

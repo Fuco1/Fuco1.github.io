@@ -1,8 +1,16 @@
+* WAR STORY: When turning to the profiler turns out to be a good call
+:PROPERTIES:
+:RSS_PERMALINK: 2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html
+:PUBDATE: <2018-08-12>
+:ID:       6afd89c1-9209-49e2-8564-9fc72f1a545a
+:END:
+#+include: "/home/matus/documents/blog/posts/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.org" :lines "3-"
+
 * fontify-face: Fontification of symbols referencing faces
 :PROPERTIES:
 :RSS_PERMALINK: 2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html
 :PUBDATE: <2018-04-10>
-:ID:       88570cef-4bb5-41e4-a634-c4db34663bb2
+:ID:       805e2869-d898-48d3-952f-106300d3ac9a
 :END:
 #+include: "/home/matus/documents/blog/posts/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.org" :lines "3-"
 
@@ -10,7 +18,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html
 :PUBDATE: <2018-03-11>
-:ID:       6125b11c-1547-4421-b46a-d0ceff262f54
+:ID:       579ecb17-06ea-4018-adbd-9520e12bc7fb
 :END:
 #+include: "/home/matus/documents/blog/posts/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.org" :lines "3-"
 
@@ -18,7 +26,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-11-17-Smartparens-is-5-years-old-today.html
 :PUBDATE: <2017-11-17>
-:ID:       2f95f62e-284b-4e33-8c2c-ba6c8c90384e
+:ID:       0a178081-5f9e-4a7f-8d62-dfcb663519f2
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-11-17-Smartparens-is-5-years-old-today.org" :lines "3-"
 
@@ -26,7 +34,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.html
 :PUBDATE: <2017-10-08>
-:ID:       21a743b1-83e6-44c0-91cb-e7fffd1349d6
+:ID:       9a5a0a2d-b803-4c2a-868b-b90dd3f3f88a
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.org" :lines "3-"
 
@@ -34,7 +42,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-09-02-Maximize-the-org-capture-buffer.html
 :PUBDATE: <2017-09-02>
-:ID:       047a7e70-fbdc-43b6-a81f-9b77129b1b95
+:ID:       78e00fe4-2051-40b6-8dc0-a52af86001e7
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-09-02-Maximize-the-org-capture-buffer.org" :lines "3-"
 
@@ -42,7 +50,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.html
 :PUBDATE: <2017-07-15>
-:ID:       795d9aa0-47ba-4c56-8793-2ab212ecfb20
+:ID:       0ee13918-6991-465e-b97e-75baf19d358b
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.org" :lines "3-"
 
@@ -50,7 +58,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-06-11-Font-locking-with-custom-matchers.html
 :PUBDATE: <2017-06-11>
-:ID:       200ed54a-4175-46c5-b3c3-9fccfbc02a34
+:ID:       72be2a89-c908-4b7a-b2bf-69b33b396b94
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-06-11-Font-locking-with-custom-matchers.org" :lines "3-"
 
@@ -58,7 +66,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html
 :PUBDATE: <2017-06-01>
-:ID:       bf0eaf06-5ad7-42d1-a191-6cc6ecb3270b
+:ID:       b17482e4-f0f5-431a-b703-e35aee8345ec
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org" :lines "3-"
 
@@ -66,7 +74,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html
 :PUBDATE: <2017-05-28>
-:ID:       c29ee396-404f-4513-8525-19d981263bb1
+:ID:       30e7a378-056b-4f98-a101-e6a1d7fde028
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.org" :lines "3-"
 
@@ -74,7 +82,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
 :PUBDATE: <2017-05-25>
-:ID:       49e26e0b-f2a6-42dc-a069-a254b5525277
+:ID:       50230b83-a7a8-4f94-baa0-f5fcbde29619
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-25-Fontify-done-checkbox-items-in-org-mode.org" :lines "3-"
 
@@ -82,7 +90,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html
 :PUBDATE: <2017-05-09>
-:ID:       2eb673e7-0ffa-4387-8bfe-37b956f46852
+:ID:       39312a58-b46d-4bc4-8b8b-280ef2390d88
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.org" :lines "3-"
 
@@ -90,7 +98,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html
 :PUBDATE: <2017-05-06>
-:ID:       2cd35407-9ca2-45e8-b8c8-df73da087c00
+:ID:       d765e452-4f01-4d06-91a8-a6f863793e55
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).org" :lines "3-"
 
@@ -98,7 +106,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html
 :PUBDATE: <2017-05-03>
-:ID:       0186a773-d68d-4d43-8483-bf953706a6d8
+:ID:       c26a75ed-7c09-458b-a771-c262e83cbb32
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.org" :lines "3-"
 
@@ -106,7 +114,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-05-01-Support-for-imenu-in-dired.html
 :PUBDATE: <2017-05-01>
-:ID:       2e6f5fc6-0dcd-4b42-a01c-284c5c104bfe
+:ID:       b054c4e9-3606-4f0a-ad26-1e14d80e42f7
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-05-01-Support-for-imenu-in-dired.org" :lines "3-"
 
@@ -114,7 +122,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html
 :PUBDATE: <2017-04-29>
-:ID:       e498bc1a-50ad-4620-bcb5-fcb745a96a11
+:ID:       2f996fb0-0604-4c7f-93da-72dc8ba06e74
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.org" :lines "3-"
 
@@ -122,7 +130,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-04-20-Save-write-protected-files-with-sudo-automatically.html
 :PUBDATE: <2017-04-20>
-:ID:       6aac8272-0edb-4505-bf09-960ffdf05adb
+:ID:       f392b272-0732-4913-baa4-3852fbc0964d
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-04-20-Save-write-protected-files-with-sudo-automatically.org" :lines "3-"
 
@@ -130,7 +138,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html
 :PUBDATE: <2017-04-20>
-:ID:       a09f3d49-cb0e-423d-9e4d-b4388e7baca2
+:ID:       a9efe566-6e02-491c-b8e6-28bc282c76b8
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.org" :lines "3-"
 
@@ -138,7 +146,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-04-20-Annoying-prefix-argument.html
 :PUBDATE: <2017-04-20>
-:ID:       26937339-7f99-4a94-82fc-e5de7748582f
+:ID:       8e2c64f2-f392-4127-bdf3-2cd4c44409c3
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-04-20-Annoying-prefix-argument.org" :lines "3-"
 
@@ -146,6 +154,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-04-20-Ablative-of-comparison-vs-quam.html
 :PUBDATE: <2017-04-20>
-:ID:       b711cda7-a798-4f01-b869-6833a55fe66e
+:ID:       55b3ccc0-08b7-483e-8836-c3017419b6b7
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-04-20-Ablative-of-comparison-vs-quam.org" :lines "3-"
