@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2019-01-02 Wed 22:27 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Multiline fontification with org-emphasis-alist</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./sitemap.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://fuco1.github.io/rss.xml">RSS</a>
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">Multiline fontification with org-emphasis-alist</h1>
+
+<p>
+By default org mode only fontifies spans of text wrapped in emphasis
+markers (customized with <code>org-emphasis-alist</code>) if they extend through at
+most one newline.  This is probably a performance optimization, one
+wholly unnecessary on modern hardware.
+</p>
+
+<p>
+As per this <a href="https://emacs.stackexchange.com/questions/18101/org-mode-multi-line-emphasis-and-bold">stack overflow</a> post I re-set the constant to 10 lines and
+can probably even increase it if necessary.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>setcar <span style="color: #888a85;">(</span>nthcdr 4 org-emphasis-regexp-components<span style="color: #888a85;">)</span> 10<span style="color: #888a85;">)</span>
+</pre>
+</div>
+
+<p>
+Before this starts to work you need to re-save <code>org-emphasis-alist</code>
+through the customize interface because it is using a custom setter
+<code>org-set-emph-re</code> to compute the regexpses (or, <i><b>gulp</b></i>, restart Emacs).
+</p>
+
+<p>
+Here I quote the answer in case it ever gets lost:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-markdown">By default, org-mode allows a single newline. So if you want to be
+able to add markup to text that spans more than two consecutive lines,
+you'll need to modify this entry.
+
+<span style="color: #e6a8df; background-color: #232a2b;">    (setcar (nthcdr 4 org-emphasis-regexp-components) N)</span>
+
+... where N is the number of newlines you want to allow.
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2019-01-02 22:27</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2018-12-23-Multiline-fontification-with-org-emphasis-alist.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>

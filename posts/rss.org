@@ -1,3 +1,11 @@
+* Multiline fontification with org-emphasis-alist
+:PROPERTIES:
+:RSS_PERMALINK: 2018-12-23-Multiline-fontification-with-org-emphasis-alist.html
+:PUBDATE: <2018-12-23>
+:ID:       a96c6822-c0c0-4941-b37e-5c9eda2809c2
+:END:
+#+include: "/home/matus/documents/blog/posts/2018-12-23-Multiline-fontification-with-org-emphasis-alist.org" :lines "3-"
+
 * WAR STORY: When turning to the profiler turns out to be a good call
 :PROPERTIES:
 :RSS_PERMALINK: 2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html
