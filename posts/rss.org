@@ -1,3 +1,11 @@
+* Make agenda clockreport respect =org-extend-today-until=
+:PROPERTIES:
+:RSS_PERMALINK: 2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html
+:PUBDATE: <2019-01-03>
+:ID:       cc589f7b-98cc-4b5d-b156-c1eb9f8f7b0f
+:END:
+#+include: "/home/matus/documents/blog/posts/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.org" :lines "3-"
+
 * Multiline fontification with org-emphasis-alist
 :PROPERTIES:
 :RSS_PERMALINK: 2018-12-23-Multiline-fontification-with-org-emphasis-alist.html

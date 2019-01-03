@@ -14,8 +14,8 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Wed, 02 Jan 2019 22:28:02 +0100</pubDate>
-  <lastBuildDate>Wed, 02 Jan 2019 22:28:02 +0100</lastBuildDate>
+  <pubDate>Thu, 03 Jan 2019 20:50:30 +0100</pubDate>
+  <lastBuildDate>Thu, 03 Jan 2019 20:50:30 +0100</lastBuildDate>
   <generator>Emacs 26.1 Org-mode 9.1.14</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
@@ -25,209 +25,285 @@
   </image>
 
   <item>
-    <title>Multiline fontification with org-emphasis-alist</title>
-    <link>https://fuco1.github.io/2018-12-23-Multiline-fontification-with-org-emphasis-alist.html</link>
+    <title>Make agenda clockreport respect =org-extend-today-until=</title>
+    <link>https://fuco1.github.io/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html</link>
     <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2018-12-23-Multiline-fontification-with-org-emphasis-alist.html</guid>
-    <pubDate>Sun, 23 Dec 2018 00:00:00 +0100</pubDate>
+    <guid isPermaLink="false">https://fuco1.github.io/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html</guid>
+    <pubDate>Thu, 03 Jan 2019 00:00:00 +0100</pubDate>
 
     <description><![CDATA[<p>
-    By default org mode only fontifies spans of text wrapped in emphasis
-    markers (customized with <code>org-emphasis-alist</code>) if they extend through at
-    most one newline.  This is probably a performance optimization, one
-    wholly unnecessary on modern hardware.
+    There's a cool but little known <a href="https://orgmode.org/">org-mode</a> setting for all the the night
+    owls out there called <code>org-extend-today-until</code>.  It does quite what you
+    would expect: you can tell org-mode when your "logical" midnight is.
+    For me, I rarely go to sleep before 12 pm so I set it to 4 am just to
+    be sure.  This way even if it's already 0:15 and I refresh the agenda
+    view it still displays "yesterday".
     </p>
 
     <p>
-    As per this <a href="https://emacs.stackexchange.com/questions/18101/org-mode-multi-line-emphasis-and-bold">stack overflow</a> post I re-set the constant to 10 lines and
-    can probably even increase it if necessary.
+    The trouble is that not a lot of org mode actually respects this
+    setting, so far the only things mentioned in the docstring are the
+    agenda day switch and something related to reading dates from the user
+    (I think through <code>C-c .</code>) but I can't see any difference in that.  If
+    you are using the org modeline and summary clock for today's time
+    spent on a task this will also only count contributions from the
+    specified hour which is nice.  There is probably more but I haven't
+    noticed yet.
+    </p>
+
+    <p>
+    Since I'm an <code>org-agenda-clockreport-mode</code> I want to have that
+    consistent with the modeline information.  However it goes through
+    entirely different machinery and so the easiest extension point is
+    simply put an advice on the function which collects the data
+    (<code>org-clock-get-table-data</code>) and in case we are working in the agenda
+    scope adjust the <code>:tstart</code> and <code>:tend</code> properties to respect
+    <code>org-extend-today-until</code>.
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-elisp"><span style="color: #888a85;">(</span>setcar <span style="color: #888a85;">(</span>nthcdr 4 org-emphasis-regexp-components<span style="color: #888a85;">)</span> 10<span style="color: #888a85;">)</span>
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-convert-org-today-to-timestamp</span> <span style="color: #888a85;">(</span>ts<span style="color: #888a85;">)</span>
+    <span style="color: #e9b96e;">"Convert TS to timestamp.</span>
+
+    <span style="color: #e9b96e;">TS is an absolute number of days since 0001-12-31bce</span>
+
+    <span style="color: #e9b96e;">The timestamp returned is in the format YYYY-MM-DD hh:mm.  The</span>
+    <span style="color: #e9b96e;">hour is adjusted according to `</span><span style="color: #e6a8df;">org-extend-today-until</span><span style="color: #e9b96e;">'."</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>ts-greg <span style="color: #888a85;">(</span>calendar-gregorian-from-absolute ts<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span>format <span style="color: #e9b96e;">"%4d-%02d-%02d %02d:00"</span>
+    <span style="color: #888a85;">(</span>nth 2 ts-greg<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>car ts-greg<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>nth 1 ts-greg<span style="color: #888a85;">)</span>
+    org-extend-today-until<span style="color: #888a85;">)))</span>
+
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-clock-get-table-data-adjust-start</span> <span style="color: #888a85;">(</span>origfun file params<span style="color: #888a85;">)</span>
+    <span style="color: #e9b96e;">"Adjust the start and end arguments to respect `</span><span style="color: #e6a8df;">org-extend-today-until</span><span style="color: #e9b96e;">'."</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>eq <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:scope</span><span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'agenda</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>integerp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tstart</span><span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>ts <span style="color: #888a85;">(</span>my-convert-org-today-to-timestamp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tstart</span><span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span>te <span style="color: #888a85;">(</span>my-convert-org-today-to-timestamp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tend</span><span style="color: #888a85;">))))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> params <span style="color: #888a85;">(</span>plist-put params <span style="color: #ad7fa8;">:tstart</span> ts<span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> params <span style="color: #888a85;">(</span>plist-put params <span style="color: #ad7fa8;">:tend</span> te<span style="color: #888a85;">))))</span>
+    <span style="color: #888a85;">(</span>funcall origfun file params<span style="color: #888a85;">))</span>
+
+    <span style="color: #888a85;">(</span>advice-add <span style="color: #e6a8df;">'org-clock-get-table-data</span> <span style="color: #ad7fa8;">:around</span> <span style="color: #8cc4ff;">#'my-org-clock-get-table-data-adjust-start</span><span style="color: #888a85;">)</span>
     </pre>
     </div>
 
     <p>
-    Before this starts to work you need to re-save <code>org-emphasis-alist</code>
-    through the customize interface because it is using a custom setter
-    <code>org-set-emph-re</code> to compute the regexpses (or, <i><b>gulp</b></i>, restart Emacs).
-    </p>
-
-    <p>
-    Here I quote the answer in case it ever gets lost:
-    </p>
-
-    <div class="org-src-container">
-    <pre class="src src-markdown">By default, org-mode allows a single newline. So if you want to be
-    able to add markup to text that spans more than two consecutive lines,
-    you'll need to modify this entry.
-
-    <span style="color: #e6a8df; background-color: #232a2b;">    (setcar (nthcdr 4 org-emphasis-regexp-components) N)</span>
-
-    ... where N is the number of newlines you want to allow.
-    </pre>
-    </div>
-    ]]></description>
-  </item>
-
-  <item>
-    <title>WAR STORY: When turning to the profiler turns out to be a good call</title>
-    <link>https://fuco1.github.io/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html</guid>
-    <pubDate>Sun, 12 Aug 2018 00:00:00 +0200</pubDate>
-
-    <description><![CDATA[<p>
-    Some of you might have seen the little bit of news circulating around
-    about my new project.  It's called <a href="https://github.com/Fuco1/Elsa">Elsa</a> (stands for Emacs Lisp Static
-    Analyzer), which is exactly what you would expect: you throw it some
-    Elisp code and it analyzes the types, dead code, style and all sorts
-    of other rules (stars are the limit!).
-    </p>
-
-    <p>
-    I've been working on this "secretly" in public (the repo was on Github
-    from day 1.) for about a year and very early on I've made a couple
-    decisions that I now thought doomed me to failure.  These were:
-    </p>
-
-    <ul class="org-ul">
-    <li>I will use <a href="https://www.gnu.org/s/emacs/manual/html_node/eieio/">EIEIO</a> to represent the reader forms and types</li>
-    <li>I will use CL <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Generic-Functions.html">generics</a> to process these objects</li>
-    </ul>
-
-    <p>
-    For this kind of a problem where we are walking some recursive
-    structure and then doing some "arithmetics" on hierarchies of types,
-    classes and methods are a very natural choice.  You can write generic
-    implementations and then "pattern match" on specific classes to
-    provide more elaborate strategies.
-    </p>
-
-    <p>
-    These two were notoriously known for having very bad performance in
-    the past, but nonetheless I decided that the simplicity of the
-    implementation has higher priority for me now and that in the worst
-    case I can transform it into a manual-dispatch-conds-and-defuns later.
-    </p>
-
-    <p>
-    EIEIO in particular was also known to be quite undebuggable.  They did
-    a good job on it with the 25 release and the error messages are now
-    pretty helpful.  It's no worse than the rest of Emacs (<code>M-x
-    faint-praise</code>).
-    </p>
-
-    <p>
-    When I finally finished the reader module which turns the source file
-    into a tree of EIEIO objects, to my horror I found out that it was
-    indeed slow. <b>Way slow</b>. I was using <a href="https://github.com/Fuco1/smartparens/blob/master/smartparens.el">smartparens.el</a> as a benchmark: it's
-    a single lisp file package of about 10000 lines with enough complexity
-    to inhibit most of the features of Elisp.
-    </p>
-
-    <p>
-    It took 42 seconds to analyze.  That is not great when you want to use
-    it with something like <a href="http://www.flycheck.org/en/latest/">flycheck</a>.  So I'm pretty much thinking I'm
-    screwed at this point and begin thinking about how to get rid of the
-    generics, because obviously <i>that</i> must be the issue, right?
-    </p>
-
-    <p>
-    Oh, how wrong I was.  Finally in a stroke of genius I fired up an
-    <code>emacs -nw -q</code>, loaded all the necessary things and did <code>M-x
-    profiler-start</code>.
-    </p>
-
-    <p>
-    Then I run the analysis in that instance, get the report and get my
-    mind blown to pieces: the culprit was the little innocent looking
-    function <code>line-number-at-pos</code>.  The reader spent about 90% of all the
-    time inside that function.
-    </p>
-
-    <p>
-    What happened?  Every time I read any form I need to remember the line
-    and column it was encountered at for error reporting to the user
-    later.  So every time I read anything (a symbol, a list, a keyword, a
-    string) I would call <code>line-number-at-pos</code> with the token's start
-    position to get the line number.
-    </p>
-
-    <p>
-    What this function does is it jumps to the first line of the file,
-    then regexp searches for <code>\n</code> until it reaches the <code>point</code> from which it
-    was called.
-    </p>
-
-    <p>
-    So you can imagine, in your source code on line <code>8500</code>, a form like
-    </p>
-
-    <div class="org-src-container">
-    <pre class="src src-elisp"><span style="color: #888a85;">(</span>very innocent looking form at line 8500<span style="color: #888a85;">)</span>
-    </pre>
-    </div>
-
-    <p>
-    would trigger 8 calls to <code>line-number-at-pos</code> which would in turn do
-    68000 regexp searches for <code>\n</code>.  The total number of these went way up
-    in the lower hundreds of millions, somewhere around the marks of 400
-    to 500 million calls.  Now that's <i>a lot</i> of completely useless
-    computation.
-    </p>
-
-    <p>
-    So what I did to fix this?  At the beginning of the analysis I run
-    through all the lines and place a text property <code>elsa-line</code> on the first
-    character with the line number.
-    </p>
-
-    <div class="org-src-container">
-    <pre class="src src-elisp"><span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>line 1<span style="color: #888a85;">))</span>
-    <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span> <span style="color: #e6a8df;">'elsa-line</span> line<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>= <span style="color: #888a85;">(</span>forward-line<span style="color: #888a85;">)</span> 0<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-incf</span> line<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>min
-    <span style="color: #888a85;">(</span>buffer-size<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span> <span style="color: #e6a8df;">'elsa-line</span> line<span style="color: #888a85;">)))</span>
-    </pre>
-    </div>
-
-    <p>
-    Then to get the line number all I need to do is
-    </p>
-
-    <div class="org-src-container">
-    <pre class="src src-elisp"><span style="color: #888a85;">(</span>get-text-property <span style="color: #888a85;">(</span>line-beginning-position<span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'elsa-line</span><span style="color: #888a85;">)</span>
-    </pre>
-    </div>
-
-    <p>
-    Because the text properties use efficient data structures this access
-    is really really fast (something like <code>O(log n)</code> in length of buffer).
-    </p>
-
-    <p>
-    With this little change, the analysis time dropped to 5 seconds,
-    almost a factor of 10!  So the moral of the story is, as has been
-    repeated to death, when in trouble always bring out the big guns:
-    profilers are our friends!  No way in the world I would've guessed
-    this function was responsible (I actually started changing a bunch of
-    code into <code>defsubst</code> and inlining code before I figured that's
-    completely bonkers).
-    </p>
-
-    <p>
-    On a closing note, I'm looking for people to help out on the project,
-    there is a lot of things for people of all skill ranging from
-    beginners to seasoned hackers.  Check out issues marked <a href="https://github.com/Fuco1/Elsa/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22">help wanted</a> or
-    <a href="https://github.com/Fuco1/Elsa/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">good first issue</a> and get involved!  If anything's unclear go ahead and
-    ask questions.
+    Recently I've been adding some nice improvements to my <a href="https://github.com/Fuco1/org-timeline">org-timeline</a>
+    package which draws a visual representation of all the
+    scheduled/clocked items (see README for visuals).  I'll make sure it
+    respects this setting as well.  So far I've instinctively set it to
+    start drawing at 5:00.
     </p>
     ]]></description>
+</item>
+
+<item>
+  <title>Multiline fontification with org-emphasis-alist</title>
+  <link>https://fuco1.github.io/2018-12-23-Multiline-fontification-with-org-emphasis-alist.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2018-12-23-Multiline-fontification-with-org-emphasis-alist.html</guid>
+  <pubDate>Sun, 23 Dec 2018 00:00:00 +0100</pubDate>
+
+  <description><![CDATA[<p>
+  By default org mode only fontifies spans of text wrapped in emphasis
+  markers (customized with <code>org-emphasis-alist</code>) if they extend through at
+  most one newline.  This is probably a performance optimization, one
+  wholly unnecessary on modern hardware.
+  </p>
+
+  <p>
+  As per this <a href="https://emacs.stackexchange.com/questions/18101/org-mode-multi-line-emphasis-and-bold">stack overflow</a> post I re-set the constant to 10 lines and
+  can probably even increase it if necessary.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span>setcar <span style="color: #888a85;">(</span>nthcdr 4 org-emphasis-regexp-components<span style="color: #888a85;">)</span> 10<span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  Before this starts to work you need to re-save <code>org-emphasis-alist</code>
+  through the customize interface because it is using a custom setter
+  <code>org-set-emph-re</code> to compute the regexpses (or, <i><b>gulp</b></i>, restart Emacs).
+  </p>
+
+  <p>
+  Here I quote the answer in case it ever gets lost:
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-markdown">By default, org-mode allows a single newline. So if you want to be
+  able to add markup to text that spans more than two consecutive lines,
+  you'll need to modify this entry.
+
+  <span style="color: #e6a8df; background-color: #232a2b;">    (setcar (nthcdr 4 org-emphasis-regexp-components) N)</span>
+
+  ... where N is the number of newlines you want to allow.
+  </pre>
+  </div>
+  ]]></description>
+</item>
+
+<item>
+  <title>WAR STORY: When turning to the profiler turns out to be a good call</title>
+  <link>https://fuco1.github.io/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html</guid>
+  <pubDate>Sun, 12 Aug 2018 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  Some of you might have seen the little bit of news circulating around
+  about my new project.  It's called <a href="https://github.com/Fuco1/Elsa">Elsa</a> (stands for Emacs Lisp Static
+  Analyzer), which is exactly what you would expect: you throw it some
+  Elisp code and it analyzes the types, dead code, style and all sorts
+  of other rules (stars are the limit!).
+  </p>
+
+  <p>
+  I've been working on this "secretly" in public (the repo was on Github
+  from day 1.) for about a year and very early on I've made a couple
+  decisions that I now thought doomed me to failure.  These were:
+  </p>
+
+  <ul class="org-ul">
+  <li>I will use <a href="https://www.gnu.org/s/emacs/manual/html_node/eieio/">EIEIO</a> to represent the reader forms and types</li>
+  <li>I will use CL <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Generic-Functions.html">generics</a> to process these objects</li>
+  </ul>
+
+  <p>
+  For this kind of a problem where we are walking some recursive
+  structure and then doing some "arithmetics" on hierarchies of types,
+  classes and methods are a very natural choice.  You can write generic
+  implementations and then "pattern match" on specific classes to
+  provide more elaborate strategies.
+  </p>
+
+  <p>
+  These two were notoriously known for having very bad performance in
+  the past, but nonetheless I decided that the simplicity of the
+  implementation has higher priority for me now and that in the worst
+  case I can transform it into a manual-dispatch-conds-and-defuns later.
+  </p>
+
+  <p>
+  EIEIO in particular was also known to be quite undebuggable.  They did
+  a good job on it with the 25 release and the error messages are now
+  pretty helpful.  It's no worse than the rest of Emacs (<code>M-x
+  faint-praise</code>).
+  </p>
+
+  <p>
+  When I finally finished the reader module which turns the source file
+  into a tree of EIEIO objects, to my horror I found out that it was
+  indeed slow. <b>Way slow</b>. I was using <a href="https://github.com/Fuco1/smartparens/blob/master/smartparens.el">smartparens.el</a> as a benchmark: it's
+  a single lisp file package of about 10000 lines with enough complexity
+  to inhibit most of the features of Elisp.
+  </p>
+
+  <p>
+  It took 42 seconds to analyze.  That is not great when you want to use
+  it with something like <a href="http://www.flycheck.org/en/latest/">flycheck</a>.  So I'm pretty much thinking I'm
+  screwed at this point and begin thinking about how to get rid of the
+  generics, because obviously <i>that</i> must be the issue, right?
+  </p>
+
+  <p>
+  Oh, how wrong I was.  Finally in a stroke of genius I fired up an
+  <code>emacs -nw -q</code>, loaded all the necessary things and did <code>M-x
+  profiler-start</code>.
+  </p>
+
+  <p>
+  Then I run the analysis in that instance, get the report and get my
+  mind blown to pieces: the culprit was the little innocent looking
+  function <code>line-number-at-pos</code>.  The reader spent about 90% of all the
+  time inside that function.
+  </p>
+
+  <p>
+  What happened?  Every time I read any form I need to remember the line
+  and column it was encountered at for error reporting to the user
+  later.  So every time I read anything (a symbol, a list, a keyword, a
+  string) I would call <code>line-number-at-pos</code> with the token's start
+  position to get the line number.
+  </p>
+
+  <p>
+  What this function does is it jumps to the first line of the file,
+  then regexp searches for <code>\n</code> until it reaches the <code>point</code> from which it
+  was called.
+  </p>
+
+  <p>
+  So you can imagine, in your source code on line <code>8500</code>, a form like
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span>very innocent looking form at line 8500<span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  would trigger 8 calls to <code>line-number-at-pos</code> which would in turn do
+  68000 regexp searches for <code>\n</code>.  The total number of these went way up
+  in the lower hundreds of millions, somewhere around the marks of 400
+  to 500 million calls.  Now that's <i>a lot</i> of completely useless
+  computation.
+  </p>
+
+  <p>
+  So what I did to fix this?  At the beginning of the analysis I run
+  through all the lines and place a text property <code>elsa-line</code> on the first
+  character with the line number.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>line 1<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span> <span style="color: #e6a8df;">'elsa-line</span> line<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>= <span style="color: #888a85;">(</span>forward-line<span style="color: #888a85;">)</span> 0<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-incf</span> line<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>min
+  <span style="color: #888a85;">(</span>buffer-size<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span> <span style="color: #e6a8df;">'elsa-line</span> line<span style="color: #888a85;">)))</span>
+  </pre>
+  </div>
+
+  <p>
+  Then to get the line number all I need to do is
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span>get-text-property <span style="color: #888a85;">(</span>line-beginning-position<span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'elsa-line</span><span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  Because the text properties use efficient data structures this access
+  is really really fast (something like <code>O(log n)</code> in length of buffer).
+  </p>
+
+  <p>
+  With this little change, the analysis time dropped to 5 seconds,
+  almost a factor of 10!  So the moral of the story is, as has been
+  repeated to death, when in trouble always bring out the big guns:
+  profilers are our friends!  No way in the world I would've guessed
+  this function was responsible (I actually started changing a bunch of
+  code into <code>defsubst</code> and inlining code before I figured that's
+  completely bonkers).
+  </p>
+
+  <p>
+  On a closing note, I'm looking for people to help out on the project,
+  there is a lot of things for people of all skill ranging from
+  beginners to seasoned hackers.  Check out issues marked <a href="https://github.com/Fuco1/Elsa/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22">help wanted</a> or
+  <a href="https://github.com/Fuco1/Elsa/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">good first issue</a> and get involved!  If anything's unclear go ahead and
+  ask questions.
+  </p>
+  ]]></description>
 </item>
 
 <item>

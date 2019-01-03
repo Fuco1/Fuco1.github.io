@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2019-01-03 Thu 20:50 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Make agenda clockreport respect <code>org-extend-today-until</code></title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./sitemap.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://fuco1.github.io/rss.xml">RSS</a>
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">Make agenda clockreport respect <code>org-extend-today-until</code></h1>
+
+<p>
+There's a cool but little known <a href="https://orgmode.org/">org-mode</a> setting for all the the night
+owls out there called <code>org-extend-today-until</code>.  It does quite what you
+would expect: you can tell org-mode when your "logical" midnight is.
+For me, I rarely go to sleep before 12 pm so I set it to 4 am just to
+be sure.  This way even if it's already 0:15 and I refresh the agenda
+view it still displays "yesterday".
+</p>
+
+<p>
+The trouble is that not a lot of org mode actually respects this
+setting, so far the only things mentioned in the docstring are the
+agenda day switch and something related to reading dates from the user
+(I think through <code>C-c .</code>) but I can't see any difference in that.  If
+you are using the org modeline and summary clock for today's time
+spent on a task this will also only count contributions from the
+specified hour which is nice.  There is probably more but I haven't
+noticed yet.
+</p>
+
+<p>
+Since I'm an <code>org-agenda-clockreport-mode</code> I want to have that
+consistent with the modeline information.  However it goes through
+entirely different machinery and so the easiest extension point is
+simply put an advice on the function which collects the data
+(<code>org-clock-get-table-data</code>) and in case we are working in the agenda
+scope adjust the <code>:tstart</code> and <code>:tend</code> properties to respect
+<code>org-extend-today-until</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-convert-org-today-to-timestamp</span> <span style="color: #888a85;">(</span>ts<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Convert TS to timestamp.</span>
+
+<span style="color: #e9b96e;">TS is an absolute number of days since 0001-12-31bce</span>
+
+<span style="color: #e9b96e;">The timestamp returned is in the format YYYY-MM-DD hh:mm.  The</span>
+<span style="color: #e9b96e;">hour is adjusted according to `</span><span style="color: #e6a8df;">org-extend-today-until</span><span style="color: #e9b96e;">'."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>ts-greg <span style="color: #888a85;">(</span>calendar-gregorian-from-absolute ts<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span>format <span style="color: #e9b96e;">"%4d-%02d-%02d %02d:00"</span>
+            <span style="color: #888a85;">(</span>nth 2 ts-greg<span style="color: #888a85;">)</span>
+            <span style="color: #888a85;">(</span>car ts-greg<span style="color: #888a85;">)</span>
+            <span style="color: #888a85;">(</span>nth 1 ts-greg<span style="color: #888a85;">)</span>
+            org-extend-today-until<span style="color: #888a85;">)))</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-clock-get-table-data-adjust-start</span> <span style="color: #888a85;">(</span>origfun file params<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Adjust the start and end arguments to respect `</span><span style="color: #e6a8df;">org-extend-today-until</span><span style="color: #e9b96e;">'."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>eq <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:scope</span><span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'agenda</span><span style="color: #888a85;">)</span>
+             <span style="color: #888a85;">(</span>integerp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tstart</span><span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>ts <span style="color: #888a85;">(</span>my-convert-org-today-to-timestamp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tstart</span><span style="color: #888a85;">)))</span>
+          <span style="color: #888a85;">(</span>te <span style="color: #888a85;">(</span>my-convert-org-today-to-timestamp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tend</span><span style="color: #888a85;">))))</span>
+      <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> params <span style="color: #888a85;">(</span>plist-put params <span style="color: #ad7fa8;">:tstart</span> ts<span style="color: #888a85;">))</span>
+      <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> params <span style="color: #888a85;">(</span>plist-put params <span style="color: #ad7fa8;">:tend</span> te<span style="color: #888a85;">))))</span>
+  <span style="color: #888a85;">(</span>funcall origfun file params<span style="color: #888a85;">))</span>
+
+<span style="color: #888a85;">(</span>advice-add <span style="color: #e6a8df;">'org-clock-get-table-data</span> <span style="color: #ad7fa8;">:around</span> <span style="color: #8cc4ff;">#'my-org-clock-get-table-data-adjust-start</span><span style="color: #888a85;">)</span>
+</pre>
+</div>
+
+<p>
+Recently I've been adding some nice improvements to my <a href="https://github.com/Fuco1/org-timeline">org-timeline</a>
+package which draws a visual representation of all the
+scheduled/clocked items (see README for visuals).  I'll make sure it
+respects this setting as well.  So far I've instinctively set it to
+start drawing at 5:00.
+</p>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2019-01-03 20:50</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>
