@@ -1,3 +1,11 @@
+* Use the input method from original org buffer in log note buffer
+:PROPERTIES:
+:RSS_PERMALINK: 2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.html
+:PUBDATE: <2019-01-23>
+:ID:       5db11744-a56b-4fa3-be2f-294218fea6a6
+:END:
+#+include: "/home/matus/documents/blog/posts/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.org" :lines "3-"
+
 * Make agenda clockreport respect =org-extend-today-until=
 :PROPERTIES:
 :RSS_PERMALINK: 2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html

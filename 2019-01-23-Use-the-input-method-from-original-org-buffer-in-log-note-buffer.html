@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2019-01-23 Wed 08:47 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Use the input method from original org buffer in log note buffer</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./sitemap.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://fuco1.github.io/rss.xml">RSS</a>
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">Use the input method from original org buffer in log note buffer</h1>
+
+<p>
+On switching various TODO states I've set up org mode to pop a buffer
+for <a href="https://orgmode.org/manual/Tracking-TODO-state-changes.html">attaching a quick note or explanation</a>.  You can do this also for
+refiling, clocking in or out, rescheduling and so on.
+</p>
+
+<p>
+I don't use these logs very often in a review or retrospective but it
+helped me a bunch of times to figure out the circumstances of my past
+actions (e.g. rescheduling, postponing work etc.) so I find it worth
+to spend 30 seconds jotting down a simple note as opposed to then
+trying to figure out everything from scratch for hours.
+</p>
+
+<p>
+Especially useful for when you are not meeting client's
+deadlines. Papertrail is good!
+</p>
+
+<p>
+Also being a daily journalist and somewhat obsessive about tracking my
+life my settings here are pretty aggressive.
+</p>
+
+<p>
+One thing that buggs me is, being not a native English speaker, is
+that when <code>org-mode</code> pops the note buffer its input method resets to
+English.  Given the fact that the past and current org maintainers
+also don't speak English as a first language kind of led me to expect
+there to be some setting to inherit the input method of the original
+buffer<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  Sadly, I
+couldn't find it, so I decided to "roll my own".
+</p>
+
+<p>
+Now here comes the part that blew my mind&#x2026; I've realized I wrote the
+whole code in under 2 minutes&#x2026; where simply trying to read the
+manual and search the code would easily take more
+time<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.  This is the nice feature of being an Emacs power-user.  I
+wrote the code on the first try, registered it in a hook which name
+I've guessed and it all worked flawlessly.  Nice!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-inherit-input-method</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Set the input method of this buffer to that of original's buffer."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>note-buffer <span style="color: #888a85;">(</span>marker-buffer org-log-note-marker<span style="color: #888a85;">))</span>
+         <span style="color: #888a85;">(</span>im <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-current-buffer</span> note-buffer
+               current-input-method<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span>set-input-method im<span style="color: #888a85;">)))</span>
+
+<span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-log-buffer-setup-hook</span> <span style="color: #e6a8df;">'my-org-inherit-input-method</span><span style="color: #888a85;">)</span>
+</pre>
+</div>
+
+<p>
+Of course, I've spent thousands of hours learning Elisp, so I'm not
+sure where or when the time/productivity curves actually crossed.
+</p>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">And really, 99% of the time, when you say "I'm
+going to write an org-extension", it already is in core.</div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">This is not the greatest engineering and you
+should almost always prefer a well-tested lib over your own&#x2026; on the
+other hand, being a pragmatic professional, I value my time over code
+purity</div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2019-01-23 08:47</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>
