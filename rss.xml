@@ -14,8 +14,8 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Wed, 23 Jan 2019 08:47:36 +0100</pubDate>
-  <lastBuildDate>Wed, 23 Jan 2019 08:47:36 +0100</lastBuildDate>
+  <pubDate>Sat, 02 Feb 2019 13:55:50 +0100</pubDate>
+  <lastBuildDate>Sat, 02 Feb 2019 13:55:50 +0100</lastBuildDate>
   <generator>Emacs 26.1 Org-mode 9.1.14</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
@@ -23,6 +23,66 @@
     <title>Matus Goljer (Fuco1)</title>
     <link>https://fuco1.github.io/</link>
   </image>
+
+  <item>
+    <title>Org mode and google calendar sync</title>
+    <link>https://fuco1.github.io/2019-02-02-Org-mode-and-google-calendar-sync.html</link>
+    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+    <guid isPermaLink="false">https://fuco1.github.io/2019-02-02-Org-mode-and-google-calendar-sync.html</guid>
+    <pubDate>Sat, 02 Feb 2019 00:00:00 +0100</pubDate>
+
+    <description><![CDATA[<p>
+    As a contractor working for multiple clients I juggle many projects
+    and meetings all the time.  Fortunately for me, there is <a href="https://orgmode.org/">orgmode</a>.
+    Unfortunately, my clients have not yet learned to appreciate its
+    merits.  Fortunately though, they all use the GSuite platform from
+    Google, which means agendas are planned in Google Calendars.
+    </p>
+
+    <p>
+    So I finally bit the bullet and decided to integrate Google Calendar
+    into my org agenda.  I didn't have to go a long way before finding
+    <a href="https://github.com/kidd/org-gcal.el">org-gcal.el</a>.
+    </p>
+
+    <p>
+    My setup is taken mostly from <a href="https://cestlaz.github.io/posts/using-emacs-26-gcal/">Using Emacs - 26 - Google Calendar, Org
+    Agenda</a> by the amazing Mike Zamansky.  One difference from Mike's setup
+    is that I'm using a single-way sync only, that is I only fetch from
+    google calendar and do not publish anything.
+    </p>
+
+    <p>
+    The reason is that I use multiple calendars (I basically have a google
+    account at every company I work for plus a personal calendar) and the
+    workflow with events and inviting myself from one calendar to another
+    as attendees is too complex and fragile to trust some automated tool.
+    And I can not afford my calendars to break.
+    </p>
+
+    <div class="org-src-container">
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">use-package</span> <span style="color: #e6a8df;">org-gcal</span>
+    <span style="color: #ad7fa8;">:after</span> org
+    <span style="color: #ad7fa8;">:config</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> org-gcal-client-id <span style="color: #e9b96e;">"781554523097-ocjovnfpqgtpoc4qv7ubr8c679t96bv7.apps.googleusercontent.com"</span>
+    org-gcal-client-secret <span style="color: #e9b96e;">"U5Bt-J2y7Vm69dEcRNkBLapE"</span>
+    org-gcal-file-alist '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"matus.goljer@gmail.com"</span> . <span style="color: #e9b96e;">"~/org/gcal.org"</span><span style="color: #888a85;">))</span>
+    org-gcal-header-alist '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"matus.goljer@gmail.com"</span> . <span style="color: #e9b96e;">"#+PROPERTY: TIMELINE_FACE \"pink\"\n"</span><span style="color: #888a85;">))</span>
+    org-gcal-auto-archive nil
+    org-gcal-notify-p nil<span style="color: #888a85;">)</span>
+
+    <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-agenda-mode-hook</span> <span style="color: #e6a8df;">'org-gcal-fetch</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-capture-after-finalize-hook</span> <span style="color: #e6a8df;">'org-gcal-fetch</span><span style="color: #888a85;">))</span>
+    </pre>
+    </div>
+
+    <p>
+    I'm also using <a href="https://github.com/Fuco1/org-timeline">org-timeline</a> so I add some extra header arguments to
+    the generated file to add a different color to the Google Calendar
+    entries.
+    </p>
+    ]]></description>
+  </item>
 
   <item>
     <title>Use the input method from original org buffer in log note buffer</title>
