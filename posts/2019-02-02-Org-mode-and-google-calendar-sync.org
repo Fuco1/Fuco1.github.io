@@ -1,7 +1,7 @@
 #+TITLE: Org mode and google calendar sync
 #+DATE: [2019-02-02 Sat 13:54]
 
-* DONE Org mode and google calendar sync :ignore:
+* DONE Org mode and google calendar sync                                :ignore:
 CLOSED: [2019-02-02 Sat 13:54]
 :LOGBOOK:
 - State "DONE"       from              [2019-02-02 Sat 13:54]
@@ -36,7 +36,7 @@ And I can not afford my calendars to break.
 U5Bt-J2y7Vm69dEcRNkBLapE
 #+END_SRC
 
-#+BEGIN_SRC elisp :noweb yes
+#+BEGIN_SRC elisp :noweb no-export
 (use-package org-gcal
   :after org
   :config
@@ -54,4 +54,3 @@ U5Bt-J2y7Vm69dEcRNkBLapE
 I'm also using [[https://github.com/Fuco1/org-timeline][org-timeline]] so I add some extra header arguments to
 the generated file to add a different color to the Google Calendar
 entries.
-
