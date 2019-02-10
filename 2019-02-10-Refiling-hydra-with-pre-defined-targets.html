@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2019-02-10 Sun 13:52 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Refiling hydra with pre-defined targets</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./sitemap.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://fuco1.github.io/rss.xml">RSS</a>
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">Refiling hydra with pre-defined targets</h1>
+
+<p>
+I'm a heavy <code>org-capture</code> user and I use about 10 templates to save the
+ideas/tasks to appropriate places (work / life / emacs / other
+projects / reading&#x2026;).  Sometimes, however, it is quite difficult to
+determine at the time of capture where to put the note, or it would
+take a lot of time to categorize properly&#x2026; or sometimes I'm just
+lazy.  For these situations I use a general <code>refile.org</code> file.  Anything
+I don't want to deal with right now goes there.
+</p>
+
+<p>
+Then I often end up with 200+ notes in this file and I have to deal
+with it somehow during my weekly reviews.  Many items I simply delete,
+but some I refine and then refile away to where they belong.
+</p>
+
+<p>
+I use about 10 huge org files to store my data and simply calling
+<code>org-refile</code> is very slow and the number of targets grows into tens of
+thousands which makes the experience sub-optimal.
+</p>
+
+<p>
+I've written a simple Elisp <code>defmacro</code> to generate specialized versions
+of <code>org-refile</code> where I can limit the targets to one file or a subset of
+files.  This is done by <code>let</code>-binding <code>org-refine-targets</code> variable and
+then calling <code>org-refile</code>&#x2014;it will pick up the new setting.  I also
+automatically clear the cache because during this process I often add
+or move headlines around and the cache is most of the time stale.  In
+practice it's not a problem because refiling to just one file is
+fast-enough to rebuild the cache on-the-go.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defmacro</span> <span style="color: #fce94f;">my-org-make-refile-command</span> <span style="color: #888a85;">(</span>fn-suffix refile-targets<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Generate a command to call `</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' with modified targets."</span>
+  `<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> ,<span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #e9b96e;">"my-org-refile-"</span> <span style="color: #888a85;">(</span>symbol-name fn-suffix<span style="color: #888a85;">)))</span> <span style="color: #888a85;">()</span>
+     ,<span style="color: #888a85;">(</span>format <span style="color: #e9b96e;">"`</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' to %S"</span> refile-targets<span style="color: #888a85;">)</span>
+     <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+     <span style="color: #888a85;">(</span>org-refile-cache-clear<span style="color: #888a85;">)</span>
+     <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>org-refile-target-verify-function nil<span style="color: #888a85;">)</span>
+           <span style="color: #888a85;">(</span>org-refile-targets ,refile-targets<span style="color: #888a85;">))</span>
+       <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'org-refile</span><span style="color: #888a85;">))))</span>
+</pre>
+</div>
+
+<p>
+It's quite straight-forward, we have a <code>defun</code> skeleton and we splice
+the name and the target there.  The expansion looks like this
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> kb '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
+
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">expands to</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-refile-kb</span> nil
+  <span style="color: #e9b96e;">"`</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' to (quote ((\"~/data/documents/kb.org\" :maxlevel . 9)))"</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-refile-cache-clear<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span>
+      <span style="color: #888a85;">((</span>org-refile-target-verify-function nil<span style="color: #888a85;">)</span>
+       <span style="color: #888a85;">(</span>org-refile-targets
+        '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">))))</span>
+    <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'org-refile</span><span style="color: #888a85;">)))</span>
+</pre>
+</div>
+
+<p>
+Throw in a cool <a href="https://github.com/abo-abo/hydra">hydra</a> and you're all set!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> kb '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> reading '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/org/reading.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> this-file `<span style="color: #888a85;">((</span>,<span style="color: #888a85;">(</span>buffer-file-name<span style="color: #888a85;">)</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defhydra</span> <span style="color: #8cc4ff;">my-org-refile-hydra</span> <span style="color: #888a85;">(</span><span style="color: #ad7fa8;">:color</span> blue <span style="color: #ad7fa8;">:hint</span> nil<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"</span>
+<span style="color: #e9b96e;">_t_his file</span>
+
+<span style="color: #e9b96e;">Special files:</span>
+<span style="color: #e9b96e;">---------------------</span>
+<span style="color: #e9b96e;">_k_b.org    _r_eading.org"</span>
+  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"k"</span> my-org-refile-kb<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"r"</span> my-org-refile-reading<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"t"</span> my-org-refile-this-file<span style="color: #888a85;">))</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">bind-key</span> <span style="color: #e9b96e;">"C-c r"</span> <span style="color: #8cc4ff;">#'my-org-refile-hydra/body</span> org-mode-map<span style="color: #888a85;">)</span>
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2019-02-10 13:52</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2019-02-10-Refiling-hydra-with-pre-defined-targets.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>

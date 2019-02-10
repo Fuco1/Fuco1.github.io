@@ -14,9 +14,9 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Sat, 02 Feb 2019 13:55:50 +0100</pubDate>
-  <lastBuildDate>Sat, 02 Feb 2019 13:55:50 +0100</lastBuildDate>
-  <generator>Emacs 26.1 Org-mode 9.1.14</generator>
+  <pubDate>Sun, 10 Feb 2019 13:53:05 +0100</pubDate>
+  <lastBuildDate>Sun, 10 Feb 2019 13:53:05 +0100</lastBuildDate>
+  <generator>Emacs 26.1 Org-mode 9.2</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
     <url>https://orgmode.org/img/org-mode-unicorn-logo.png</url>
@@ -25,208 +25,309 @@
   </image>
 
   <item>
-    <title>Org mode and google calendar sync</title>
-    <link>https://fuco1.github.io/2019-02-02-Org-mode-and-google-calendar-sync.html</link>
+    <title>Refiling hydra with pre-defined targets</title>
+    <link>https://fuco1.github.io/2019-02-10-Refiling-hydra-with-pre-defined-targets.html</link>
     <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2019-02-02-Org-mode-and-google-calendar-sync.html</guid>
-    <pubDate>Sat, 02 Feb 2019 00:00:00 +0100</pubDate>
+    <guid isPermaLink="false">https://fuco1.github.io/2019-02-10-Refiling-hydra-with-pre-defined-targets.html</guid>
+    <pubDate>Sun, 10 Feb 2019 00:00:00 +0100</pubDate>
 
     <description><![CDATA[<p>
-    As a contractor working for multiple clients I juggle many projects
-    and meetings all the time.  Fortunately for me, there is <a href="https://orgmode.org/">orgmode</a>.
-    Unfortunately, my clients have not yet learned to appreciate its
-    merits.  Fortunately though, they all use the GSuite platform from
-    Google, which means agendas are planned in Google Calendars.
+    I'm a heavy <code>org-capture</code> user and I use about 10 templates to save the
+    ideas/tasks to appropriate places (work / life / emacs / other
+    projects / reading...).  Sometimes, however, it is quite difficult to
+    determine at the time of capture where to put the note, or it would
+    take a lot of time to categorize properly... or sometimes I'm just
+    lazy.  For these situations I use a general <code>refile.org</code> file.  Anything
+    I don't want to deal with right now goes there.
     </p>
 
     <p>
-    So I finally bit the bullet and decided to integrate Google Calendar
-    into my org agenda.  I didn't have to go a long way before finding
-    <a href="https://github.com/kidd/org-gcal.el">org-gcal.el</a>.
+    Then I often end up with 200+ notes in this file and I have to deal
+    with it somehow during my weekly reviews.  Many items I simply delete,
+    but some I refine and then refile away to where they belong.
     </p>
 
     <p>
-    My setup is taken mostly from <a href="https://cestlaz.github.io/posts/using-emacs-26-gcal/">Using Emacs - 26 - Google Calendar, Org
-    Agenda</a> by the amazing Mike Zamansky.  One difference from Mike's setup
-    is that I'm using a single-way sync only, that is I only fetch from
-    google calendar and do not publish anything.
+    I use about 10 huge org files to store my data and simply calling
+    <code>org-refile</code> is very slow and the number of targets grows into tens of
+    thousands which makes the experience sub-optimal.
     </p>
 
     <p>
-    The reason is that I use multiple calendars (I basically have a google
-    account at every company I work for plus a personal calendar) and the
-    workflow with events and inviting myself from one calendar to another
-    as attendees is too complex and fragile to trust some automated tool.
-    And I can not afford my calendars to break.
+    I've written a simple Elisp <code>defmacro</code> to generate specialized versions
+    of <code>org-refile</code> where I can limit the targets to one file or a subset of
+    files.  This is done by <code>let</code>-binding <code>org-refine-targets</code> variable and
+    then calling <code>org-refile</code>---it will pick up the new setting.  I also
+    automatically clear the cache because during this process I often add
+    or move headlines around and the cache is most of the time stale.  In
+    practice it's not a problem because refiling to just one file is
+    fast-enough to rebuild the cache on-the-go.
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">use-package</span> <span style="color: #e6a8df;">org-gcal</span>
-    <span style="color: #ad7fa8;">:after</span> org
-    <span style="color: #ad7fa8;">:config</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> org-gcal-client-id <span style="color: #e9b96e;">"781554523097-ocjovnfpqgtpoc4qv7ubr8c679t96bv7.apps.googleusercontent.com"</span>
-    org-gcal-client-secret <span style="color: #e9b96e;">"U5Bt-J2y7Vm69dEcRNkBLapE"</span>
-    org-gcal-file-alist '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"matus.goljer@gmail.com"</span> . <span style="color: #e9b96e;">"~/org/gcal.org"</span><span style="color: #888a85;">))</span>
-    org-gcal-header-alist '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"matus.goljer@gmail.com"</span> . <span style="color: #e9b96e;">"#+PROPERTY: TIMELINE_FACE \"pink\"\n"</span><span style="color: #888a85;">))</span>
-    org-gcal-auto-archive nil
-    org-gcal-notify-p nil<span style="color: #888a85;">)</span>
-
-    <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-agenda-mode-hook</span> <span style="color: #e6a8df;">'org-gcal-fetch</span><span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-capture-after-finalize-hook</span> <span style="color: #e6a8df;">'org-gcal-fetch</span><span style="color: #888a85;">))</span>
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defmacro</span> <span style="color: #fce94f;">my-org-make-refile-command</span> <span style="color: #888a85;">(</span>fn-suffix refile-targets<span style="color: #888a85;">)</span>
+    <span style="color: #e9b96e;">"Generate a command to call `</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' with modified targets."</span>
+    `<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> ,<span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #e9b96e;">"my-org-refile-"</span> <span style="color: #888a85;">(</span>symbol-name fn-suffix<span style="color: #888a85;">)))</span> <span style="color: #888a85;">()</span>
+    ,<span style="color: #888a85;">(</span>format <span style="color: #e9b96e;">"`</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' to %S"</span> refile-targets<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>org-refile-cache-clear<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>org-refile-target-verify-function nil<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>org-refile-targets ,refile-targets<span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'org-refile</span><span style="color: #888a85;">))))</span>
     </pre>
     </div>
 
     <p>
-    I'm also using <a href="https://github.com/Fuco1/org-timeline">org-timeline</a> so I add some extra header arguments to
-    the generated file to add a different color to the Google Calendar
-    entries.
-    </p>
-    ]]></description>
-  </item>
-
-  <item>
-    <title>Use the input method from original org buffer in log note buffer</title>
-    <link>https://fuco1.github.io/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.html</guid>
-    <pubDate>Wed, 23 Jan 2019 00:00:00 +0100</pubDate>
-
-    <description><![CDATA[<p>
-    On switching various TODO states I've set up org mode to pop a buffer
-    for <a href="https://orgmode.org/manual/Tracking-TODO-state-changes.html">attaching a quick note or explanation</a>.  You can do this also for
-    refiling, clocking in or out, rescheduling and so on.
-    </p>
-
-    <p>
-    I don't use these logs very often in a review or retrospective but it
-    helped me a bunch of times to figure out the circumstances of my past
-    actions (e.g. rescheduling, postponing work etc.) so I find it worth
-    to spend 30 seconds jotting down a simple note as opposed to then
-    trying to figure out everything from scratch for hours.
-    </p>
-
-    <p>
-    Especially useful for when you are not meeting client's
-    deadlines. Papertrail is good!
-    </p>
-
-    <p>
-    Also being a daily journalist and somewhat obsessive about tracking my
-    life my settings here are pretty aggressive.
-    </p>
-
-    <p>
-    One thing that buggs me is, being not a native English speaker, is
-    that when <code>org-mode</code> pops the note buffer its input method resets to
-    English.  Given the fact that the past and current org maintainers
-    also don't speak English as a first language kind of led me to expect
-    there to be some setting to inherit the input method of the original
-    buffer<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  Sadly, I
-    couldn't find it, so I decided to "roll my own".
-    </p>
-
-    <p>
-    Now here comes the part that blew my mind... I've realized I wrote the
-    whole code in under 2 minutes... where simply trying to read the
-    manual and search the code would easily take more
-    time<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.  This is the nice feature of being an Emacs power-user.  I
-    wrote the code on the first try, registered it in a hook which name
-    I've guessed and it all worked flawlessly.  Nice!
+    It's quite straight-forward, we have a <code>defun</code> skeleton and we splice
+    the name and the target there.  The expansion looks like this
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-inherit-input-method</span> <span style="color: #888a85;">()</span>
-    <span style="color: #e9b96e;">"Set the input method of this buffer to that of original's buffer."</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>note-buffer <span style="color: #888a85;">(</span>marker-buffer org-log-note-marker<span style="color: #888a85;">))</span>
-    <span style="color: #888a85;">(</span>im <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-current-buffer</span> note-buffer
-    current-input-method<span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span>set-input-method im<span style="color: #888a85;">)))</span>
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> kb '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
 
-    <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-log-buffer-setup-hook</span> <span style="color: #e6a8df;">'my-org-inherit-input-method</span><span style="color: #888a85;">)</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">expands to</span>
+
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-refile-kb</span> nil
+    <span style="color: #e9b96e;">"`</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' to (quote ((\"~/data/documents/kb.org\" :maxlevel . 9)))"</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>org-refile-cache-clear<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span>
+    <span style="color: #888a85;">((</span>org-refile-target-verify-function nil<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>org-refile-targets
+    '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">))))</span>
+    <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'org-refile</span><span style="color: #888a85;">)))</span>
     </pre>
     </div>
 
     <p>
-    Of course, I've spent thousands of hours learning Elisp, so I'm not
-    sure where or when the time/productivity curves actually crossed.
-    </p>
-    ]]></description>
-  </item>
-
-  <item>
-    <title>Make agenda clockreport respect =org-extend-today-until=</title>
-    <link>https://fuco1.github.io/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html</link>
-    <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html</guid>
-    <pubDate>Thu, 03 Jan 2019 00:00:00 +0100</pubDate>
-
-    <description><![CDATA[<p>
-    There's a cool but little known <a href="https://orgmode.org/">org-mode</a> setting for all the the night
-    owls out there called <code>org-extend-today-until</code>.  It does quite what you
-    would expect: you can tell org-mode when your "logical" midnight is.
-    For me, I rarely go to sleep before 12 pm so I set it to 4 am just to
-    be sure.  This way even if it's already 0:15 and I refresh the agenda
-    view it still displays "yesterday".
-    </p>
-
-    <p>
-    The trouble is that not a lot of org mode actually respects this
-    setting, so far the only things mentioned in the docstring are the
-    agenda day switch and something related to reading dates from the user
-    (I think through <code>C-c .</code>) but I can't see any difference in that.  If
-    you are using the org modeline and summary clock for today's time
-    spent on a task this will also only count contributions from the
-    specified hour which is nice.  There is probably more but I haven't
-    noticed yet.
-    </p>
-
-    <p>
-    Since I'm an <code>org-agenda-clockreport-mode</code> I want to have that
-    consistent with the modeline information.  However it goes through
-    entirely different machinery and so the easiest extension point is
-    simply put an advice on the function which collects the data
-    (<code>org-clock-get-table-data</code>) and in case we are working in the agenda
-    scope adjust the <code>:tstart</code> and <code>:tend</code> properties to respect
-    <code>org-extend-today-until</code>.
+    Throw in a cool <a href="https://github.com/abo-abo/hydra">hydra</a> and you're all set!
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-convert-org-today-to-timestamp</span> <span style="color: #888a85;">(</span>ts<span style="color: #888a85;">)</span>
-    <span style="color: #e9b96e;">"Convert TS to timestamp.</span>
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> kb '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> reading '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/org/reading.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> this-file `<span style="color: #888a85;">((</span>,<span style="color: #888a85;">(</span>buffer-file-name<span style="color: #888a85;">)</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
 
-    <span style="color: #e9b96e;">TS is an absolute number of days since 0001-12-31bce</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defhydra</span> <span style="color: #8cc4ff;">my-org-refile-hydra</span> <span style="color: #888a85;">(</span><span style="color: #ad7fa8;">:color</span> blue <span style="color: #ad7fa8;">:hint</span> nil<span style="color: #888a85;">)</span>
+    <span style="color: #e9b96e;">"</span>
+    <span style="color: #e9b96e;">_t_his file</span>
 
-    <span style="color: #e9b96e;">The timestamp returned is in the format YYYY-MM-DD hh:mm.  The</span>
-    <span style="color: #e9b96e;">hour is adjusted according to `</span><span style="color: #e6a8df;">org-extend-today-until</span><span style="color: #e9b96e;">'."</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>ts-greg <span style="color: #888a85;">(</span>calendar-gregorian-from-absolute ts<span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span>format <span style="color: #e9b96e;">"%4d-%02d-%02d %02d:00"</span>
-    <span style="color: #888a85;">(</span>nth 2 ts-greg<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>car ts-greg<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>nth 1 ts-greg<span style="color: #888a85;">)</span>
-    org-extend-today-until<span style="color: #888a85;">)))</span>
+    <span style="color: #e9b96e;">Special files:</span>
+    <span style="color: #e9b96e;">---------------------</span>
+    <span style="color: #e9b96e;">_k_b.org    _r_eading.org"</span>
+    <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"k"</span> my-org-refile-kb<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"r"</span> my-org-refile-reading<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"t"</span> my-org-refile-this-file<span style="color: #888a85;">))</span>
 
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-clock-get-table-data-adjust-start</span> <span style="color: #888a85;">(</span>origfun file params<span style="color: #888a85;">)</span>
-    <span style="color: #e9b96e;">"Adjust the start and end arguments to respect `</span><span style="color: #e6a8df;">org-extend-today-until</span><span style="color: #e9b96e;">'."</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>eq <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:scope</span><span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'agenda</span><span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>integerp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tstart</span><span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>ts <span style="color: #888a85;">(</span>my-convert-org-today-to-timestamp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tstart</span><span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span>te <span style="color: #888a85;">(</span>my-convert-org-today-to-timestamp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tend</span><span style="color: #888a85;">))))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> params <span style="color: #888a85;">(</span>plist-put params <span style="color: #ad7fa8;">:tstart</span> ts<span style="color: #888a85;">))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> params <span style="color: #888a85;">(</span>plist-put params <span style="color: #ad7fa8;">:tend</span> te<span style="color: #888a85;">))))</span>
-    <span style="color: #888a85;">(</span>funcall origfun file params<span style="color: #888a85;">))</span>
-
-    <span style="color: #888a85;">(</span>advice-add <span style="color: #e6a8df;">'org-clock-get-table-data</span> <span style="color: #ad7fa8;">:around</span> <span style="color: #8cc4ff;">#'my-org-clock-get-table-data-adjust-start</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">bind-key</span> <span style="color: #e9b96e;">"C-c r"</span> <span style="color: #8cc4ff;">#'my-org-refile-hydra/body</span> org-mode-map<span style="color: #888a85;">)</span>
     </pre>
     </div>
-
-    <p>
-    Recently I've been adding some nice improvements to my <a href="https://github.com/Fuco1/org-timeline">org-timeline</a>
-    package which draws a visual representation of all the
-    scheduled/clocked items (see README for visuals).  I'll make sure it
-    respects this setting as well.  So far I've instinctively set it to
-    start drawing at 5:00.
-    </p>
     ]]></description>
+</item>
+
+<item>
+  <title>Org mode and google calendar sync</title>
+  <link>https://fuco1.github.io/2019-02-02-Org-mode-and-google-calendar-sync.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2019-02-02-Org-mode-and-google-calendar-sync.html</guid>
+  <pubDate>Sat, 02 Feb 2019 00:00:00 +0100</pubDate>
+
+  <description><![CDATA[<p>
+  As a contractor working for multiple clients I juggle many projects
+  and meetings all the time.  Fortunately for me, there is <a href="https://orgmode.org/">orgmode</a>.
+  Unfortunately, my clients have not yet learned to appreciate its
+  merits.  Fortunately though, they all use the GSuite platform from
+  Google, which means agendas are planned in Google Calendars.
+  </p>
+
+  <p>
+  So I finally bit the bullet and decided to integrate Google Calendar
+  into my org agenda.  I didn't have to go a long way before finding
+  <a href="https://github.com/kidd/org-gcal.el">org-gcal.el</a>.
+  </p>
+
+  <p>
+  My setup is taken mostly from <a href="https://cestlaz.github.io/posts/using-emacs-26-gcal/">Using Emacs - 26 - Google Calendar, Org
+  Agenda</a> by the amazing Mike Zamansky.  One difference from Mike's setup
+  is that I'm using a single-way sync only, that is I only fetch from
+  google calendar and do not publish anything.
+  </p>
+
+  <p>
+  The reason is that I use multiple calendars (I basically have a google
+  account at every company I work for plus a personal calendar) and the
+  workflow with events and inviting myself from one calendar to another
+  as attendees is too complex and fragile to trust some automated tool.
+  And I can not afford my calendars to break.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">use-package</span> <span style="color: #e6a8df;">org-gcal</span>
+  <span style="color: #ad7fa8;">:after</span> org
+  <span style="color: #ad7fa8;">:config</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> org-gcal-client-id <span style="color: #e9b96e;">"781554523097-ocjovnfpqgtpoc4qv7ubr8c679t96bv7.apps.googleusercontent.com"</span>
+  org-gcal-client-secret <span style="color: #e9b96e;">"&lt;&lt;gcal-secret&gt;&gt;"</span>
+  org-gcal-file-alist '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"matus.goljer@gmail.com"</span> . <span style="color: #e9b96e;">"~/org/gcal.org"</span><span style="color: #888a85;">))</span>
+  org-gcal-header-alist '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"matus.goljer@gmail.com"</span> . <span style="color: #e9b96e;">"#+PROPERTY: TIMELINE_FACE \"pink\"\n"</span><span style="color: #888a85;">))</span>
+  org-gcal-auto-archive nil
+  org-gcal-notify-p nil<span style="color: #888a85;">)</span>
+
+  <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-agenda-mode-hook</span> <span style="color: #e6a8df;">'org-gcal-fetch</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-capture-after-finalize-hook</span> <span style="color: #e6a8df;">'org-gcal-fetch</span><span style="color: #888a85;">))</span>
+  </pre>
+  </div>
+
+  <p>
+  I'm also using <a href="https://github.com/Fuco1/org-timeline">org-timeline</a> so I add some extra header arguments to
+  the generated file to add a different color to the Google Calendar
+  entries.
+  </p>
+  ]]></description>
+</item>
+
+<item>
+  <title>Use the input method from original org buffer in log note buffer</title>
+  <link>https://fuco1.github.io/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.html</guid>
+  <pubDate>Wed, 23 Jan 2019 00:00:00 +0100</pubDate>
+
+  <description><![CDATA[<p>
+  On switching various TODO states I've set up org mode to pop a buffer
+  for <a href="https://orgmode.org/manual/Tracking-TODO-state-changes.html">attaching a quick note or explanation</a>.  You can do this also for
+  refiling, clocking in or out, rescheduling and so on.
+  </p>
+
+  <p>
+  I don't use these logs very often in a review or retrospective but it
+  helped me a bunch of times to figure out the circumstances of my past
+  actions (e.g. rescheduling, postponing work etc.) so I find it worth
+  to spend 30 seconds jotting down a simple note as opposed to then
+  trying to figure out everything from scratch for hours.
+  </p>
+
+  <p>
+  Especially useful for when you are not meeting client's
+  deadlines. Papertrail is good!
+  </p>
+
+  <p>
+  Also being a daily journalist and somewhat obsessive about tracking my
+  life my settings here are pretty aggressive.
+  </p>
+
+  <p>
+  One thing that buggs me is, being not a native English speaker, is
+  that when <code>org-mode</code> pops the note buffer its input method resets to
+  English.  Given the fact that the past and current org maintainers
+  also don't speak English as a first language kind of led me to expect
+  there to be some setting to inherit the input method of the original
+  buffer<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  Sadly, I
+  couldn't find it, so I decided to "roll my own".
+  </p>
+
+  <p>
+  Now here comes the part that blew my mind... I've realized I wrote the
+  whole code in under 2 minutes... where simply trying to read the
+  manual and search the code would easily take more
+  time<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.  This is the nice feature of being an Emacs power-user.  I
+  wrote the code on the first try, registered it in a hook which name
+  I've guessed and it all worked flawlessly.  Nice!
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-inherit-input-method</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Set the input method of this buffer to that of original's buffer."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>note-buffer <span style="color: #888a85;">(</span>marker-buffer org-log-note-marker<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>im <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-current-buffer</span> note-buffer
+  current-input-method<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>set-input-method im<span style="color: #888a85;">)))</span>
+
+  <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-log-buffer-setup-hook</span> <span style="color: #e6a8df;">'my-org-inherit-input-method</span><span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  Of course, I've spent thousands of hours learning Elisp, so I'm not
+  sure where or when the time/productivity curves actually crossed.
+  </p>
+  ]]></description>
+</item>
+
+<item>
+  <title>Make agenda clockreport respect =org-extend-today-until=</title>
+  <link>https://fuco1.github.io/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html</guid>
+  <pubDate>Thu, 03 Jan 2019 00:00:00 +0100</pubDate>
+
+  <description><![CDATA[<p>
+  There's a cool but little known <a href="https://orgmode.org/">org-mode</a> setting for all the the night
+  owls out there called <code>org-extend-today-until</code>.  It does quite what you
+  would expect: you can tell org-mode when your "logical" midnight is.
+  For me, I rarely go to sleep before 12 pm so I set it to 4 am just to
+  be sure.  This way even if it's already 0:15 and I refresh the agenda
+  view it still displays "yesterday".
+  </p>
+
+  <p>
+  The trouble is that not a lot of org mode actually respects this
+  setting, so far the only things mentioned in the docstring are the
+  agenda day switch and something related to reading dates from the user
+  (I think through <code>C-c .</code>) but I can't see any difference in that.  If
+  you are using the org modeline and summary clock for today's time
+  spent on a task this will also only count contributions from the
+  specified hour which is nice.  There is probably more but I haven't
+  noticed yet.
+  </p>
+
+  <p>
+  Since I'm an <code>org-agenda-clockreport-mode</code> I want to have that
+  consistent with the modeline information.  However it goes through
+  entirely different machinery and so the easiest extension point is
+  simply put an advice on the function which collects the data
+  (<code>org-clock-get-table-data</code>) and in case we are working in the agenda
+  scope adjust the <code>:tstart</code> and <code>:tend</code> properties to respect
+  <code>org-extend-today-until</code>.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-convert-org-today-to-timestamp</span> <span style="color: #888a85;">(</span>ts<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Convert TS to timestamp.</span>
+
+  <span style="color: #e9b96e;">TS is an absolute number of days since 0001-12-31bce</span>
+
+  <span style="color: #e9b96e;">The timestamp returned is in the format YYYY-MM-DD hh:mm.  The</span>
+  <span style="color: #e9b96e;">hour is adjusted according to `</span><span style="color: #e6a8df;">org-extend-today-until</span><span style="color: #e9b96e;">'."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>ts-greg <span style="color: #888a85;">(</span>calendar-gregorian-from-absolute ts<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>format <span style="color: #e9b96e;">"%4d-%02d-%02d %02d:00"</span>
+  <span style="color: #888a85;">(</span>nth 2 ts-greg<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>car ts-greg<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>nth 1 ts-greg<span style="color: #888a85;">)</span>
+  org-extend-today-until<span style="color: #888a85;">)))</span>
+
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-clock-get-table-data-adjust-start</span> <span style="color: #888a85;">(</span>origfun file params<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Adjust the start and end arguments to respect `</span><span style="color: #e6a8df;">org-extend-today-until</span><span style="color: #e9b96e;">'."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>eq <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:scope</span><span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'agenda</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>integerp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tstart</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>ts <span style="color: #888a85;">(</span>my-convert-org-today-to-timestamp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tstart</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>te <span style="color: #888a85;">(</span>my-convert-org-today-to-timestamp <span style="color: #888a85;">(</span>plist-get params <span style="color: #ad7fa8;">:tend</span><span style="color: #888a85;">))))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> params <span style="color: #888a85;">(</span>plist-put params <span style="color: #ad7fa8;">:tstart</span> ts<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> params <span style="color: #888a85;">(</span>plist-put params <span style="color: #ad7fa8;">:tend</span> te<span style="color: #888a85;">))))</span>
+  <span style="color: #888a85;">(</span>funcall origfun file params<span style="color: #888a85;">))</span>
+
+  <span style="color: #888a85;">(</span>advice-add <span style="color: #e6a8df;">'org-clock-get-table-data</span> <span style="color: #ad7fa8;">:around</span> <span style="color: #8cc4ff;">#'my-org-clock-get-table-data-adjust-start</span><span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  Recently I've been adding some nice improvements to my <a href="https://github.com/Fuco1/org-timeline">org-timeline</a>
+  package which draws a visual representation of all the
+  scheduled/clocked items (see README for visuals).  I'll make sure it
+  respects this setting as well.  So far I've instinctively set it to
+  start drawing at 5:00.
+  </p>
+  ]]></description>
 </item>
 
 <item>
@@ -1305,7 +1406,7 @@
   This immediately got me thinking of dynamic programming and induction.  I figured it out in a couple minutes and then worked out a simple proof to show that my algorithm generates all the possible groupings.
   </p>
   <div id="outline-container-orgf37a5de" class="outline-3">
-  <h3 id="orgf37a5de"><a id="ID-5a06321a-9ef0-4043-993d-fe9cb7281156"></a>The algorithm</h3>
+  <h3 id="orgf37a5de">The algorithm</h3>
   <div class="outline-text-3" id="text-orgf37a5de">
   <p>
   How it works is rather simple:
@@ -1360,7 +1461,7 @@
   </div>
 
   <div id="outline-container-orgf858f72" class="outline-3">
-  <h3 id="orgf858f72"><a id="ID-ae246328-b96a-43d3-ba9d-86eb940b6b13"></a>Proof</h3>
+  <h3 id="orgf858f72">Proof</h3>
   <div class="outline-text-3" id="text-orgf858f72">
   <p>
   Proof will be carried out by <a href="https://en.wikipedia.org/wiki/Mathematical_induction">induction</a>.  In short, induction works as follows.  You first prove the induction base, which is the base truth from which you will derive all other truths.  In our case this will be the fact that the algorithm works for \(n = 0\) and \(n = 1\).
@@ -1666,7 +1767,7 @@
   What follows is all the "overloads" I use in my config, you can use these as an inspiration to add your own.  I'm thinking of how to package this code and provide some simple interface for people to enable these in their configs and contribute more for various other special buffers.  If you want to help out with the packaging leave me a <a href="https://github.com/Fuco1/.emacs.d/issues/new">message</a>.
   </p>
   <div id="outline-container-org3541861" class="outline-3">
-  <h3 id="org3541861"><a id="ID-9ee58bb4-474b-4ecc-8852-b22c2fe1a0f0"></a>Dired (<code>M-x dired</code>)</h3>
+  <h3 id="org3541861">Dired (<code>M-x dired</code>)</h3>
   <div class="outline-text-3" id="text-org3541861">
   <div class="org-src-container">
   <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> dired
@@ -1680,7 +1781,7 @@
   </div>
 
   <div id="outline-container-org3aaf9a9" class="outline-3">
-  <h3 id="org3aaf9a9"><a id="ID-10588841-6bae-42e2-970a-d5b3ad0afc23"></a>Occur (<code>M-x occur</code>)</h3>
+  <h3 id="org3aaf9a9">Occur (<code>M-x occur</code>)</h3>
   <div class="outline-text-3" id="text-org3aaf9a9">
   <div class="org-src-container">
   <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> occur
@@ -1693,7 +1794,7 @@
   </div>
 
   <div id="outline-container-orge77fde9" class="outline-3">
-  <h3 id="orge77fde9"><a id="ID-dcf6d9c2-12a9-4bb0-96d0-631ce4d3567b"></a>Ibuffer (<code>M-x ibuffer</code>)</h3>
+  <h3 id="orge77fde9">Ibuffer (<code>M-x ibuffer</code>)</h3>
   <div class="outline-text-3" id="text-orge77fde9">
   <div class="org-src-container">
   <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> ibuffer
@@ -1706,7 +1807,7 @@
   </div>
 
   <div id="outline-container-org2179608" class="outline-3">
-  <h3 id="org2179608"><a id="ID-ad4592b5-85bb-43cb-a5a5-896de227a249"></a>vc directory view (<code>M-x vc-dir</code> or <code>C-x v d</code>)</h3>
+  <h3 id="org2179608">vc directory view (<code>M-x vc-dir</code> or <code>C-x v d</code>)</h3>
   <div class="outline-text-3" id="text-org2179608">
   <div class="org-src-container">
   <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> vc-dir
@@ -1719,7 +1820,7 @@
   </div>
 
   <div id="outline-container-orge922c24" class="outline-3">
-  <h3 id="orge922c24"><a id="ID-72ecb66e-e91d-4f48-829b-529306ca7bd8"></a>bs (<code>M-x bs-show</code>)</h3>
+  <h3 id="orge922c24">bs (<code>M-x bs-show</code>)</h3>
   <div class="outline-text-3" id="text-orge922c24">
   <div class="org-src-container">
   <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> bs
@@ -1733,7 +1834,7 @@
   </div>
 
   <div id="outline-container-org9390a8d" class="outline-3">
-  <h3 id="org9390a8d"><a id="ID-a51bab0c-96dd-45b0-8ca1-d6929695a450"></a>Recentf (<code>M-x recentf-open-files</code>)</h3>
+  <h3 id="org9390a8d">Recentf (<code>M-x recentf-open-files</code>)</h3>
   <div class="outline-text-3" id="text-org9390a8d">
   <div class="org-src-container">
   <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> recentf-dialog
@@ -1747,7 +1848,7 @@
   </div>
 
   <div id="outline-container-org0f4dd64" class="outline-3">
-  <h3 id="org0f4dd64"><a id="ID-2f2d59c7-03ab-4039-8a4d-2bcaba6b3c47"></a>Org Agenda (<code>M-x org-agenda</code>)</h3>
+  <h3 id="org0f4dd64">Org Agenda (<code>M-x org-agenda</code>)</h3>
   <div class="outline-text-3" id="text-org0f4dd64">
   <div class="org-src-container">
   <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> org-agenda
@@ -1760,7 +1861,7 @@
   </div>
 
   <div id="outline-container-org36d8cb9" class="outline-3">
-  <h3 id="org36d8cb9"><a id="ID-0876ce6c-1522-4736-9948-6fbff93a65b5"></a>ag (from <code>ag.el</code> package, <code>M-x ag</code>)</h3>
+  <h3 id="org36d8cb9">ag (from <code>ag.el</code> package, <code>M-x ag</code>)</h3>
   <div class="outline-text-3" id="text-org36d8cb9">
   <div class="org-src-container">
   <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> ag
@@ -1773,7 +1874,7 @@
   </div>
 
   <div id="outline-container-orgaef45de" class="outline-3">
-  <h3 id="orgaef45de"><a id="ID-cb9b9501-47bf-411b-b2bd-aabc286ca411"></a>Notmuch (from <code>notmuch</code> package, <code>M-x notmuch-search</code>)</h3>
+  <h3 id="orgaef45de">Notmuch (from <code>notmuch</code> package, <code>M-x notmuch-search</code>)</h3>
   <div class="outline-text-3" id="text-orgaef45de">
   <div class="org-src-container">
   <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-beginning-of-buffer</span> notmuch-search
@@ -1788,7 +1889,7 @@
   </div>
 
   <div id="outline-container-org4bb2f57" class="outline-3">
-  <h3 id="org4bb2f57"><a id="ID-890bb9aa-8aa9-4d14-a367-d770ef9a0769"></a>Elfeed (from <code>elfeed</code> package, <code>M-x elfeed</code>)</h3>
+  <h3 id="org4bb2f57">Elfeed (from <code>elfeed</code> package, <code>M-x elfeed</code>)</h3>
   <div class="outline-text-3" id="text-org4bb2f57">
   <div class="org-src-container">
   <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-special-end-of-buffer</span> elfeed-search
@@ -2179,7 +2280,7 @@
   <pubDate>Thu, 20 Apr 2017 00:00:00 +0200</pubDate>
 
   <description><![CDATA[<div id="outline-container-orgde5c388" class="outline-3">
-  <h3 id="orgde5c388"><a id="ID-5fffafa3-4eaf-4eb9-ac20-0609b93e5435"></a>Problem</h3>
+  <h3 id="orgde5c388">Problem</h3>
   <div class="outline-text-3" id="text-orgde5c388">
   <p>
   A prefix argument changes the behaviour of a command in a way which forms a useful stand-alone command.  We don't want to supply the command with the prefix argument all the time.
@@ -2188,7 +2289,7 @@
   </div>
 
   <div id="outline-container-org4a29b90" class="outline-3">
-  <h3 id="org4a29b90"><a id="ID-f19f57e2-8e9d-4856-9c18-60336972583e"></a>Solution</h3>
+  <h3 id="org4a29b90">Solution</h3>
   <div class="outline-text-3" id="text-org4a29b90">
   <p>
   Write an interactive wrapper and pre-fill the arguments
@@ -2197,7 +2298,7 @@
   </div>
 
   <div id="outline-container-org321373c" class="outline-3">
-  <h3 id="org321373c"><a id="ID-ced49dca-c96b-4663-b4a5-0ba525a35332"></a>Motivation</h3>
+  <h3 id="org321373c">Motivation</h3>
   <div class="outline-text-3" id="text-org321373c">
   <p>
   It is awkward and annoying to constantly use prefix-arguments for commonly used operations.  Emacs has a rich history of commands using prefix arguments to subtly (or not so subtly) modify the behaviour of the base command.  If you often use a specialized variant you can save yourself a lot of pain by simply building a specialized solution.  It is not uncommon to see two prefix arguments (<kbd>C-u C-u</kbd>), but I've seen four and even five once or twice.
@@ -2206,7 +2307,7 @@
   </div>
 
   <div id="outline-container-org506bde3" class="outline-3">
-  <h3 id="org506bde3"><a id="ID-5039c9a3-7e08-46c9-9c62-88221036afb6"></a>Example</h3>
+  <h3 id="org506bde3">Example</h3>
   <div class="outline-text-3" id="text-org506bde3">
   <p>
   Emacs comes with this amazing functionality called <i>marks</i>.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the <i>mark ring</i><sup><a id="fnr.12" class="footref" href="#fn.12">12</a></sup>.  This allows you to remember multiple marks at the same time and recall them in a lifo order.
@@ -2234,7 +2335,7 @@
   </div>
   </div>
   <div id="outline-container-orge00ce52" class="outline-3">
-  <h3 id="orge00ce52"><a id="ID-66c17fce-3178-46c0-b89e-8d995f26b8c3"></a>Resolution</h3>
+  <h3 id="orge00ce52">Resolution</h3>
   <div class="outline-text-3" id="text-orge00ce52">
   <p>
   First we need to figure out which argument and with what value we will need to pre-fill.  Most of the time reading the documentation with <kbd>C-h f</kbd> will be enough to give us a clue, but sometimes inspecting the source is the only way to be sure.
@@ -2387,40 +2488,40 @@
   <h2 class="footnotes">Footnotes: </h2>
   <div id="text-footnotes">
 
-    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">And really, 99% of the time, when you say "I'm
-    going to write an org-extension", it already is in core.</div></div>
+    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">And really, 99% of the time, when you say "I'm
+    going to write an org-extension", it already is in core.</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">This is not the greatest engineering and you
+    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">This is not the greatest engineering and you
     should almost always prefer a well-tested lib over your own... on the
     other hand, being a pragmatic professional, I value my time over code
-    purity</div></div>
+    purity</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara">I might somehow package this in the future
+    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara"><p class="footpara">I might somehow package this in the future
     but haven't found a good way to plug this into existing themes.  If
-    you have ideas let me know!</div></div>
+    you have ideas let me know!</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara">The
-    package <a href="https://github.com/emacs-pe/docker-tramp.el">docker-tramp.el</a> is available on MELPA</div></div>
+    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara"><p class="footpara">The
+    package <a href="https://github.com/emacs-pe/docker-tramp.el">docker-tramp.el</a> is available on MELPA</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5">5</a></sup> <div class="footpara">Now available on MELPA/Stable</div></div>
+    <div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5">5</a></sup> <div class="footpara"><p class="footpara">Now available on MELPA/Stable</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6">6</a></sup> <div class="footpara">Emacs RE engine is a lot less powerful than PCRE engines, it doesn't support look-ahead nor back-references among other less commonly used features</div></div>
+    <div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6">6</a></sup> <div class="footpara"><p class="footpara">Emacs RE engine is a lot less powerful than PCRE engines, it doesn't support look-ahead nor back-references among other less commonly used features</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7">7</a></sup> <div class="footpara">For those familiar with Parsec, this is basically the <code>try</code> combinator</div></div>
+    <div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7">7</a></sup> <div class="footpara"><p class="footpara">For those familiar with Parsec, this is basically the <code>try</code> combinator</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.8" class="footnum" href="#fnr.8">8</a></sup> <div class="footpara">Yes, this is awfully inefficient.  The author later rectifies this with a beautiful and fast linear algorithm.</div></div>
+    <div class="footdef"><sup><a id="fn.8" class="footnum" href="#fnr.8">8</a></sup> <div class="footpara"><p class="footpara">Yes, this is awfully inefficient.  The author later rectifies this with a beautiful and fast linear algorithm.</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.9" class="footnum" href="#fnr.9">9</a></sup> <div class="footpara">To see this just imagine that 1 and 2 is actually 0 and 1 and you are generating all the binary numbers taking up to \(n\) bits.  This results in \((2^n)-1\) options.</div></div>
+    <div class="footdef"><sup><a id="fn.9" class="footnum" href="#fnr.9">9</a></sup> <div class="footpara"><p class="footpara">To see this just imagine that 1 and 2 is actually 0 and 1 and you are generating all the binary numbers taking up to \(n\) bits.  This results in \((2^n)-1\) options.</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.10" class="footnum" href="#fnr.10">10</a></sup> <div class="footpara">We are actually using <i>strong</i> (a.k.a. <i>complete</i>) <a href="https://en.wikipedia.org/wiki/Mathematical_induction#Complete_induction">induction</a>.  This is equivalent to the simple induction you might have learned at university.</div></div>
+    <div class="footdef"><sup><a id="fn.10" class="footnum" href="#fnr.10">10</a></sup> <div class="footpara"><p class="footpara">We are actually using <i>strong</i> (a.k.a. <i>complete</i>) <a href="https://en.wikipedia.org/wiki/Mathematical_induction#Complete_induction">induction</a>.  This is equivalent to the simple induction you might have learned at university.</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.11" class="footnum" href="#fnr.11">11</a></sup> <div class="footpara">This code depends on <code>json</code> (built-in) and <code>json-mode</code> (get from MELPA).</div></div>
+    <div class="footdef"><sup><a id="fn.11" class="footnum" href="#fnr.11">11</a></sup> <div class="footpara"><p class="footpara">This code depends on <code>json</code> (built-in) and <code>json-mode</code> (get from MELPA).</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.12" class="footnum" href="#fnr.12">12</a></sup> <div class="footpara">A ring in Emacs is basically a stack where popped elements go to the bottom</div></div>
+    <div class="footdef"><sup><a id="fn.12" class="footnum" href="#fnr.12">12</a></sup> <div class="footpara"><p class="footpara">A ring in Emacs is basically a stack where popped elements go to the bottom</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.13" class="footnum" href="#fnr.13">13</a></sup> <div class="footpara">A variable is <i>special</i> if defined using <code>defvar</code>.</div></div>
+    <div class="footdef"><sup><a id="fn.13" class="footnum" href="#fnr.13">13</a></sup> <div class="footpara"><p class="footpara">A variable is <i>special</i> if defined using <code>defvar</code>.</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.14" class="footnum" href="#fnr.14">14</a></sup> <div class="footpara">Similar to how Ablative Absolute can make the lengthy <i>temporal cum</i> constructions simpler</div></div>
+    <div class="footdef"><sup><a id="fn.14" class="footnum" href="#fnr.14">14</a></sup> <div class="footpara"><p class="footpara">Similar to how Ablative Absolute can make the lengthy <i>temporal cum</i> constructions simpler</p></div></div>
 
 
   </div>

@@ -1,0 +1,89 @@
+#+TITLE: Refiling hydra with pre-defined targets
+#+DATE: [2019-02-10 Sun 13:52]
+
+* DONE Refiling hydra with pre-defined targets                :ignore:published:
+CLOSED: [2019-02-10 Sun 13:52]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2019-02-10 Sun 13:52]
+:END:
+:CLOCK:
+CLOCK: [2019-02-10 Sun 13:17]
+:END:
+
+I'm a heavy =org-capture= user and I use about 10 templates to save the
+ideas/tasks to appropriate places (work / life / emacs / other
+projects / reading...).  Sometimes, however, it is quite difficult to
+determine at the time of capture where to put the note, or it would
+take a lot of time to categorize properly... or sometimes I'm just
+lazy.  For these situations I use a general =refile.org= file.  Anything
+I don't want to deal with right now goes there.
+
+Then I often end up with 200+ notes in this file and I have to deal
+with it somehow during my weekly reviews.  Many items I simply delete,
+but some I refine and then refile away to where they belong.
+
+I use about 10 huge org files to store my data and simply calling
+=org-refile= is very slow and the number of targets grows into tens of
+thousands which makes the experience sub-optimal.
+
+I've written a simple Elisp =defmacro= to generate specialized versions
+of =org-refile= where I can limit the targets to one file or a subset of
+files.  This is done by =let=-binding =org-refine-targets= variable and
+then calling =org-refile=---it will pick up the new setting.  I also
+automatically clear the cache because during this process I often add
+or move headlines around and the cache is most of the time stale.  In
+practice it's not a problem because refiling to just one file is
+fast-enough to rebuild the cache on-the-go.
+
+#+begin_src elisp
+(defmacro my-org-make-refile-command (fn-suffix refile-targets)
+  "Generate a command to call `org-refile' with modified targets."
+  `(defun ,(intern (concat "my-org-refile-" (symbol-name fn-suffix))) ()
+     ,(format "`org-refile' to %S" refile-targets)
+     (interactive)
+     (org-refile-cache-clear)
+     (let ((org-refile-target-verify-function nil)
+           (org-refile-targets ,refile-targets))
+       (call-interactively 'org-refile))))
+#+end_src
+
+It's quite straight-forward, we have a =defun= skeleton and we splice
+the name and the target there.  The expansion looks like this
+
+#+begin_src elisp :tangle no
+(my-org-make-refile-command kb '(("~/data/documents/kb.org" :maxlevel . 9)))
+
+;; expands to
+
+(defun my-org-refile-kb nil
+  "`org-refile' to (quote ((\"~/data/documents/kb.org\" :maxlevel . 9)))"
+  (interactive)
+  (org-refile-cache-clear)
+  (let
+      ((org-refile-target-verify-function nil)
+       (org-refile-targets
+        '(("~/data/documents/kb.org" :maxlevel . 9))))
+    (call-interactively 'org-refile)))
+#+end_src
+
+Throw in a cool [[https://github.com/abo-abo/hydra][hydra]] and you're all set!
+
+#+begin_src elisp
+(my-org-make-refile-command kb '(("~/data/documents/kb.org" :maxlevel . 9)))
+(my-org-make-refile-command reading '(("~/org/reading.org" :maxlevel . 9)))
+(my-org-make-refile-command this-file `((,(buffer-file-name) :maxlevel . 9)))
+
+(defhydra my-org-refile-hydra (:color blue :hint nil)
+  "
+_t_his file
+
+Special files:
+---------------------
+_k_b.org    _r_eading.org"
+  ("k" my-org-refile-kb)
+  ("r" my-org-refile-reading)
+  ("t" my-org-refile-this-file))
+
+(bind-key "C-c r" #'my-org-refile-hydra/body org-mode-map)
+#+end_src
+
