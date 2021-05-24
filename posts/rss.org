@@ -1,7 +1,16 @@
+* Use org-radiobutton to select an option from a list
+:PROPERTIES:
+:RSS_PERMALINK: 2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html
+:PUBDATE: <2018-03-11>
+:ID:       61c901e3-644e-464b-9900-4055ceda8285
+:END:
+#+include: "/home/matus/documents/blog/posts/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.org" :lines "3-"
+
 * Refiling hydra with pre-defined targets
 :PROPERTIES:
 :RSS_PERMALINK: 2019-02-10-Refiling-hydra-with-pre-defined-targets.html
 :PUBDATE: <2019-02-10>
+:ID:       5191596b-e375-4493-ab88-e44f042fd94e
 :END:
 #+include: "/home/matus/documents/blog/posts/2019-02-10-Refiling-hydra-with-pre-defined-targets.org" :lines "3-"
 
@@ -9,6 +18,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-02-02-Org-mode-and-google-calendar-sync.html
 :PUBDATE: <2019-02-02>
+:ID:       0d14866f-4f04-4159-bbb6-6aed0e14c1dc
 :END:
 #+include: "/home/matus/documents/blog/posts/2019-02-02-Org-mode-and-google-calendar-sync.org" :lines "3-"
 
@@ -16,6 +26,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.html
 :PUBDATE: <2019-01-23>
+:ID:       f16fcb2c-b7b2-4833-b66e-cfad77068c36
 :END:
 #+include: "/home/matus/documents/blog/posts/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.org" :lines "3-"
 
@@ -23,6 +34,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html
 :PUBDATE: <2019-01-03>
+:ID:       02c63d29-ad5a-446b-acc5-c1bc622f48be
 :END:
 #+include: "/home/matus/documents/blog/posts/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.org" :lines "3-"
 
@@ -30,6 +42,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2018-12-23-Multiline-fontification-with-org-emphasis-alist.html
 :PUBDATE: <2018-12-23>
+:ID:       8ab946fc-9cdf-43ae-aabc-f268cfb3ddac
 :END:
 #+include: "/home/matus/documents/blog/posts/2018-12-23-Multiline-fontification-with-org-emphasis-alist.org" :lines "3-"
 
@@ -37,6 +50,7 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html
 :PUBDATE: <2018-08-12>
+:ID:       cf79a10d-235d-418b-b10d-d4993d31df19
 :END:
 #+include: "/home/matus/documents/blog/posts/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.org" :lines "3-"
 
@@ -44,20 +58,15 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html
 :PUBDATE: <2018-04-10>
+:ID:       30a37c84-20aa-419b-9396-0aa1c0f7eb25
 :END:
 #+include: "/home/matus/documents/blog/posts/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.org" :lines "3-"
-
-* Use org-radiobutton to select an option from a list
-:PROPERTIES:
-:RSS_PERMALINK: 2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html
-:PUBDATE: <2018-03-11>
-:END:
-#+include: "/home/matus/documents/blog/posts/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.org" :lines "3-"
 
 * Smartparens is 5 years old today
 :PROPERTIES:
 :RSS_PERMALINK: 2017-11-17-Smartparens-is-5-years-old-today.html
 :PUBDATE: <2017-11-17>
+:ID:       b34fdc13-12ab-4d41-840f-5c3c8122b8dc
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-11-17-Smartparens-is-5-years-old-today.org" :lines "3-"
 
@@ -65,111 +74,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.html
 :PUBDATE: <2017-10-08>
+:ID:       2135ed30-80b1-49d4-95c2-8eafe297ed17
 :END:
 #+include: "/home/matus/documents/blog/posts/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.org" :lines "3-"
-
-* Maximize the org-capture buffer
-:PROPERTIES:
-:RSS_PERMALINK: 2017-09-02-Maximize-the-org-capture-buffer.html
-:PUBDATE: <2017-09-02>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-09-02-Maximize-the-org-capture-buffer.org" :lines "3-"
-
-* Collapse unique nested paths in dired with dired-collapse-mode
-:PROPERTIES:
-:RSS_PERMALINK: 2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.html
-:PUBDATE: <2017-07-15>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-07-15-Collapse-unique-nested-paths-in-dired-with-dired-collapse-mode.org" :lines "3-"
-
-* Font-locking with custom matchers
-:PROPERTIES:
-:RSS_PERMALINK: 2017-06-11-Font-locking-with-custom-matchers.html
-:PUBDATE: <2017-06-11>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-06-11-Font-locking-with-custom-matchers.org" :lines "3-"
-
-* The absolute awesomeness of anchored font-lock matchers
-:PROPERTIES:
-:RSS_PERMALINK: 2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html
-:PUBDATE: <2017-06-01>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org" :lines "3-"
-
-* Generating all groupings of (1|2)* summing up to m
-:PROPERTIES:
-:RSS_PERMALINK: 2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.html
-:PUBDATE: <2017-05-28>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.org" :lines "3-"
-
-* Fontify done checkbox items in org-mode
-:PROPERTIES:
-:RSS_PERMALINK: 2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
-:PUBDATE: <2017-05-25>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-05-25-Fontify-done-checkbox-items-in-org-mode.org" :lines "3-"
-
-* Automatically remove inherited tags from tasks after refiling
-:PROPERTIES:
-:RSS_PERMALINK: 2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.html
-:PUBDATE: <2017-05-09>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-05-09-Automatically-remove-inherited-tags-from-tasks-after-refiling.org" :lines "3-"
-
-* Enhanced beginning- and end-of-buffer in special mode buffers (dired etc.)
-:PROPERTIES:
-:RSS_PERMALINK: 2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).html
-:PUBDATE: <2017-05-06>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-05-06-Enhanced-beginning--and-end-of-buffer-in-special-mode-buffers-(dired-etc.).org" :lines "3-"
-
-* WAR STORY: Prevent point jumping around invisible text
-:PROPERTIES:
-:RSS_PERMALINK: 2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.html
-:PUBDATE: <2017-05-03>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-05-03-WAR-STORY:-Prevent-point-jumping-around-invisible-text.org" :lines "3-"
-
-* Support for imenu in dired
-:PROPERTIES:
-:RSS_PERMALINK: 2017-05-01-Support-for-imenu-in-dired.html
-:PUBDATE: <2017-05-01>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-05-01-Support-for-imenu-in-dired.org" :lines "3-"
-
-* Turn on context-aware modes on shell command output
-:PROPERTIES:
-:RSS_PERMALINK: 2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.html
-:PUBDATE: <2017-04-29>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.org" :lines "3-"
-
-* Save write-protected files with sudo automatically
-:PROPERTIES:
-:RSS_PERMALINK: 2017-04-20-Save-write-protected-files-with-sudo-automatically.html
-:PUBDATE: <2017-04-20>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-04-20-Save-write-protected-files-with-sudo-automatically.org" :lines "3-"
-
-* Archive subtrees under the same hierarchy as original in the archive files
-:PROPERTIES:
-:RSS_PERMALINK: 2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.html
-:PUBDATE: <2017-04-20>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-04-20-Archive-subtrees-under-the-same-hierarchy-as-original-in-the-archive-files.org" :lines "3-"
-
-* Annoying prefix argument
-:PROPERTIES:
-:RSS_PERMALINK: 2017-04-20-Annoying-prefix-argument.html
-:PUBDATE: <2017-04-20>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-04-20-Annoying-prefix-argument.org" :lines "3-"
-
-* Ablative of comparison vs quam
-:PROPERTIES:
-:RSS_PERMALINK: 2017-04-20-Ablative-of-comparison-vs-quam.html
-:PUBDATE: <2017-04-20>
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-04-20-Ablative-of-comparison-vs-quam.org" :lines "3-"
-

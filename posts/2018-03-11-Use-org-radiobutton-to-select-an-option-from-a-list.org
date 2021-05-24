@@ -1,11 +1,12 @@
 #+TITLE: Use org-radiobutton to select an option from a list
 #+DATE: [2018-03-11 Sun 15:50]
 
-* DONE Use org-radiobutton to select an option from a list :ignore:
+* Use org-radiobutton to select an option from a list         :ignore:published:
 CLOSED: [2018-03-11 Sun 15:50]
 :PROPERTIES:
 :BLOG_FILENAME: 2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list
 :PUBDATE:  [2018-03-11 Sun 15:50]
+:ID:       de293a52-8c9c-464c-8fb7-e847ca40694e
 :END:
 :LOGBOOK:
 - State "DONE"       from              [2018-03-11 Sun 15:50]
@@ -15,8 +16,14 @@ CLOCK: [2018-03-11 Sun 15:20]--[2018-03-11 Sun 15:50] =>  0:30
 :END:
 
 #+BEGIN_SRC elisp :exports none
-(use-package org-radiobutton)
+(use-package org-radiobutton
+  :config
+  (global-org-radiobutton-mode 1))
 #+END_SRC
+
+|       Date | Change                                                                                                                                                                     |
+|------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2021-05-24 | Since =org-mode= 9.4.0 there is a built-in =org-list-checkbox-radio-mode=.  It works very similar to this package so make sure to check it out and possibly migrate your org files. |
 
 Ever since I've come across the [[http://howardism.org/Technical/Emacs/literate-devops.html][Literate DevOps]] article I was hooked
 and immediately started writing down "org notebooks" every time an
