@@ -14,8 +14,8 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Mon, 24 May 2021 18:31:51 +0200</pubDate>
-  <lastBuildDate>Mon, 24 May 2021 18:31:51 +0200</lastBuildDate>
+  <pubDate>Sat, 29 May 2021 15:10:20 +0200</pubDate>
+  <lastBuildDate>Sat, 29 May 2021 15:10:20 +0200</lastBuildDate>
   <generator>Emacs 26.1 Org-mode 9.2.1</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
@@ -25,180 +25,265 @@
   </image>
 
   <item>
-    <title>Use org-radiobutton to select an option from a list</title>
-    <link>https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</link>
+    <title>Restrict agenda to multiple subtrees</title>
+    <link>https://fuco1.github.io/2021-05-29-Restrict-agenda-to-multiple-subtrees.html</link>
     <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</guid>
-    <pubDate>Sun, 11 Mar 2018 00:00:00 +0100</pubDate>
+    <guid isPermaLink="false">https://fuco1.github.io/2021-05-29-Restrict-agenda-to-multiple-subtrees.html</guid>
+    <pubDate>Sat, 29 May 2021 00:00:00 +0200</pubDate>
 
-    <description><![CDATA[<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-    <colgroup>
-    <col  class="org-right" />
-
-    <col  class="org-left" />
-    </colgroup>
-    <thead>
-    <tr>
-    <th scope="col" class="org-right">Date</th>
-    <th scope="col" class="org-left">Change</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-    <td class="org-right">2021-05-24</td>
-    <td class="org-left">Since <code>org-mode</code> 9.4.0 there is a built-in <code>org-list-checkbox-radio-mode</code>.  It works very similar to this package so make sure to check it out and possibly migrate your org files.</td>
-    </tr>
-    </tbody>
-    </table>
-
-    <p>
-    Ever since I've come across the <a href="http://howardism.org/Technical/Emacs/literate-devops.html">Literate DevOps</a> article I was hooked
-    and immediately started writing down "org notebooks" every time an
-    incident occured along with all the code and steps on how to fix it in
-    case it might happen in the future (protip: it <i>will</i> happen again).
+    <description><![CDATA[<p>
+    The function <code>org-agenda-set-restriction-lock</code> is very useful for
+    speeding up agenda when working on a specific project (implemented as
+    a file or an Orgmode subtree).  Personally, I use two agenda views,
+    one "quick" with 5 simple sections and one "full" with 10 rather
+    complicated sections.
     </p>
 
     <p>
-    Recently we had some problems with webhook requests behaving weird and
-    so I created a little notebook to query the mongo database where we
-    store all the requests and some more functions (ranging from elisp to
-    jq to ruby) to process the results.  As you sure know, threading data
-    between code blocks in different languages is painless with <code>org-mode</code>
-    and babel.
+    The quick one lists all the actionable tasks, all the stuck tasks or
+    notes that need to be processed and refiled.  The full one lists all
+    the tasks from the project, including hierarchical project
+    dependencies, tasks on hold, bugs, waiting tasks and so on.  The full
+    view takes a lot more processing power and is not useful maybe 80% of
+    the time when I simply want to find work to do next.
     </p>
 
     <p>
-    So imagine a block like this (using <a href="https://github.com/krisajenkins/ob-mongo">ob-mongo</a>):
+    For the times when I want to get a complete overview over a project
+    and do some light management or planning, I use the full agenda view.
+    </p>
+
+    <p>
+    One thing that kept bothering me was that the only option was to
+    restrict to a file or a subtree, but nothing in
+    between<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>, such as a
+    region spanning multiple subtrees.  Since I'm not a huge fan of
+    nesting headers just for the sake of nesting (flatter structures and
+    <a href="https://github.com/Fuco1/org-node-graph">graphs</a> are much nicer for organization).
+    </p>
+
+    <p>
+    Luckily, the function <code>org-agenda-set-restriction-lock</code> is fairly
+    hackable.  It uses overlays and markers for managing the restriction,
+    so all we need to do is grab the current active region's bounds and
+    set the org variables appropriately.
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-org"><span style="color: #73d216;">#+NAME: query</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port 27017</span>
-    <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
-    <span style="color: #b4fa70;">#+END_SRC</span>
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-agenda-set-restriction-lock</span> <span style="color: #888a85;">(</span>orig-fun <span style="color: #8cc4ff;">&amp;optional</span> type<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">if</span> <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span>use-region-p<span style="color: #888a85;">))</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">unless a region is active, use the original function for</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">cancel/file/subtree</span>
+    <span style="color: #888a85;">(</span>funcall orig-fun type<span style="color: #888a85;">)</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">here we do approximately the same as subtree except find the</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">beginning of subtree at region's beginning and end of subtree</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">at region's end (could span multiple subtrees)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> org-agenda-restrict <span style="color: #888a85;">(</span>current-buffer<span style="color: #888a85;">))</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">use 'my-region to avoid potential future conflict</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> org-agenda-overriding-restriction <span style="color: #e6a8df;">'my-region</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>put <span style="color: #e6a8df;">'org-agenda-files</span> <span style="color: #e6a8df;">'org-restrict</span>
+    <span style="color: #888a85;">(</span>list <span style="color: #888a85;">(</span>buffer-file-name <span style="color: #888a85;">(</span>buffer-base-buffer<span style="color: #888a85;">))))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>beg <span style="color: #888a85;">(</span>region-beginning<span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span>end <span style="color: #888a85;">(</span>region-end<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
+    <span style="color: #888a85;">(</span>goto-char beg<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>org-back-to-heading t<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> beg <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
+    <span style="color: #888a85;">(</span>goto-char end<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>org-end-of-subtree t t<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> end <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span>move-overlay org-agenda-restriction-lock-overlay
+    beg
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">if</span> org-agenda-restriction-lock-highlight-subtree
+    end
+    <span style="color: #888a85;">(</span>point-at-eol<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span>move-marker org-agenda-restrict-begin beg<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>move-marker org-agenda-restrict-end end<span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span>message <span style="color: #e9b96e;">"Locking agenda restriction to region"</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>org-agenda-maybe-redo<span style="color: #888a85;">)))</span>
+
+    <span style="color: #888a85;">(</span>advice-add <span style="color: #e6a8df;">'org-agenda-set-restriction-lock</span> <span style="color: #ad7fa8;">:around</span> <span style="color: #8cc4ff;">#'my-org-agenda-set-restriction-lock</span><span style="color: #888a85;">)</span>
     </pre>
     </div>
-
-    <p>
-    This gives me the most recent request to the <code>AddCustomer</code> endpoint.
-    The results of this block are then piped into other code blocks to
-    process the request, you can imagine how that looks.
-    </p>
-
-    <p>
-    Usually I run the entire app stack locally but we also have separate
-    staging and production environments.  So after I run the notebook on
-    my own local stack I want to try it out in staging.
-    </p>
-
-    <p>
-    I use <a href="https://github.com/rejeep/prodigy.el">prodigy</a> to manage my ssh tunnels and so all I need to do is
-    change the port to one pointing to staging and re-run the notebook.
-    The problem is that I have multiple query blocks and so I have to go
-    and change all of the <code>:port</code> arguments.
-    </p>
-
-    <p>
-    I have solved this by creating a block that would work as a source for
-    the port and then reference it dynamically in the header line:
-    </p>
-
-    <div class="org-src-container">
-    <pre class="src src-org"><span style="color: #73d216;">#+NAME: port</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
-    <span style="background-color: #232a2b;">27017</span>
-    <span style="color: #b4fa70;">#+END_SRC</span>
-
-    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
-    <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
-    <span style="color: #b4fa70;">#+END_SRC</span>
-    </pre>
-    </div>
-
-    <p>
-    Since we can call elisp in the header I use <code>org-babel-ref-resolve</code> and
-    give it the name of the source block and babel will automatically
-    replace it with the value of the block.
-    </p>
-
-    <p>
-    This solves the problem of changing the constant at one place but as I
-    got to work with more environments I tended to forget what port was
-    what.  So I created a list above the block to remind me of the
-    available values:
-    </p>
-
-    <div class="org-src-container">
-    <pre class="src src-org">Use one of the following ports to operate on the given environment:
-
-    <span style="color: #8cc4ff; font-weight: bold;">- localhost ::</span> 27017
-    <span style="color: #8cc4ff; font-weight: bold;">- staging ::</span> 27004
-    <span style="color: #8cc4ff; font-weight: bold;">- production ::</span> 27005
-
-    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
-    <span style="background-color: #232a2b;">27017</span>
-    <span style="color: #b4fa70;">#+END_SRC</span>
-
-    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
-    <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
-    <span style="color: #b4fa70;">#+END_SRC</span>
-    </pre>
-    </div>
-
-    <p>
-    We can use the org mode list description syntax <code>foo ::</code> to attach a
-    label to each item and leave the number as the "value".
-    </p>
-
-    <p>
-    This is starting to look an awful lot like a list of choices I could
-    pick from.  So my thinking goes like this: let's make it a checkbox
-    list and then select the option by checking the option.  The trouble
-    there is that toggling the input would require me to un-toggle the
-    current one and then toggle the desired option.  Ideally, toggling one
-    checkbox would uncheck the other so that there is always exactly one
-    option selected: in other words, I wanted a radiobutton list.
-    </p>
-
-    <p>
-    After a quick google session I've found (via <a href="http://irreal.org/blog/?p=4644">Irreal</a>) that <a href="http://kitchingroup.cheme.cmu.edu/blog/2015/10/05/A-checkbox-list-in-org-mode-with-one-value/">John Kitchin</a>
-    already figured this out.  I took his code and cleaned it up a bit to
-    work with "modern" org mode (the post is three years old) and packaged
-    it as <a href="https://github.com/Fuco1/org-radiobutton">org-radiobutton</a>.
-    </p>
-
-    <p>
-    Now I have a nice menu I can go to and with a single <code>C-c C-c</code> on the
-    option I want I can select the environment where to run the notebook.
-    Org mode is so cool!
-    </p>
-
-    <div class="org-src-container">
-    <pre class="src src-org">Check one of the following ports to operate on the given environment:
-
-    <span style="color: #b4fa70;">#+attr_org:</span><span style="color: #73d216;"> :radio</span>
-    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
-    <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> localhost ::</span> 27017
-    <span style="color: #888a85; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> staging ::</span><span style="color: #888a85;"> 27004</span>
-    <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> production ::</span> 27005
-
-    <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
-    <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-radiobutton-value "port")</span>
-    <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
-    <span style="color: #b4fa70;">#+END_SRC</span>
-    </pre>
-    </div>
-
-    <p>
-    I'm going over all of my notebooks converting all the ugly option
-    hacks to this setup and it is so damn pleasing! :D
-    </p>
     ]]></description>
+</item>
+
+<item>
+  <title>Use org-radiobutton to select an option from a list</title>
+  <link>https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</guid>
+  <pubDate>Sun, 11 Mar 2018 00:00:00 +0100</pubDate>
+
+  <description><![CDATA[<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+  <colgroup>
+  <col  class="org-right" />
+
+  <col  class="org-left" />
+  </colgroup>
+  <thead>
+  <tr>
+  <th scope="col" class="org-right">Date</th>
+  <th scope="col" class="org-left">Change</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td class="org-right">2021-05-24</td>
+  <td class="org-left">Since <code>org-mode</code> 9.4.0 there is a built-in <code>org-list-checkbox-radio-mode</code>.  It works very similar to this package so make sure to check it out and possibly migrate your org files.</td>
+  </tr>
+  </tbody>
+  </table>
+
+  <p>
+  Ever since I've come across the <a href="http://howardism.org/Technical/Emacs/literate-devops.html">Literate DevOps</a> article I was hooked
+  and immediately started writing down "org notebooks" every time an
+  incident occured along with all the code and steps on how to fix it in
+  case it might happen in the future (protip: it <i>will</i> happen again).
+  </p>
+
+  <p>
+  Recently we had some problems with webhook requests behaving weird and
+  so I created a little notebook to query the mongo database where we
+  store all the requests and some more functions (ranging from elisp to
+  jq to ruby) to process the results.  As you sure know, threading data
+  between code blocks in different languages is painless with <code>org-mode</code>
+  and babel.
+  </p>
+
+  <p>
+  So imagine a block like this (using <a href="https://github.com/krisajenkins/ob-mongo">ob-mongo</a>):
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-org"><span style="color: #73d216;">#+NAME: query</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port 27017</span>
+  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+  </pre>
+  </div>
+
+  <p>
+  This gives me the most recent request to the <code>AddCustomer</code> endpoint.
+  The results of this block are then piped into other code blocks to
+  process the request, you can imagine how that looks.
+  </p>
+
+  <p>
+  Usually I run the entire app stack locally but we also have separate
+  staging and production environments.  So after I run the notebook on
+  my own local stack I want to try it out in staging.
+  </p>
+
+  <p>
+  I use <a href="https://github.com/rejeep/prodigy.el">prodigy</a> to manage my ssh tunnels and so all I need to do is
+  change the port to one pointing to staging and re-run the notebook.
+  The problem is that I have multiple query blocks and so I have to go
+  and change all of the <code>:port</code> arguments.
+  </p>
+
+  <p>
+  I have solved this by creating a block that would work as a source for
+  the port and then reference it dynamically in the header line:
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-org"><span style="color: #73d216;">#+NAME: port</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
+  <span style="background-color: #232a2b;">27017</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+
+  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
+  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+  </pre>
+  </div>
+
+  <p>
+  Since we can call elisp in the header I use <code>org-babel-ref-resolve</code> and
+  give it the name of the source block and babel will automatically
+  replace it with the value of the block.
+  </p>
+
+  <p>
+  This solves the problem of changing the constant at one place but as I
+  got to work with more environments I tended to forget what port was
+  what.  So I created a list above the block to remind me of the
+  available values:
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-org">Use one of the following ports to operate on the given environment:
+
+  <span style="color: #8cc4ff; font-weight: bold;">- localhost ::</span> 27017
+  <span style="color: #8cc4ff; font-weight: bold;">- staging ::</span> 27004
+  <span style="color: #8cc4ff; font-weight: bold;">- production ::</span> 27005
+
+  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
+  <span style="background-color: #232a2b;">27017</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+
+  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
+  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+  </pre>
+  </div>
+
+  <p>
+  We can use the org mode list description syntax <code>foo ::</code> to attach a
+  label to each item and leave the number as the "value".
+  </p>
+
+  <p>
+  This is starting to look an awful lot like a list of choices I could
+  pick from.  So my thinking goes like this: let's make it a checkbox
+  list and then select the option by checking the option.  The trouble
+  there is that toggling the input would require me to un-toggle the
+  current one and then toggle the desired option.  Ideally, toggling one
+  checkbox would uncheck the other so that there is always exactly one
+  option selected: in other words, I wanted a radiobutton list.
+  </p>
+
+  <p>
+  After a quick google session I've found (via <a href="http://irreal.org/blog/?p=4644">Irreal</a>) that <a href="http://kitchingroup.cheme.cmu.edu/blog/2015/10/05/A-checkbox-list-in-org-mode-with-one-value/">John Kitchin</a>
+  already figured this out.  I took his code and cleaned it up a bit to
+  work with "modern" org mode (the post is three years old) and packaged
+  it as <a href="https://github.com/Fuco1/org-radiobutton">org-radiobutton</a>.
+  </p>
+
+  <p>
+  Now I have a nice menu I can go to and with a single <code>C-c C-c</code> on the
+  option I want I can select the environment where to run the notebook.
+  Org mode is so cool!
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-org">Check one of the following ports to operate on the given environment:
+
+  <span style="color: #b4fa70;">#+attr_org:</span><span style="color: #73d216;"> :radio</span>
+  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> localhost ::</span> 27017
+  <span style="color: #888a85; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> staging ::</span><span style="color: #888a85;"> 27004</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> production ::</span> 27005
+
+  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
+  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-radiobutton-value "port")</span>
+  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
+  <span style="color: #b4fa70;">#+END_SRC</span>
+  </pre>
+  </div>
+
+  <p>
+  I'm going over all of my notebooks converting all the ugly option
+  hacks to this setup and it is so damn pleasing! :D
+  </p>
+  ]]></description>
 </item>
 
 <item>
@@ -399,7 +484,7 @@
   English.  Given the fact that the past and current org maintainers
   also don't speak English as a first language kind of led me to expect
   there to be some setting to inherit the input method of the original
-  buffer<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  Sadly, I
+  buffer<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.  Sadly, I
   couldn't find it, so I decided to "roll my own".
   </p>
 
@@ -407,7 +492,7 @@
   Now here comes the part that blew my mind... I've realized I wrote the
   whole code in under 2 minutes... where simply trying to read the
   manual and search the code would easily take more
-  time<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.  This is the nice feature of being an Emacs power-user.  I
+  time<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup>.  This is the nice feature of being an Emacs power-user.  I
   wrote the code on the first try, registered it in a hook which name
   I've guessed and it all worked flawlessly.  Nice!
   </p>
@@ -734,7 +819,7 @@
   such as headers, code text, emphasis and so on.  I then make all the
   other modes inherit from this set of faces and thus achieve a
   consistent look and feel across all the markup
-  modes.<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup>.  Have a look at the definitions if this
+  modes.<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup>.  Have a look at the definitions if this
   makes no sense to you yet!
   </p>
 
@@ -878,116 +963,25 @@
   </p>
   ]]></description>
 </item>
-
-<item>
-  <title>Using bookmarks with eshell and docker-tramp</title>
-  <link>https://fuco1.github.io/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.html</link>
-  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.html</guid>
-  <pubDate>Sun, 08 Oct 2017 00:00:00 +0200</pubDate>
-
-  <description><![CDATA[<p>
-  Emacs comes with a pretty extensible bookmarking system.  As expected,
-  you can bookmark files (including positions in the file!) in order to
-  quickly navigate to commonly used files.  I use this for my config
-  files, personal/gdt org files, my ledger file and so on.
-  </p>
-
-  <p>
-  Thanks to the Emacs philosophy of everything being a buffer you can
-  also bookmark a plethora of special buffers such as email buffers,
-  elfeed entries, info pages, help pages, dired buffers and many more.
-  Pretty much any buffer which can be reconstructed from a set of input
-  arguments can be bookmarked.
-  </p>
-
-  <p>
-  As a bonus it all works through the same interface, by default bound
-  to <code>C-x r m</code>, so you can just hit that to see if the buffer's type is
-  supported or not.
-  </p>
-
-  <p>
-  Adding support for new buffers is also amazingly simple.  All you need
-  to do is define a function which makes a bookmark <i>record</i>.  A bookmark
-  record is simply an alist with arbitrary data.  You can save any state
-  there that is necessary for the recreation of the buffer.  The only
-  required key is <code>handler</code> which has a function as a value.  This
-  function is given the entire bookmark record and is responsible for
-  recreating the buffer.
-  </p>
-
-  <p>
-  You then locally assign (with <code>setq-local</code>) this record creating
-  function to <code>bookmark-make-record-function</code> which is internally used by
-  <code>bookmark.el</code> when you ask it to create a record.
-  </p>
-
-  <p>
-  Recently I've been using <a href="https://www.docker.com/">docker</a> (especially <a href="https://docs.docker.com/compose/">docker-compose</a>) a lot and
-  one thing that comes up fairly often during development is that you
-  might want to execute some commands inside the container (for example
-  when you are using the <a href="https://medium.com/@alexeiled/docker-pattern-the-build-container-b0d0e86ad601">build container pattern</a>).
-  </p>
-
-  <p>
-  What bothered me was the fact that I had to leave Emacs, jump to the
-  terminal and fire away the commands in there.  Turns out someone
-  clever figured out a way of using TRAMP<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup> to connect into docker
-  containers.  Combined with this, I can use eshell to jump into docker
-  container and execute commands in there.  Whoa!
-  </p>
-
-  <pre class="example">
-  [12:15:50]:~/$ docker ps
-  CONTAINER ID        IMAGE                 NAMES
-  e015daa0ceac        fuco1/zathura:0.3.7   focused_hugle
-  [12:15:52]:~/$ cd /docker:focused_hugle:/
-  [12:17:01]:/docker:focused_hugle:$ ls
-  bin   etc     lib    mnt   root  srv  usr      zathura-cb           zathura-ps
-  boot  girara  lib64  opt   run   sys  var      zathura-djvu
-  dev   home    media  proc  sbin  tmp  zathura  zathura-pdf-poppler
-  </pre>
-
-  <p>
-  To tie all of this together I've written a small package
-  <a href="https://github.com/Fuco1/eshell-bookmark">eshell-bookmark</a><sup><a id="fnr.5" class="footref" href="#fn.5">5</a></sup>
-  which adds bookmark support to eshell buffers.  More specifically,
-  when the bookmark is activated it tries to open an eshell in the
-  directory where the bookmark was created.  If an eshell session
-  already exists, it just =cd=s into that directory.  The entire package
-  is less than 30 lines including docstrings.  This is really the ideal
-  of extensibility.
-  </p>
-
-  <p>
-  Thanks to <code>docker-compose</code> containers having predictable names, I can
-  now bookmark each container's eshell session and quickly jump between
-  them as necessary, all from within Emacs.  No more <code>$ docker-compose
-  exec application ...</code>!
-  </p>
-  ]]></description>
-</item>
 <div id="footnotes">
   <h2 class="footnotes">Footnotes: </h2>
   <div id="text-footnotes">
 
-    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">And really, 99% of the time, when you say "I'm
+    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">While it is possible to restrict to a
+    region from the org-agenda speed dial, I find it quite impractical and
+    prefer to do the restrictions from the project's buffer</p></div></div>
+
+    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">And really, 99% of the time, when you say "I'm
     going to write an org-extension", it already is in core.</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">This is not the greatest engineering and you
+    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara"><p class="footpara">This is not the greatest engineering and you
     should almost always prefer a well-tested lib over your own... on the
     other hand, being a pragmatic professional, I value my time over code
     purity</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara"><p class="footpara">I might somehow package this in the future
+    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara"><p class="footpara">I might somehow package this in the future
     but haven't found a good way to plug this into existing themes.  If
     you have ideas let me know!</p></div></div>
-
-    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara"><p class="footpara">The
-    package <a href="https://github.com/emacs-pe/docker-tramp.el">docker-tramp.el</a> is available on MELPA</p></div></div>
-
-    <div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5">5</a></sup> <div class="footpara"><p class="footpara">Now available on MELPA/Stable</p></div></div>
 
 
   </div>

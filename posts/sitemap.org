@@ -1,5 +1,6 @@
 #+TITLE: Archive
 
+- [[file:2021-05-29-Restrict-agenda-to-multiple-subtrees.org][2021-05-29 Restrict agenda to multiple subtrees]]
 - [[file:2019-02-10-Refiling-hydra-with-pre-defined-targets.org][2019-02-10 Refiling hydra with pre-defined targets]]
 - [[file:2019-02-02-Org-mode-and-google-calendar-sync.org][2019-02-02 Org mode and google calendar sync]]
 - [[file:2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.org][2019-01-23 Use the input method from original org buffer in log note buffer]]
