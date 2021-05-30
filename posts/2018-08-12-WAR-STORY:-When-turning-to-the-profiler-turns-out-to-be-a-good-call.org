@@ -10,9 +10,6 @@ CLOSED: [2018-08-12 Sun 12:36]
 :LOGBOOK:
 - State "DONE"       from              [2018-08-12 Sun 12:36]
 :END:
-:CLOCK:
-CLOCK: [2018-08-12 Sun 12:05]
-:END:
 
 Some of you might have seen the little bit of news circulating around
 about my new project.  It's called [[https://github.com/Fuco1/Elsa][Elsa]] (stands for Emacs Lisp Static
@@ -122,4 +119,3 @@ there is a lot of things for people of all skill ranging from
 beginners to seasoned hackers.  Check out issues marked [[https://github.com/Fuco1/Elsa/issues?q=is%253Aissue+is%253Aopen+label%253A%2522help+wanted%2522][help wanted]] or
 [[https://github.com/Fuco1/Elsa/issues?q=is%253Aissue+is%253Aopen+label%253A%2522good+first+issue%2522][good first issue]] and get involved!  If anything's unclear go ahead and
 ask questions.
-
