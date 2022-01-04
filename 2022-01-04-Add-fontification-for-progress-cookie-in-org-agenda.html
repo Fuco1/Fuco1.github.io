@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2022-01-04 Tue 16:38 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Add fontification for progress cookie in org agenda</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Matúš Goljer" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./index.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://fuco1.github.io/rss.xml">RSS</a>
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content">
+<h1 class="title">Add fontification for progress cookie in org agenda</h1>
+
+<p>
+In Org mode, there is an easy way to visualize progress on a task with
+subtasks.  You can place a "progress cookie" <code>[/]</code> or <code>[%]</code> in the title
+of a TODO task or parent item in a list, hit <kbd>C-c C-c</kbd> and Org will
+calculate the progress for you.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #fce94f;">* </span><span style="color: #ff4b4b; font-weight: bold;">TODO</span><span style="color: #fce94f;"> foo </span><span style="color: #e6a8df; font-weight: bold;">[1/3]</span>
+<span style="color: #2e3436;">*</span><span style="color: #fcaf3e;">* </span><span style="color: #ff4b4b; font-weight: bold;">TODO</span><span style="color: #fcaf3e;"> one</span>
+<span style="color: #2e3436;">*</span><span style="color: #fcaf3e;">* </span><span style="color: #ff4b4b; font-weight: bold;">TODO</span><span style="color: #fcaf3e;"> two</span>
+<span style="color: #2e3436;">*</span><span style="color: #fcaf3e;">* </span><span style="color: #73d216; font-weight: bold;">DONE</span><span style="color: #fcaf3e;"> </span><span style="color: #888a85;">three</span>
+<span style="color: #8cc4ff; font-weight: bold;">- </span>parent <span style="color: #e6a8df; font-weight: bold;">[66%]</span>
+<span style="color: #888a85; font-weight: bold;">  </span><span style="color: #888a85; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85;"> one</span>
+<span style="color: #888a85; font-weight: bold;">  </span><span style="color: #888a85; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85;"> two</span>
+<span style="color: #8cc4ff; font-weight: bold;">  </span><span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span> three
+</pre>
+</div>
+
+<p>
+These are fontified with <code>org-checkbox-statistics-todo</code> to make them
+easily stand out.  However, for some reason this face is not applied
+in the Org agenda buffer.
+</p>
+
+<p>
+Because the agenda buffer does not use font-lock for fontifying and
+instead inserts already fontified text in the buffer directly, we
+can't simply add a regexp with <code>font-lock-add-keywords</code>.  But the
+solution is nonetheless very straight-forward.  Create a function
+which will search for the regexp in the buffer and add the face text
+property.  Then add it to the <code>org-agenda-finalize-hook</code> and that's
+that!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-fontify-progress-cookie</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Fontify progress cookies in org agenda."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
+    <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>re-search-forward <span style="color: #e9b96e;">"\\[[[:digit:]]+/[[:digit:]]+\\]"</span> nil t<span style="color: #888a85;">)</span>
+      <span style="color: #888a85;">(</span>add-face-text-property <span style="color: #888a85;">(</span>match-beginning 0<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>match-end 0<span style="color: #888a85;">)</span>
+                              <span style="color: #e6a8df;">'org-checkbox-statistics-todo</span><span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>re-search-forward <span style="color: #e9b96e;">"\\[[[:digit:]]+%\\]"</span> nil t<span style="color: #888a85;">)</span>
+      <span style="color: #888a85;">(</span>add-face-text-property <span style="color: #888a85;">(</span>match-beginning 0<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>match-end 0<span style="color: #888a85;">)</span>
+                              <span style="color: #e6a8df;">'org-checkbox-statistics-todo</span><span style="color: #888a85;">))))</span>
+
+<span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-agenda-finalize-hook</span> <span style="color: #e6a8df;">'my-fontify-progress-cookie</span><span style="color: #888a85;">)</span>
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Last updated at: 2022-01-04 16:38</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>

@@ -1,8 +1,21 @@
+* Add fontification for progress cookie in org agenda
+:PROPERTIES:
+:RSS_PERMALINK: 2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.html
+:PUBDATE: <2022-01-04>
+:END:
+#+include: "/home/matus/documents/blog/posts/2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.org" :lines "3-"
+
+* WAR STORY: When turning to the profiler turns out to be a good call
+:PROPERTIES:
+:RSS_PERMALINK: 2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html
+:PUBDATE: <2018-08-12>
+:END:
+#+include: "/home/matus/documents/blog/posts/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.org" :lines "3-"
+
 * Restrict agenda to multiple subtrees
 :PROPERTIES:
 :RSS_PERMALINK: 2021-05-29-Restrict-agenda-to-multiple-subtrees.html
 :PUBDATE: <2021-05-29>
-:ID:       238381b6-3f1f-4b3f-b45c-5bb91c9e913e
 :END:
 #+include: "/home/matus/documents/blog/posts/2021-05-29-Restrict-agenda-to-multiple-subtrees.org" :lines "3-"
 
@@ -10,7 +23,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html
 :PUBDATE: <2018-03-11>
-:ID:       51a3d27a-f698-4995-b31e-5d2451cc2c60
 :END:
 #+include: "/home/matus/documents/blog/posts/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.org" :lines "3-"
 
@@ -18,7 +30,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-02-10-Refiling-hydra-with-pre-defined-targets.html
 :PUBDATE: <2019-02-10>
-:ID:       823e8c7d-045e-4414-b3e1-143bd690c2c8
 :END:
 #+include: "/home/matus/documents/blog/posts/2019-02-10-Refiling-hydra-with-pre-defined-targets.org" :lines "3-"
 
@@ -26,7 +37,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-02-02-Org-mode-and-google-calendar-sync.html
 :PUBDATE: <2019-02-02>
-:ID:       48ed04eb-9a79-47ab-a76a-3a8cc133ade5
 :END:
 #+include: "/home/matus/documents/blog/posts/2019-02-02-Org-mode-and-google-calendar-sync.org" :lines "3-"
 
@@ -34,7 +44,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.html
 :PUBDATE: <2019-01-23>
-:ID:       13a10a43-d153-4c2c-b550-99bccd31d26f
 :END:
 #+include: "/home/matus/documents/blog/posts/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.org" :lines "3-"
 
@@ -42,7 +51,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html
 :PUBDATE: <2019-01-03>
-:ID:       47934edc-689c-4bec-b6fe-db57cff42199
 :END:
 #+include: "/home/matus/documents/blog/posts/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.org" :lines "3-"
 
@@ -50,30 +58,13 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2018-12-23-Multiline-fontification-with-org-emphasis-alist.html
 :PUBDATE: <2018-12-23>
-:ID:       b87c8170-b952-4dcd-b3b1-54845ea323da
 :END:
 #+include: "/home/matus/documents/blog/posts/2018-12-23-Multiline-fontification-with-org-emphasis-alist.org" :lines "3-"
-
-* WAR STORY: When turning to the profiler turns out to be a good call
-:PROPERTIES:
-:RSS_PERMALINK: 2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html
-:PUBDATE: <2018-08-12>
-:ID:       2073a076-1be7-42e0-9f13-e8d3c77bfbbe
-:END:
-#+include: "/home/matus/documents/blog/posts/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.org" :lines "3-"
 
 * fontify-face: Fontification of symbols referencing faces
 :PROPERTIES:
 :RSS_PERMALINK: 2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html
 :PUBDATE: <2018-04-10>
-:ID:       0b50a25e-ec98-4ca6-823c-46d5e1c701aa
 :END:
 #+include: "/home/matus/documents/blog/posts/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.org" :lines "3-"
 
-* Smartparens is 5 years old today
-:PROPERTIES:
-:RSS_PERMALINK: 2017-11-17-Smartparens-is-5-years-old-today.html
-:PUBDATE: <2017-11-17>
-:ID:       6ee82e5f-bc1e-4c91-994b-cb48f68b038c
-:END:
-#+include: "/home/matus/documents/blog/posts/2017-11-17-Smartparens-is-5-years-old-today.org" :lines "3-"
