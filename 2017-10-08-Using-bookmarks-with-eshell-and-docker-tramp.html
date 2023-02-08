@@ -3,29 +3,30 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-10-08 Sun 12:25 -->
+<!-- 2023-02-08 Wed 16:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Using bookmarks with eshell and docker-tramp</title>
-<meta name="generator" content="Org mode" />
 <meta name="author" content="Matúš Goljer" />
+<meta name="generator" content="Org Mode" />
 <link rel="stylesheet" href="css/blog.css" />
 </head>
 <body>
 <div id="preamble" class="status">
 
 <div style="text-align: left; float: left;">
-  <a href="./sitemap.html">Home</a>
+  <a href="./index.html">Home</a>
   <a href="https://github.com/Fuco1/">GitHub</a>
   <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
 </div>
 <div style="text-align: right;">
+  <a href="https://github.com/Fuco1/Fuco1.github.io/discussions">Discussions</a>
   <a href="https://fuco1.github.io/rss.xml">RSS</a>
   <a href="https://twitter.com/Fuco1337">Twitter</a>
 </div>
 <hr />
 </div>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">Using bookmarks with eshell and docker-tramp</h1>
 
 <p>
@@ -75,12 +76,12 @@ when you are using the <a href="https://medium.com/@alexeiled/docker-pattern-the
 <p>
 What bothered me was the fact that I had to leave Emacs, jump to the
 terminal and fire away the commands in there.  Turns out someone
-clever figured out a way of using TRAMP<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> to connect into docker
+clever figured out a way of using TRAMP<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup> to connect into docker
 containers.  Combined with this, I can use eshell to jump into docker
 container and execute commands in there.  Whoa!
 </p>
 
-<pre class="example">
+<pre class="example" id="org651ee96">
 [12:15:50]:~/$ docker ps
 CONTAINER ID        IMAGE                 NAMES
 e015daa0ceac        fuco1/zathura:0.3.7   focused_hugle
@@ -93,7 +94,7 @@ dev   home    media  proc  sbin  tmp  zathura  zathura-pdf-poppler
 
 <p>
 To tie all of this together I've written a small package
-<a href="https://github.com/Fuco1/eshell-bookmark">eshell-bookmark</a><sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>
+<a href="https://github.com/Fuco1/eshell-bookmark">eshell-bookmark</a><sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>
 which adds bookmark support to eshell buffers.  More specifically,
 when the bookmark is activated it tries to open an eshell in the
 directory where the bookmark was created.  If an eshell session
@@ -112,17 +113,17 @@ exec application ...</code>!
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
 
-<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">The
-package <a href="https://github.com/emacs-pe/docker-tramp.el">docker-tramp.el</a> is available on MELPA</div></div>
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">The
+package <a href="https://github.com/emacs-pe/docker-tramp.el">docker-tramp.el</a> is available on MELPA</p></div></div>
 
-<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">Now available on MELPA/Stable</div></div>
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">Now available on MELPA/Stable</p></div></div>
 
 
 </div>
 </div></div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-10-08 12:25</div>
+<div style="text-align: left; float: left;">Published at: 2017-10-08 12:25 Last updated at: 2023-02-08 16:00</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-10-08-Using-bookmarks-with-eshell-and-docker-tramp.org">Edit on GitHub!</a></div>
 </div>
 </body>

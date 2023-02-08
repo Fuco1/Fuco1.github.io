@@ -3,32 +3,33 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-21 Wed 21:41 -->
+<!-- 2023-02-08 Wed 15:59 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Font-locking with custom matchers</title>
-<meta name="generator" content="Org mode" />
 <meta name="author" content="Matúš Goljer" />
+<meta name="generator" content="Org Mode" />
 <link rel="stylesheet" href="css/blog.css" />
 </head>
 <body>
 <div id="preamble" class="status">
 
 <div style="text-align: left; float: left;">
-  <a href="./sitemap.html">Home</a>
+  <a href="./index.html">Home</a>
   <a href="https://github.com/Fuco1/">GitHub</a>
   <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
 </div>
 <div style="text-align: right;">
+  <a href="https://github.com/Fuco1/Fuco1.github.io/discussions">Discussions</a>
   <a href="https://fuco1.github.io/rss.xml">RSS</a>
   <a href="https://twitter.com/Fuco1337">Twitter</a>
 </div>
 <hr />
 </div>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">Font-locking with custom matchers</h1>
 
-<table id="org0f6667e" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgc98922f" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -51,7 +52,7 @@
 </table>
 
 <p>
-Previously I have written about <a href="./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html#orgdd09046">font-lock anchored matchers</a>.  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
+Previously I have written about <a href="./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html#org43724e8">font-lock anchored matchers</a>.  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
 </p>
 
 <p>
@@ -101,7 +102,7 @@ return non-nil).</li>
 </ol>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="org14c2809"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-match-variables-in-quotes</span> <span style="color: #888a85;">(</span>limit<span style="color: #888a85;">)</span>
+<pre class="src src-elisp" id="org534f0fe"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-match-variables-in-quotes</span> <span style="color: #888a85;">(</span>limit<span style="color: #888a85;">)</span>
   <span style="color: #e9b96e;">"Match variables in double-quotes in `</span><span style="color: #e6a8df;">sh-mode</span><span style="color: #e9b96e;">'."</span>
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-syntax-table</span> sh-mode-syntax-table
     <span style="color: #888a85;">(</span><span style="color: #b4fa70;">catch</span> '<span style="color: #e6a8df;">done</span>
@@ -125,7 +126,7 @@ Add the support to the current buffer (use <code>nil</code> as first argument) o
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="org73cb773"><span style="color: #888a85;">(</span>font-lock-add-keywords
+<pre class="src src-elisp" id="org3e5b9f1"><span style="color: #888a85;">(</span>font-lock-add-keywords
  <span style="color: #e6a8df;">'sh-mode</span> '<span style="color: #888a85;">((</span>my-match-variables-in-quotes
              <span style="color: #888a85;">(</span>1 <span style="color: #e6a8df;">'default</span> t<span style="color: #888a85;">)</span>
              <span style="color: #888a85;">(</span>2 font-lock-variable-name-face t<span style="color: #888a85;">))))</span>
@@ -147,7 +148,7 @@ Quite simple and the outcome is very satisfying.  Makes reading shell scripts a 
 </div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-06-21 21:41</div>
+<div style="text-align: left; float: left;">Published at: 2017-06-11 20:58 Last updated at: 2023-02-08 15:59</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-06-11-Font-locking-with-custom-matchers.org">Edit on GitHub!</a></div>
 </div>
 </body>

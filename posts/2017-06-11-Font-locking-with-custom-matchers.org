@@ -1,7 +1,7 @@
 #+TITLE: Font-locking with custom matchers
 #+DATE: [2017-06-11 Sun 20:58]
 
-* DONE Font-lock interpolated variables inside double-quoted strings :ignore:
+* DONE Font-lock interpolated variables inside double-quoted strings    :ignore:
   CLOSED: [2017-06-11 Sun 20:58]
   :PROPERTIES:
   :BLOG_TITLE: Font-locking with custom matchers
@@ -20,7 +20,7 @@
 |------------+-------------------------------------------------------------------------------|
 | 2017-06-21 | The regexp was fixed to match =$FOO_BAR= and skip escaped dollars (see this [[https://github.com/Fuco1/Fuco1.github.io/pull/6][PR]]) |
 
-Previously I have written about [[file:./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org::*The%20absolute%20awesomeness%20of%20anchored%20font-lock%20matchers][font-lock anchored matchers]].  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
+Previously I have written about [[file:./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org::*The absolute awesomeness of anchored font-lock matchers][font-lock anchored matchers]].  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
 
 I now work at a DevOps position and so I have been writing a lot of shell scripts lately to glue all the stuff we do together.  One missing feature that kept bugging me was the font-locking of interpolated variables in =sh-mode=... that is, the fact that there wasn't any!
 
@@ -92,4 +92,3 @@ BAR="hello $FOO and also ${FOO}"
 # No interpolation in single-quotes
 BAZ='hello $FOO'
 #+END_SRC
-

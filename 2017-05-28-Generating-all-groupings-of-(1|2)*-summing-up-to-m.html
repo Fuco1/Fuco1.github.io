@@ -3,51 +3,62 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-04 Sun 15:39 -->
+<!-- 2023-02-08 Wed 15:59 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Generating all groupings of (1|2)* summing up to m</title>
-<meta name="generator" content="Org mode" />
 <meta name="author" content="Matúš Goljer" />
+<meta name="generator" content="Org Mode" />
 <link rel="stylesheet" href="css/blog.css" />
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        displayAlign: "center",
-        displayIndent: "0em",
-
-        "HTML-CSS": { scale: 100,
-                        linebreaks: { automatic: "false" },
-                        webFont: "TeX"
-                       },
-        SVG: {scale: 100,
-              linebreaks: { automatic: "false" },
-              font: "TeX"},
-        NativeMML: {scale: 100},
-        TeX: { equationNumbers: {autoNumber: "AMS"},
-               MultLineWidth: "85%",
-               TagSide: "right",
-               TagIndent: ".8em"
-             }
-});
+<script>
+  window.MathJax = {
+    tex: {
+      ams: {
+        multlineWidth: '85%'
+      },
+      tags: 'ams',
+      tagSide: 'right',
+      tagIndent: '.8em'
+    },
+    chtml: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    svg: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    output: {
+      font: 'mathjax-modern',
+      displayOverflow: 'overflow'
+    }
+  };
 </script>
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
 </head>
 <body>
 <div id="preamble" class="status">
 
 <div style="text-align: left; float: left;">
-  <a href="./sitemap.html">Home</a>
+  <a href="./index.html">Home</a>
   <a href="https://github.com/Fuco1/">GitHub</a>
   <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
 </div>
 <div style="text-align: right;">
+  <a href="https://github.com/Fuco1/Fuco1.github.io/discussions">Discussions</a>
   <a href="https://fuco1.github.io/rss.xml">RSS</a>
   <a href="https://twitter.com/Fuco1337">Twitter</a>
 </div>
 <hr />
 </div>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">Generating all groupings of (1|2)* summing up to m</h1>
 
 <p>
@@ -55,16 +66,16 @@ In a fun article <a href="https://www.amin.space/blog/2017/5/elemental_speller/"
 </p>
 
 <p>
-In the beginning their first idea was to generate all the possible splits into 1 and 2 letter groups (we call these strings <i>groupings</i>), then try all these combinations matching against the list of the symbols<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  To generate the splits they would generate all the possible strings of 1 and 2 up to the length \(m\) and then filter out those which don't sum up to \(m\) (the length of the input word).  Little inspection shows that this grows exponentially and really isn't the way to go<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.  For \(m\) = 3 this would generate 15 possible strings (including the empty one) but only 3 are actually valid: \((1,1,1)\), \((1,2)\) and \((2,1)\).
+In the beginning their first idea was to generate all the possible splits into 1 and 2 letter groups (we call these strings <i>groupings</i>), then try all these combinations matching against the list of the symbols<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>.  To generate the splits they would generate all the possible strings of 1 and 2 up to the length \(m\) and then filter out those which don't sum up to \(m\) (the length of the input word).  Little inspection shows that this grows exponentially and really isn't the way to go<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>.  For \(m\) = 3 this would generate 15 possible strings (including the empty one) but only 3 are actually valid: \((1,1,1)\), \((1,2)\) and \((2,1)\).
 </p>
 
 <p>
 This immediately got me thinking of dynamic programming and induction.  I figured it out in a couple minutes and then worked out a simple proof to show that my algorithm generates all the possible groupings.
 </p>
 
-<div id="outline-container-org64ff88b" class="outline-2">
-<h2 id="org64ff88b"><a id="ID-5a06321a-9ef0-4043-993d-fe9cb7281156"></a>The algorithm</h2>
-<div class="outline-text-2" id="text-org64ff88b">
+<div id="outline-container-org0ec40d3" class="outline-2">
+<h2 id="org0ec40d3">The algorithm</h2>
+<div class="outline-text-2" id="text-org0ec40d3">
 <p>
 How it works is rather simple:
 </p>
@@ -109,17 +120,17 @@ Here's an equivalent Python version.  Please note I'm not too big into Python :)
     <span style="color: #b4fa70;">elif</span> n == 1:
         <span style="color: #b4fa70;">return</span> [[1]]
     <span style="color: #b4fa70;">else</span>:
-        <span style="color: #fcaf3e;">l1</span> = [prepend(1,x) <span style="color: #b4fa70;">for</span> x <span style="color: #b4fa70;">in</span> generate_groupings(n - 1)]
-        <span style="color: #fcaf3e;">l2</span> = [prepend(2,x) <span style="color: #b4fa70;">for</span> x <span style="color: #b4fa70;">in</span> generate_groupings(n - 2)]
+        l1 = [prepend(1,x) <span style="color: #b4fa70;">for</span> x <span style="color: #b4fa70;">in</span> generate_groupings(n - 1)]
+        l2 = [prepend(2,x) <span style="color: #b4fa70;">for</span> x <span style="color: #b4fa70;">in</span> generate_groupings(n - 2)]
         <span style="color: #b4fa70;">return</span> l1+l2
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org16ddb76" class="outline-2">
-<h2 id="org16ddb76"><a id="ID-ae246328-b96a-43d3-ba9d-86eb940b6b13"></a>Proof</h2>
-<div class="outline-text-2" id="text-org16ddb76">
+<div id="outline-container-org2a87167" class="outline-2">
+<h2 id="org2a87167">Proof</h2>
+<div class="outline-text-2" id="text-org2a87167">
 <p>
 Proof will be carried out by <a href="https://en.wikipedia.org/wiki/Mathematical_induction">induction</a>.  In short, induction works as follows.  You first prove the induction base, which is the base truth from which you will derive all other truths.  In our case this will be the fact that the algorithm works for \(n = 0\) and \(n = 1\).
 </p>
@@ -129,7 +140,7 @@ Why this is true follows directly from the definition of the first two bullets o
 </p>
 
 <p>
-Now the fun part.  If we prove that the proposition is true for \(n + 1\) while we <i>assume</i> it works for all \(k \leq n\), we proved the proposition for <i>all</i> \(n\).  This is called the induction hypothesis.<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup>
+Now the fun part.  If we prove that the proposition is true for \(n + 1\) while we <i>assume</i> it works for all \(k \leq n\), we proved the proposition for <i>all</i> \(n\).  This is called the induction hypothesis.<sup><a id="fnr.3" class="footref" href="#fn.3" role="doc-backlink">3</a></sup>
 </p>
 
 <p>
@@ -173,18 +184,18 @@ If you have any questions leave me a <a href="https://github.com/Fuco1/Fuco1.git
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
 
-<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">Yes, this is awfully inefficient.  The author later rectifies this with a beautiful and fast linear algorithm.</div></div>
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">Yes, this is awfully inefficient.  The author later rectifies this with a beautiful and fast linear algorithm.</p></div></div>
 
-<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">To see this just imagine that 1 and 2 is actually 0 and 1 and you are generating all the binary numbers taking up to \(n\) bits.  This results in \((2^n)-1\) options.</div></div>
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">To see this just imagine that 1 and 2 is actually 0 and 1 and you are generating all the binary numbers taking up to \(n\) bits.  This results in \((2^n)-1\) options.</p></div></div>
 
-<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara">We are actually using <i>strong</i> (a.k.a. <i>complete</i>) <a href="https://en.wikipedia.org/wiki/Mathematical_induction#Complete_induction">induction</a>.  This is equivalent to the simple induction you might have learned at university.</div></div>
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">We are actually using <i>strong</i> (a.k.a. <i>complete</i>) <a href="https://en.wikipedia.org/wiki/Mathematical_induction#Complete_induction">induction</a>.  This is equivalent to the simple induction you might have learned at university.</p></div></div>
 
 
 </div>
 </div></div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-06-04 15:39</div>
+<div style="text-align: left; float: left;">Published at: 2017-05-28 18:03 Last updated at: 2023-02-08 15:59</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-05-28-Generating-all-groupings-of-(1|2)*-summing-up-to-m.org">Edit on GitHub!</a></div>
 </div>
 </body>

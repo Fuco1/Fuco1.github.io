@@ -3,63 +3,64 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-04 Sun 15:39 -->
+<!-- 2023-02-08 Wed 15:59 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Annoying prefix argument</title>
-<meta name="generator" content="Org mode" />
 <meta name="author" content="Matúš Goljer" />
+<meta name="generator" content="Org Mode" />
 <link rel="stylesheet" href="css/blog.css" />
 </head>
 <body>
 <div id="preamble" class="status">
 
 <div style="text-align: left; float: left;">
-  <a href="./sitemap.html">Home</a>
+  <a href="./index.html">Home</a>
   <a href="https://github.com/Fuco1/">GitHub</a>
   <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
 </div>
 <div style="text-align: right;">
+  <a href="https://github.com/Fuco1/Fuco1.github.io/discussions">Discussions</a>
   <a href="https://fuco1.github.io/rss.xml">RSS</a>
   <a href="https://twitter.com/Fuco1337">Twitter</a>
 </div>
 <hr />
 </div>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">Annoying prefix argument</h1>
 
-<div id="outline-container-orga7f644e" class="outline-2">
-<h2 id="orga7f644e"><a id="ID-5fffafa3-4eaf-4eb9-ac20-0609b93e5435"></a>Problem</h2>
-<div class="outline-text-2" id="text-orga7f644e">
+<div id="outline-container-org4c31705" class="outline-2">
+<h2 id="org4c31705">Problem</h2>
+<div class="outline-text-2" id="text-org4c31705">
 <p>
 A prefix argument changes the behaviour of a command in a way which forms a useful stand-alone command.  We don't want to supply the command with the prefix argument all the time.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgbb4eef3" class="outline-2">
-<h2 id="orgbb4eef3"><a id="ID-f19f57e2-8e9d-4856-9c18-60336972583e"></a>Solution</h2>
-<div class="outline-text-2" id="text-orgbb4eef3">
+<div id="outline-container-org1dd1248" class="outline-2">
+<h2 id="org1dd1248">Solution</h2>
+<div class="outline-text-2" id="text-org1dd1248">
 <p>
 Write an interactive wrapper and pre-fill the arguments
 </p>
 </div>
 </div>
 
-<div id="outline-container-org6611ada" class="outline-2">
-<h2 id="org6611ada"><a id="ID-ced49dca-c96b-4663-b4a5-0ba525a35332"></a>Motivation</h2>
-<div class="outline-text-2" id="text-org6611ada">
+<div id="outline-container-org3d65b8c" class="outline-2">
+<h2 id="org3d65b8c">Motivation</h2>
+<div class="outline-text-2" id="text-org3d65b8c">
 <p>
 It is awkward and annoying to constantly use prefix-arguments for commonly used operations.  Emacs has a rich history of commands using prefix arguments to subtly (or not so subtly) modify the behaviour of the base command.  If you often use a specialized variant you can save yourself a lot of pain by simply building a specialized solution.  It is not uncommon to see two prefix arguments (<kbd>C-u C-u</kbd>), but I've seen four and even five once or twice.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org92095ca" class="outline-2">
-<h2 id="org92095ca"><a id="ID-5039c9a3-7e08-46c9-9c62-88221036afb6"></a>Example</h2>
-<div class="outline-text-2" id="text-org92095ca">
+<div id="outline-container-orge3f2e61" class="outline-2">
+<h2 id="orge3f2e61">Example</h2>
+<div class="outline-text-2" id="text-orge3f2e61">
 <p>
-Emacs comes with this amazing functionality called <i>marks</i>.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the <i>mark ring</i><sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.  This allows you to remember multiple marks at the same time and recall them in a lifo order.
+Emacs comes with this amazing functionality called <i>marks</i>.  They act a bit like "automatic" bookmarks within the current buffer (there is also a global version but I won't go into that right now).  Marks live in the <i>mark ring</i><sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>.  This allows you to remember multiple marks at the same time and recall them in a lifo order.
 </p>
 
 <p>
@@ -83,9 +84,9 @@ How can we solve this?  We write our own interactive wrapper!
 </p>
 </div>
 </div>
-<div id="outline-container-org718d11d" class="outline-2">
-<h2 id="org718d11d"><a id="ID-66c17fce-3178-46c0-b89e-8d995f26b8c3"></a>Resolution</h2>
-<div class="outline-text-2" id="text-org718d11d">
+<div id="outline-container-org762297f" class="outline-2">
+<h2 id="org762297f">Resolution</h2>
+<div class="outline-text-2" id="text-org762297f">
 <p>
 First we need to figure out which argument and with what value we will need to pre-fill.  Most of the time reading the documentation with <kbd>C-h f</kbd> will be enough to give us a clue, but sometimes inspecting the source is the only way to be sure.
 </p>
@@ -117,7 +118,7 @@ Sometimes, the prefix argument isn't passed as an argument but is read from a sp
 </p>
 
 <p>
-Before we continue, a little excursion into how Emacs maintains value bindings.  When you use <code>let</code> to set the value of a special variable<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>, this value becomes current until the execution of the <code>let</code> block is finished.  This means that this value is available globally for all the subroutines called from the let block, as well as for all the subroutines called from these and so on.
+Before we continue, a little excursion into how Emacs maintains value bindings.  When you use <code>let</code> to set the value of a special variable<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>, this value becomes current until the execution of the <code>let</code> block is finished.  This means that this value is available globally for all the subroutines called from the let block, as well as for all the subroutines called from these and so on.
 </p>
 
 <p>
@@ -168,16 +169,16 @@ The moral of the story is that we should always prefer passing the argument dire
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
 
-<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">A ring in Emacs is basically a stack where popped elements go to the bottom</div></div>
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">A ring in Emacs is basically a stack where popped elements go to the bottom</p></div></div>
 
-<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara">A variable is <i>special</i> if defined using <code>defvar</code>.</div></div>
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">A variable is <i>special</i> if defined using <code>defvar</code>.</p></div></div>
 
 
 </div>
 </div></div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2017-06-04 15:39</div>
+<div style="text-align: left; float: left;">Published at: 2017-04-20 21:49 Last updated at: 2023-02-08 15:59</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-04-20-Annoying-prefix-argument.org">Edit on GitHub!</a></div>
 </div>
 </body>

@@ -3,29 +3,30 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-08-12 Sun 12:37 -->
+<!-- 2023-02-08 Wed 15:59 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Turn on context-aware modes on shell command output</title>
-<meta name="generator" content="Org mode" />
 <meta name="author" content="Matúš Goljer" />
+<meta name="generator" content="Org Mode" />
 <link rel="stylesheet" href="css/blog.css" />
 </head>
 <body>
 <div id="preamble" class="status">
 
 <div style="text-align: left; float: left;">
-  <a href="./sitemap.html">Home</a>
+  <a href="./index.html">Home</a>
   <a href="https://github.com/Fuco1/">GitHub</a>
   <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
 </div>
 <div style="text-align: right;">
+  <a href="https://github.com/Fuco1/Fuco1.github.io/discussions">Discussions</a>
   <a href="https://fuco1.github.io/rss.xml">RSS</a>
   <a href="https://twitter.com/Fuco1337">Twitter</a>
 </div>
 <hr />
 </div>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">Turn on context-aware modes on shell command output</h1>
 
 <p>
@@ -37,11 +38,11 @@ The return values (really the process output) is JSON most of the time.  So why 
 </p>
 
 <p>
-First, let's write a little helper function to guess the appropriate major mode for a buffer.  I only have the JSON logic<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> there but you can of course add more "handlers" to check for XML or TAP output and so on.  <a href="https://github.com/Fuco1/.emacs.d/issues/new">Let me know</a> if you create something awesome!
+First, let's write a little helper function to guess the appropriate major mode for a buffer.  I only have the JSON logic<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup> there but you can of course add more "handlers" to check for XML or TAP output and so on.  <a href="https://github.com/Fuco1/.emacs.d/issues/new">Let me know</a> if you create something awesome!
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="org1ce8012"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-shell-guess-major-mode</span> <span style="color: #888a85;">(</span>buffer<span style="color: #888a85;">)</span>
+<pre class="src src-elisp" id="org04b61a7"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-shell-guess-major-mode</span> <span style="color: #888a85;">(</span>buffer<span style="color: #888a85;">)</span>
   <span style="color: #e9b96e;">"Guess major mode for the content of BUFFER."</span>
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-current-buffer</span> buffer
     <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
@@ -57,7 +58,7 @@ The little difficulty here is that the process runs asynchronously so I have to 
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="orgc397bd5"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">shell-command-sentinel</span> <span style="color: #888a85;">(</span>after enable-better-mode activate<span style="color: #888a85;">)</span>
+<pre class="src src-elisp" id="org969966e"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">shell-command-sentinel</span> <span style="color: #888a85;">(</span>after enable-better-mode activate<span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>memq <span style="color: #888a85;">(</span>process-status <span style="color: #888a85;">(</span>ad-get-arg 0<span style="color: #888a85;">))</span> '<span style="color: #888a85;">(</span>exit signal<span style="color: #888a85;">))</span>
     <span style="color: #888a85;">(</span>my-shell-guess-major-mode <span style="color: #888a85;">(</span>process-buffer <span style="color: #888a85;">(</span>ad-get-arg 0<span style="color: #888a85;">)))))</span>
 </pre>
@@ -68,7 +69,7 @@ Similarly, we advice the synchronous version <code>shell-command</code>.  This f
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="org284c9c7"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">shell-command</span> <span style="color: #888a85;">(</span>after enable-better-mode activate<span style="color: #888a85;">)</span>
+<pre class="src src-elisp" id="org5720eff"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defadvice</span> <span style="color: #fce94f;">shell-command</span> <span style="color: #888a85;">(</span>after enable-better-mode activate<span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unless</span> <span style="color: #888a85;">(</span>eq ad-return-value <span style="color: #e6a8df;">'comint-output-filter</span><span style="color: #888a85;">)</span>
     <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">(</span>buffer <span style="color: #888a85;">(</span>get-buffer <span style="color: #e9b96e;">"*Shell Command Output*"</span><span style="color: #888a85;">))</span>
       <span style="color: #888a85;">(</span>my-shell-guess-major-mode buffer<span style="color: #888a85;">))))</span>
@@ -78,14 +79,14 @@ Similarly, we advice the synchronous version <code>shell-command</code>.  This f
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
 
-<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara">This code depends on <code>json</code> (built-in) and <code>json-mode</code> (get from MELPA).</div></div>
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">This code depends on <code>json</code> (built-in) and <code>json-mode</code> (get from MELPA).</p></div></div>
 
 
 </div>
 </div></div>
 <div id="postamble" class="status">
 <hr />
-<div style="text-align: left; float: left;">Last updated at: 2018-08-12 12:37</div>
+<div style="text-align: left; float: left;">Published at: 2017-04-29 23:10 Last updated at: 2023-02-08 15:59</div>
 <div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2017-04-29-Turn-on-context-aware-modes-on-shell-command-output.org">Edit on GitHub!</a></div>
 </div>
 </body>
