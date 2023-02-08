@@ -1,0 +1,68 @@
+#+TITLE: Visit the org headline from the attach dired buffer
+#+DATE: [2023-02-08 Wed 16:03]
+
+* DONE Visit the org headline from the attach dired buffer    :ignore:published:
+CLOSED: [2023-02-08 Wed 16:03]
+:PROPERTIES:
+:BLOG_FILENAME: 2023-02-08-Visit-the-org-headline-from-the-attach-dired-buffer
+:PUBDATE:  [2023-02-08 Wed 15:10]
+:END:
+:LOGBOOK:
+- State "DONE"       from              [2023-02-08 Wed 16:03]
+- State "DONE"       from              [2023-02-08 Wed 15:10]
+- State "DONE"       from              [2023-02-08 Wed 15:05]
+:END:
+
+I am a heavy heavy user of =org-attach=.  Pretty much all my binary data
+from the last fifteen years live somewhere under =~/data/org-attach=
+(set via =org-attach-id-dir=), further nested under the org headline ID.
+After experimenting with many ways to organize data, including
+[[https://www.tagsistant.net/][tagsistant]] and other semantic filesystems, this is what stuck the
+best:
+
+Make a headline in some of your org files (I have various files such
+as =knowledgebase.org=, =bookmarks.org=, =movies.org=, =emacs.org=, ...), hit
+~C-c C-a~ and attach the file to the "headline".  To later search for it
+you can use all the powerful indexing and search facilities of
+org-mode.  The whole directory is checked into [[https://git-annex.branchable.com/][git-annex]] and backed in
+various cloud providers and external drives.
+
+I don't really care about where or how the data itself is stored and I
+treat the =org-attach= directory as an opaque "blob"
+store[fn:a9b9e350ffb6964:This really removed a lot of "create a
+perfect file hierarchy" anxiety that ultra-orderly people like me get
+all the time.  I am no longer slave to the perpetual fine-tuning of
+what is nested where.  The files on the disk are actually stored in a
+flat two-level hierarchy determined by some hash or uuid.  This is
+great!  And the semantics of what the file is and how to find it is
+delegated to org mode.  This is even greater because its metadata are
+so much ritcher than what you can store in the file system itself.].
+This works 99% of the time because I usually want to find the file
+where I have some vague semantic idea of what it is and usually find
+it via org interface and then open the attachment.
+
+For the rare cases I can't figure out where I stored a file, I use the
+usual =locate= or =find= utilities.  When I finally get to the dired
+buffer for this attachment, I usually want to visit its corresponding
+headline to either add more keywords or somehow make it easier to find
+this file again through the org interface.
+
+So I wrote this simple utility function to jump back to the headline
+to edit it:
+
+#+begin_src elisp
+(defun my-org-attach-visit-headline-from-dired ()
+  "Go to the headline corresponding to this org-attach directory."
+  (interactive)
+  (let* ((id-parts (last (split-string default-directory "/" t) 2))
+         (id (apply #'concat id-parts)))
+    (let ((m (org-id-find id 'marker)))
+      (unless m (user-error "Cannot find entry with ID \"%s\"" id))
+      (pop-to-buffer (marker-buffer m))
+      (goto-char m)
+      (move-marker m nil)
+      (org-fold-show-context))))
+#+end_src
+
+Bind this to some [[https://github.com/Fuco1/free-keys][free key]] in the dired mode map and you can jump back and forth with ease.
+

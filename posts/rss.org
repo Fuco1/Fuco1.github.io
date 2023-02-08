@@ -1,70 +1,79 @@
+* Font-locking with custom matchers
+:PROPERTIES:
+:RSS_PERMALINK: 2017-06-11-Font-locking-with-custom-matchers.html
+:PUBDATE: <2017-06-11>
+:ID:       f6987e09-e695-401a-a0e1-73158b883ae5
+:END:
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2017-06-11-Font-locking-with-custom-matchers.org" :lines "3-"
+
+* Visit the org headline from the attach dired buffer
+:PROPERTIES:
+:RSS_PERMALINK: 2023-02-08-Visit-the-org-headline-from-the-attach-dired-buffer.html
+:PUBDATE: <2023-02-08>
+:ID:       c1fab8b9-217f-45e3-a92c-5f7b0e444842
+:END:
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2023-02-08-Visit-the-org-headline-from-the-attach-dired-buffer.org" :lines "3-"
+
 * Add fontification for progress cookie in org agenda
 :PROPERTIES:
 :RSS_PERMALINK: 2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.html
 :PUBDATE: <2022-01-04>
+:ID:       483fa6fd-0af3-4bf4-a9dc-b3e13a58d719
 :END:
-#+include: "/home/matus/documents/blog/posts/2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.org" :lines "3-"
-
-* WAR STORY: When turning to the profiler turns out to be a good call
-:PROPERTIES:
-:RSS_PERMALINK: 2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html
-:PUBDATE: <2018-08-12>
-:END:
-#+include: "/home/matus/documents/blog/posts/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.org" :lines "3-"
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.org" :lines "3-"
 
 * Restrict agenda to multiple subtrees
 :PROPERTIES:
 :RSS_PERMALINK: 2021-05-29-Restrict-agenda-to-multiple-subtrees.html
 :PUBDATE: <2021-05-29>
+:ID:       5b528d99-fd90-4b02-8437-7d58dcaa28ba
 :END:
-#+include: "/home/matus/documents/blog/posts/2021-05-29-Restrict-agenda-to-multiple-subtrees.org" :lines "3-"
-
-* Use org-radiobutton to select an option from a list
-:PROPERTIES:
-:RSS_PERMALINK: 2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html
-:PUBDATE: <2018-03-11>
-:END:
-#+include: "/home/matus/documents/blog/posts/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.org" :lines "3-"
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2021-05-29-Restrict-agenda-to-multiple-subtrees.org" :lines "3-"
 
 * Refiling hydra with pre-defined targets
 :PROPERTIES:
 :RSS_PERMALINK: 2019-02-10-Refiling-hydra-with-pre-defined-targets.html
 :PUBDATE: <2019-02-10>
+:ID:       dc727d21-0518-48e9-b67f-fed1bfc91eef
 :END:
-#+include: "/home/matus/documents/blog/posts/2019-02-10-Refiling-hydra-with-pre-defined-targets.org" :lines "3-"
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2019-02-10-Refiling-hydra-with-pre-defined-targets.org" :lines "3-"
 
 * Org mode and google calendar sync
 :PROPERTIES:
 :RSS_PERMALINK: 2019-02-02-Org-mode-and-google-calendar-sync.html
 :PUBDATE: <2019-02-02>
+:ID:       ea424b96-3589-46cb-a46e-9de843708a1f
 :END:
-#+include: "/home/matus/documents/blog/posts/2019-02-02-Org-mode-and-google-calendar-sync.org" :lines "3-"
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2019-02-02-Org-mode-and-google-calendar-sync.org" :lines "3-"
 
 * Use the input method from original org buffer in log note buffer
 :PROPERTIES:
 :RSS_PERMALINK: 2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.html
 :PUBDATE: <2019-01-23>
+:ID:       907694be-8db1-4606-9852-3659f19d5f57
 :END:
-#+include: "/home/matus/documents/blog/posts/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.org" :lines "3-"
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.org" :lines "3-"
 
 * Make agenda clockreport respect =org-extend-today-until=
 :PROPERTIES:
 :RSS_PERMALINK: 2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html
 :PUBDATE: <2019-01-03>
+:ID:       f41d54cd-c1d8-4141-aeff-6909cbb54bc2
 :END:
-#+include: "/home/matus/documents/blog/posts/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.org" :lines "3-"
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.org" :lines "3-"
 
 * Multiline fontification with org-emphasis-alist
 :PROPERTIES:
 :RSS_PERMALINK: 2018-12-23-Multiline-fontification-with-org-emphasis-alist.html
 :PUBDATE: <2018-12-23>
+:ID:       676a88ec-a436-4bc1-8b00-6854889b94ec
 :END:
-#+include: "/home/matus/documents/blog/posts/2018-12-23-Multiline-fontification-with-org-emphasis-alist.org" :lines "3-"
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2018-12-23-Multiline-fontification-with-org-emphasis-alist.org" :lines "3-"
 
-* fontify-face: Fontification of symbols referencing faces
+* WAR STORY: When turning to the profiler turns out to be a good call
 :PROPERTIES:
-:RSS_PERMALINK: 2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html
-:PUBDATE: <2018-04-10>
+:RSS_PERMALINK: 2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html
+:PUBDATE: <2018-08-12>
+:ID:       514b4656-0a43-400a-9d54-939ce32e7c1d
 :END:
-#+include: "/home/matus/documents/blog/posts/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.org" :lines "3-"
-
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.org" :lines "3-"

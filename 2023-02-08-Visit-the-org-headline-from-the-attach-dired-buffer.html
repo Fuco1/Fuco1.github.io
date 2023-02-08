@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2023-02-08 Wed 16:03 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Visit the org headline from the attach dired buffer</title>
+<meta name="author" content="Matúš Goljer" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./index.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://github.com/Fuco1/Fuco1.github.io/discussions">Discussions</a>
+  <a href="https://fuco1.github.io/rss.xml">RSS</a>
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content" class="content">
+<h1 class="title">Visit the org headline from the attach dired buffer</h1>
+
+<p>
+I am a heavy heavy user of <code>org-attach</code>.  Pretty much all my binary data
+from the last fifteen years live somewhere under <code>~/data/org-attach</code>
+(set via <code>org-attach-id-dir</code>), further nested under the org headline ID.
+After experimenting with many ways to organize data, including
+<a href="https://www.tagsistant.net/">tagsistant</a> and other semantic filesystems, this is what stuck the
+best:
+</p>
+
+<p>
+Make a headline in some of your org files (I have various files such
+as <code>knowledgebase.org</code>, <code>bookmarks.org</code>, <code>movies.org</code>, <code>emacs.org</code>, &#x2026;), hit
+<kbd>C-c C-a</kbd> and attach the file to the "headline".  To later search for it
+you can use all the powerful indexing and search facilities of
+org-mode.  The whole directory is checked into <a href="https://git-annex.branchable.com/">git-annex</a> and backed in
+various cloud providers and external drives.
+</p>
+
+<p>
+I don't really care about where or how the data itself is stored and I
+treat the <code>org-attach</code> directory as an opaque "blob"
+store<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>.
+This works 99% of the time because I usually want to find the file
+where I have some vague semantic idea of what it is and usually find
+it via org interface and then open the attachment.
+</p>
+
+<p>
+For the rare cases I can't figure out where I stored a file, I use the
+usual <code>locate</code> or <code>find</code> utilities.  When I finally get to the dired
+buffer for this attachment, I usually want to visit its corresponding
+headline to either add more keywords or somehow make it easier to find
+this file again through the org interface.
+</p>
+
+<p>
+So I wrote this simple utility function to jump back to the headline
+to edit it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-attach-visit-headline-from-dired</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Go to the headline corresponding to this org-attach directory."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>id-parts <span style="color: #888a85;">(</span>last <span style="color: #888a85;">(</span>split-string default-directory <span style="color: #e9b96e;">"/"</span> t<span style="color: #888a85;">)</span> 2<span style="color: #888a85;">))</span>
+         <span style="color: #888a85;">(</span>id <span style="color: #888a85;">(</span>apply <span style="color: #8cc4ff;">#'concat</span> id-parts<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>m <span style="color: #888a85;">(</span>org-id-find id <span style="color: #e6a8df;">'marker</span><span style="color: #888a85;">)))</span>
+      <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unless</span> m <span style="color: #888a85;">(</span><span style="color: #ff4b4b;">user-error</span> <span style="color: #e9b96e;">"Cannot find entry with ID \"%s\""</span> id<span style="color: #888a85;">))</span>
+      <span style="color: #888a85;">(</span>pop-to-buffer <span style="color: #888a85;">(</span>marker-buffer m<span style="color: #888a85;">))</span>
+      <span style="color: #888a85;">(</span>goto-char m<span style="color: #888a85;">)</span>
+      <span style="color: #888a85;">(</span>move-marker m nil<span style="color: #888a85;">)</span>
+      <span style="color: #888a85;">(</span>org-fold-show-context<span style="color: #888a85;">))))</span>
+</pre>
+</div>
+
+<p>
+Bind this to some <a href="https://github.com/Fuco1/free-keys">free key</a> in the dired mode map and you can jump back and forth with ease.
+</p>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">This really removed a lot of "create a
+perfect file hierarchy" anxiety that ultra-orderly people like me get
+all the time.  I am no longer slave to the perpetual fine-tuning of
+what is nested where.  The files on the disk are actually stored in a
+flat two-level hierarchy determined by some hash or uuid.  This is
+great!  And the semantics of what the file is and how to find it is
+delegated to org mode.  This is even greater because its metadata are
+so much ritcher than what you can store in the file system itself.</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Published at: 2023-02-08 16:03 Last updated at: 2023-02-08 16:03</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2023-02-08-Visit-the-org-headline-from-the-attach-dired-buffer.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 #+TITLE: Archive
 
+- [[file:2023-02-08-Visit-the-org-headline-from-the-attach-dired-buffer.org][2023-02-08 Visit the org headline from the attach dired buffer]]
 - [[file:2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.org][2022-01-04 Add fontification for progress cookie in org agenda]]
 - [[file:2021-05-29-Restrict-agenda-to-multiple-subtrees.org][2021-05-29 Restrict agenda to multiple subtrees]]
 - [[file:2019-02-10-Refiling-hydra-with-pre-defined-targets.org][2019-02-10 Refiling hydra with pre-defined targets]]

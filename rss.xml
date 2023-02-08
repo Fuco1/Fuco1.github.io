@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0"
-     xmlns:content="http://purl.org/rss/1.0/modules/content/"
-     xmlns:wfw="http://wellformedweb.org/CommentAPI/"
-     xmlns:dc="http://purl.org/dc/elements/1.1/"
-     xmlns:atom="http://www.w3.org/2005/Atom"
-     xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
-     xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
-     xmlns:georss="http://www.georss.org/georss"
+	 xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	 xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	 xmlns:dc="http://purl.org/dc/elements/1.1/"
+	 xmlns:atom="http://www.w3.org/2005/Atom"
+	 xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	 xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	 xmlns:georss="http://www.georss.org/georss"
      xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
      xmlns:media="http://search.yahoo.com/mrss/"><channel>
   <title>Matus Goljer (Fuco1)</title>
@@ -14,9 +14,9 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Sat, 29 May 2021 15:10:20 +0200</pubDate>
-  <lastBuildDate>Sat, 29 May 2021 15:10:20 +0200</lastBuildDate>
-  <generator>Emacs 26.1 Org-mode 9.2.1</generator>
+  <pubDate>Wed, 08 Feb 2023 16:03:25 +0100</pubDate>
+  <lastBuildDate>Wed, 08 Feb 2023 16:03:25 +0100</lastBuildDate>
+  <generator>Emacs 28.1 Org-mode 9.6.1</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
     <url>https://orgmode.org/img/org-mode-unicorn-logo.png</url>
@@ -25,264 +25,342 @@
   </image>
 
   <item>
-    <title>Restrict agenda to multiple subtrees</title>
-    <link>https://fuco1.github.io/2021-05-29-Restrict-agenda-to-multiple-subtrees.html</link>
+    <title>Font-locking with custom matchers</title>
+    <link>https://fuco1.github.io/2017-06-11-Font-locking-with-custom-matchers.html</link>
     <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2021-05-29-Restrict-agenda-to-multiple-subtrees.html</guid>
-    <pubDate>Sat, 29 May 2021 00:00:00 +0200</pubDate>
+    <guid isPermaLink="false">https://fuco1.github.io/2017-06-11-Font-locking-with-custom-matchers.html</guid>
+    <pubDate>Sun, 11 Jun 2017 00:00:00 +0200</pubDate>
 
-    <description><![CDATA[<p>
-    The function <code>org-agenda-set-restriction-lock</code> is very useful for
-    speeding up agenda when working on a specific project (implemented as
-    a file or an Orgmode subtree).  Personally, I use two agenda views,
-    one "quick" with 5 simple sections and one "full" with 10 rather
-    complicated sections.
+    <description><![CDATA[<table id="orgee4e220" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+    <colgroup>
+    <col  class="org-right" />
+
+    <col  class="org-left" />
+    </colgroup>
+    <thead>
+    <tr>
+    <th scope="col" class="org-right">Date</th>
+    <th scope="col" class="org-left">Change</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td class="org-right">2017-06-21</td>
+    <td class="org-left">The regexp was fixed to match <code>$FOO_BAR</code> and skip escaped dollars (see this <a href="https://github.com/Fuco1/Fuco1.github.io/pull/6">PR</a>)</td>
+    </tr>
+    </tbody>
+    </table>
+
+    <p>
+    Previously I have written about <a href="./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html#org6db07d1">font-lock anchored matchers</a>.  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
     </p>
 
     <p>
-    The quick one lists all the actionable tasks, all the stuck tasks or
-    notes that need to be processed and refiled.  The full one lists all
-    the tasks from the project, including hierarchical project
-    dependencies, tasks on hold, bugs, waiting tasks and so on.  The full
-    view takes a lot more processing power and is not useful maybe 80% of
-    the time when I simply want to find work to do next.
-    </p>
-
-    <p>
-    For the times when I want to get a complete overview over a project
-    and do some light management or planning, I use the full agenda view.
-    </p>
-
-    <p>
-    One thing that kept bothering me was that the only option was to
-    restrict to a file or a subtree, but nothing in
-    between<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>, such as a
-    region spanning multiple subtrees.  Since I'm not a huge fan of
-    nesting headers just for the sake of nesting (flatter structures and
-    <a href="https://github.com/Fuco1/org-node-graph">graphs</a> are much nicer for organization).
-    </p>
-
-    <p>
-    Luckily, the function <code>org-agenda-set-restriction-lock</code> is fairly
-    hackable.  It uses overlays and markers for managing the restriction,
-    so all we need to do is grab the current active region's bounds and
-    set the org variables appropriately.
+    I now work at a DevOps position and so I have been writing a lot of shell scripts lately to glue all the stuff we do together.  One missing feature that kept bugging me was the font-locking of interpolated variables in <code>sh-mode</code>... that is, the fact that there wasn't any!
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-agenda-set-restriction-lock</span> <span style="color: #888a85;">(</span>orig-fun <span style="color: #8cc4ff;">&amp;optional</span> type<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">if</span> <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span>use-region-p<span style="color: #888a85;">))</span>
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">unless a region is active, use the original function for</span>
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">cancel/file/subtree</span>
-    <span style="color: #888a85;">(</span>funcall orig-fun type<span style="color: #888a85;">)</span>
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">here we do approximately the same as subtree except find the</span>
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">beginning of subtree at region's beginning and end of subtree</span>
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">at region's end (could span multiple subtrees)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> org-agenda-restrict <span style="color: #888a85;">(</span>current-buffer<span style="color: #888a85;">))</span>
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">use 'my-region to avoid potential future conflict</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> org-agenda-overriding-restriction <span style="color: #e6a8df;">'my-region</span><span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>put <span style="color: #e6a8df;">'org-agenda-files</span> <span style="color: #e6a8df;">'org-restrict</span>
-    <span style="color: #888a85;">(</span>list <span style="color: #888a85;">(</span>buffer-file-name <span style="color: #888a85;">(</span>buffer-base-buffer<span style="color: #888a85;">))))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>beg <span style="color: #888a85;">(</span>region-beginning<span style="color: #888a85;">))</span>
-    <span style="color: #888a85;">(</span>end <span style="color: #888a85;">(</span>region-end<span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
-    <span style="color: #888a85;">(</span>goto-char beg<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>org-back-to-heading t<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> beg <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
-    <span style="color: #888a85;">(</span>goto-char end<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>org-end-of-subtree t t<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> end <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span>move-overlay org-agenda-restriction-lock-overlay
-    beg
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">if</span> org-agenda-restriction-lock-highlight-subtree
-    end
-    <span style="color: #888a85;">(</span>point-at-eol<span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span>move-marker org-agenda-restrict-begin beg<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>move-marker org-agenda-restrict-end end<span style="color: #888a85;">))</span>
-    <span style="color: #888a85;">(</span>message <span style="color: #e9b96e;">"Locking agenda restriction to region"</span><span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>org-agenda-maybe-redo<span style="color: #888a85;">)))</span>
+    <pre class="src src-bash"><span style="color: #fcaf3e;">FOO</span>=<span style="color: #e9b96e;">"hello"</span>
+    <span style="color: #73d216;"># </span><span style="color: #73d216;">ugly brown!</span>
+    <span style="color: #fcaf3e;">BAR</span>=<span style="color: #e9b96e;">"hello $FOO"</span>
+    <span style="color: #73d216;"># </span><span style="color: #73d216;">I would really like to see that $FOO is *not* being interpolated</span>
+    <span style="color: #fcaf3e;">BAZ</span>=<span style="color: #e9b96e;">'hello $FOO'</span>
+    <span style="color: #73d216;"># </span><span style="color: #73d216;">in regular usage things are highlighted, but you should always quote, right?</span>
+    bash $<span style="color: #fcaf3e;">FOO</span> $<span style="color: #fcaf3e;">BAR</span> ${<span style="color: #fcaf3e;">BAZ</span>}
+    </pre>
+    </div>
 
-    <span style="color: #888a85;">(</span>advice-add <span style="color: #e6a8df;">'org-agenda-set-restriction-lock</span> <span style="color: #ad7fa8;">:around</span> <span style="color: #8cc4ff;">#'my-org-agenda-set-restriction-lock</span><span style="color: #888a85;">)</span>
+    <p>
+    The problem with shell programming is that you quote 90% of the time and so the font-locking is wasted :/  You might say, well, just throw in the regexp, right?  Not quite.  We do not want to highlight variables in single-quoted strings where they are not interpolated.  This means we need to only match variables in certain syntactic context.
+    </p>
+
+    <p>
+    In the previous post I mentioned you can use custom matchers which are essentially regular elisp functions so long as you conform to the interface of <code>re-search-forward</code>.  So that is exactly what I've done.
+    </p>
+
+    <p>
+    The following function is a bit convoluted because you need to check the parse state.  Note that the function should only "process" <b>one</b> match as <code>font-lock</code> will execute it in a loop until it returns <code>nil</code> or moves point after the <code>limit</code>.
+    </p>
+
+    <ol class="org-ol">
+    <li>Look for the next string matching a variable syntax, which is either
+    <ul class="org-ul">
+    <li>a <code>$</code> followed by word syntax, or</li>
+    <li>a <code>$</code> followed by text enclosed in <code>{}.</code></li>
+    </ul></li>
+    <li>If no match then return nil.  This will tell the font-lock engine
+    there is nothing to do up to <code>limit</code>.  This happens if the
+    <code>re-search-forward</code> returns <code>nil</code> right away or eventually runs out of
+    matches as we get over <code>limit</code>.</li>
+    <li>If match, check if we are inside a double-quoted string.
+    <ul class="org-ul">
+    <li>If so, great, announce a match with a <code>throw</code> and the point where
+    we ended (this is not strictly necessary, you only need to
+    return non-nil).</li>
+    <li>If not <code>GOTO 1</code>.</li>
+    </ul></li>
+    </ol>
+
+    <div class="org-src-container">
+    <pre class="src src-elisp" id="org046d41f"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-match-variables-in-quotes</span> <span style="color: #888a85;">(</span>limit<span style="color: #888a85;">)</span>
+    <span style="color: #e9b96e;">"Match variables in double-quotes in `</span><span style="color: #e6a8df;">sh-mode</span><span style="color: #e9b96e;">'."</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-syntax-table</span> sh-mode-syntax-table
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">catch</span> '<span style="color: #e6a8df;">done</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>re-search-forward
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">`</span><span style="color: #e6a8df;">rx</span><span style="color: #73d216;">' is cool, mkay.</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">rx</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> line-start <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span>any <span style="color: #e9b96e;">"\\"</span><span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span>group <span style="color: #e9b96e;">"$"</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>group
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #e9b96e;">"{"</span> <span style="color: #888a85;">(</span>+? nonl<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"}"</span><span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>+ <span style="color: #888a85;">(</span>any alnum <span style="color: #e9b96e;">"_"</span><span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>any <span style="color: #e9b96e;">"*"</span> <span style="color: #e9b96e;">"@"</span> <span style="color: #e9b96e;">"#"</span> <span style="color: #e9b96e;">"?"</span> <span style="color: #e9b96e;">"-"</span> <span style="color: #e9b96e;">"$"</span> <span style="color: #e9b96e;">"!"</span> <span style="color: #e9b96e;">"0"</span> <span style="color: #e9b96e;">"_"</span><span style="color: #888a85;">)))))</span>
+    limit t<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">(</span>string-syntax <span style="color: #888a85;">(</span>nth 3 <span style="color: #888a85;">(</span>syntax-ppss<span style="color: #888a85;">)))</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>= string-syntax 34<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">throw</span> '<span style="color: #e6a8df;">done</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))))))))</span>
+    </pre>
+    </div>
+
+    <p>
+    Add the support to the current buffer (use <code>nil</code> as first argument) or <code>sh-mode</code> globally (use <code>'sh-mode</code>):
+    </p>
+
+    <div class="org-src-container">
+    <pre class="src src-elisp" id="org3bbe08f"><span style="color: #888a85;">(</span>font-lock-add-keywords
+    <span style="color: #e6a8df;">'sh-mode</span> '<span style="color: #888a85;">((</span>my-match-variables-in-quotes
+    <span style="color: #888a85;">(</span>1 <span style="color: #e6a8df;">'default</span> t<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>2 font-lock-variable-name-face t<span style="color: #888a85;">))))</span>
+    </pre>
+    </div>
+
+    <p>
+    Quite simple and the outcome is very satisfying.  Makes reading shell scripts a lot better in my opinion.  If any of you cares to submit this upstream go ahead, I have signed the contributor papers but I hereby withdraw all claims on the above code so you don't have to go through hoops :)
+    </p>
+
+    <div class="org-src-container">
+    <pre class="src src-sh"><span style="color: #fcaf3e;">FOO</span>=<span style="color: #e9b96e;">"hello"</span>
+    <span style="color: #73d216;"># </span><span style="color: #73d216;">yay</span>
+    <span style="color: #fcaf3e;">BAR</span>=<span style="color: #e9b96e;">"hello </span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">FOO</span><span style="color: #e9b96e;"> and also </span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">{FOO}</span><span style="color: #e9b96e;">"</span>
+    <span style="color: #73d216;"># </span><span style="color: #73d216;">No interpolation in single-quotes</span>
+    <span style="color: #fcaf3e;">BAZ</span>=<span style="color: #e9b96e;">'hello $FOO'</span>
     </pre>
     </div>
     ]]></description>
 </item>
 
 <item>
-  <title>Use org-radiobutton to select an option from a list</title>
-  <link>https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</link>
+  <title>Visit the org headline from the attach dired buffer</title>
+  <link>https://fuco1.github.io/2023-02-08-Visit-the-org-headline-from-the-attach-dired-buffer.html</link>
   <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/2018-03-11-Use-org-radiobutton-to-select-an-option-from-a-list.html</guid>
-  <pubDate>Sun, 11 Mar 2018 00:00:00 +0100</pubDate>
+  <guid isPermaLink="false">https://fuco1.github.io/2023-02-08-Visit-the-org-headline-from-the-attach-dired-buffer.html</guid>
+  <pubDate>Wed, 08 Feb 2023 00:00:00 +0100</pubDate>
 
-  <description><![CDATA[<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-  <colgroup>
-  <col  class="org-right" />
-
-  <col  class="org-left" />
-  </colgroup>
-  <thead>
-  <tr>
-  <th scope="col" class="org-right">Date</th>
-  <th scope="col" class="org-left">Change</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr>
-  <td class="org-right">2021-05-24</td>
-  <td class="org-left">Since <code>org-mode</code> 9.4.0 there is a built-in <code>org-list-checkbox-radio-mode</code>.  It works very similar to this package so make sure to check it out and possibly migrate your org files.</td>
-  </tr>
-  </tbody>
-  </table>
-
-  <p>
-  Ever since I've come across the <a href="http://howardism.org/Technical/Emacs/literate-devops.html">Literate DevOps</a> article I was hooked
-  and immediately started writing down "org notebooks" every time an
-  incident occured along with all the code and steps on how to fix it in
-  case it might happen in the future (protip: it <i>will</i> happen again).
+  <description><![CDATA[<p>
+  I am a heavy heavy user of <code>org-attach</code>.  Pretty much all my binary data
+  from the last fifteen years live somewhere under <code>~/data/org-attach</code>
+  (set via <code>org-attach-id-dir</code>), further nested under the org headline ID.
+  After experimenting with many ways to organize data, including
+  <a href="https://www.tagsistant.net/">tagsistant</a> and other semantic filesystems, this is what stuck the
+  best:
   </p>
 
   <p>
-  Recently we had some problems with webhook requests behaving weird and
-  so I created a little notebook to query the mongo database where we
-  store all the requests and some more functions (ranging from elisp to
-  jq to ruby) to process the results.  As you sure know, threading data
-  between code blocks in different languages is painless with <code>org-mode</code>
-  and babel.
+  Make a headline in some of your org files (I have various files such
+  as <code>knowledgebase.org</code>, <code>bookmarks.org</code>, <code>movies.org</code>, <code>emacs.org</code>, ...), hit
+  <kbd>C-c C-a</kbd> and attach the file to the "headline".  To later search for it
+  you can use all the powerful indexing and search facilities of
+  org-mode.  The whole directory is checked into <a href="https://git-annex.branchable.com/">git-annex</a> and backed in
+  various cloud providers and external drives.
   </p>
 
   <p>
-  So imagine a block like this (using <a href="https://github.com/krisajenkins/ob-mongo">ob-mongo</a>):
+  I don't really care about where or how the data itself is stored and I
+  treat the <code>org-attach</code> directory as an opaque "blob"
+  store<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>.
+  This works 99% of the time because I usually want to find the file
+  where I have some vague semantic idea of what it is and usually find
+  it via org interface and then open the attachment.
+  </p>
+
+  <p>
+  For the rare cases I can't figure out where I stored a file, I use the
+  usual <code>locate</code> or <code>find</code> utilities.  When I finally get to the dired
+  buffer for this attachment, I usually want to visit its corresponding
+  headline to either add more keywords or somehow make it easier to find
+  this file again through the org interface.
+  </p>
+
+  <p>
+  So I wrote this simple utility function to jump back to the headline
+  to edit it:
   </p>
 
   <div class="org-src-container">
-  <pre class="src src-org"><span style="color: #73d216;">#+NAME: query</span>
-  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port 27017</span>
-  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
-  <span style="color: #b4fa70;">#+END_SRC</span>
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-attach-visit-headline-from-dired</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Go to the headline corresponding to this org-attach directory."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let*</span> <span style="color: #888a85;">((</span>id-parts <span style="color: #888a85;">(</span>last <span style="color: #888a85;">(</span>split-string default-directory <span style="color: #e9b96e;">"/"</span> t<span style="color: #888a85;">)</span> 2<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>id <span style="color: #888a85;">(</span>apply <span style="color: #8cc4ff;">#'concat</span> id-parts<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>m <span style="color: #888a85;">(</span>org-id-find id <span style="color: #e6a8df;">'marker</span><span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">unless</span> m <span style="color: #888a85;">(</span><span style="color: #ff4b4b;">user-error</span> <span style="color: #e9b96e;">"Cannot find entry with ID \"%s\""</span> id<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>pop-to-buffer <span style="color: #888a85;">(</span>marker-buffer m<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>goto-char m<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>move-marker m nil<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-fold-show-context<span style="color: #888a85;">))))</span>
   </pre>
   </div>
 
   <p>
-  This gives me the most recent request to the <code>AddCustomer</code> endpoint.
-  The results of this block are then piped into other code blocks to
-  process the request, you can imagine how that looks.
+  Bind this to some <a href="https://github.com/Fuco1/free-keys">free key</a> in the dired mode map and you can jump back and forth with ease.
   </p>
+  ]]></description>
+</item>
 
-  <p>
-  Usually I run the entire app stack locally but we also have separate
-  staging and production environments.  So after I run the notebook on
-  my own local stack I want to try it out in staging.
-  </p>
+<item>
+  <title>Add fontification for progress cookie in org agenda</title>
+  <link>https://fuco1.github.io/2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.html</guid>
+  <pubDate>Tue, 04 Jan 2022 00:00:00 +0100</pubDate>
 
-  <p>
-  I use <a href="https://github.com/rejeep/prodigy.el">prodigy</a> to manage my ssh tunnels and so all I need to do is
-  change the port to one pointing to staging and re-run the notebook.
-  The problem is that I have multiple query blocks and so I have to go
-  and change all of the <code>:port</code> arguments.
-  </p>
-
-  <p>
-  I have solved this by creating a block that would work as a source for
-  the port and then reference it dynamically in the header line:
+  <description><![CDATA[<p>
+  In Org mode, there is an easy way to visualize progress on a task with
+  subtasks.  You can place a "progress cookie" <code>[/]</code> or <code>[%]</code> in the title
+  of a TODO task or parent item in a list, hit <kbd>C-c C-c</kbd> and Org will
+  calculate the progress for you.
   </p>
 
   <div class="org-src-container">
-  <pre class="src src-org"><span style="color: #73d216;">#+NAME: port</span>
-  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
-  <span style="background-color: #232a2b;">27017</span>
-  <span style="color: #b4fa70;">#+END_SRC</span>
-
-  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
-  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
-  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
-  <span style="color: #b4fa70;">#+END_SRC</span>
+  <pre class="src src-org"><span style="color: #fce94f;">* </span><span style="color: #ff4b4b; font-weight: bold;">TODO</span><span style="color: #fce94f;"> foo </span><span style="color: #e6a8df; font-weight: bold;">[1/3]</span>
+  <span style="color: #2e3436;">*</span><span style="color: #fcaf3e;">* </span><span style="color: #ff4b4b; font-weight: bold;">TODO</span><span style="color: #fcaf3e;"> one</span>
+  <span style="color: #2e3436;">*</span><span style="color: #fcaf3e;">* </span><span style="color: #ff4b4b; font-weight: bold;">TODO</span><span style="color: #fcaf3e;"> two</span>
+  <span style="color: #2e3436;">*</span><span style="color: #fcaf3e;">* </span><span style="color: #73d216; font-weight: bold;">DONE</span><span style="color: #fcaf3e;"> </span><span style="color: #888a85;">three</span>
+  <span style="color: #8cc4ff; font-weight: bold;">- </span>parent <span style="color: #e6a8df; font-weight: bold;">[66%]</span>
+  <span style="color: #888a85; font-weight: bold;">  </span><span style="color: #888a85; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85;"> one</span>
+  <span style="color: #888a85; font-weight: bold;">  </span><span style="color: #888a85; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85;"> two</span>
+  <span style="color: #8cc4ff; font-weight: bold;">  </span><span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span> three
   </pre>
   </div>
 
   <p>
-  Since we can call elisp in the header I use <code>org-babel-ref-resolve</code> and
-  give it the name of the source block and babel will automatically
-  replace it with the value of the block.
+  These are fontified with <code>org-checkbox-statistics-todo</code> to make them
+  easily stand out.  However, for some reason this face is not applied
+  in the Org agenda buffer.
   </p>
 
   <p>
-  This solves the problem of changing the constant at one place but as I
-  got to work with more environments I tended to forget what port was
-  what.  So I created a list above the block to remind me of the
-  available values:
+  Because the agenda buffer does not use font-lock for fontifying and
+  instead inserts already fontified text in the buffer directly, we
+  can't simply add a regexp with <code>font-lock-add-keywords</code>.  But the
+  solution is nonetheless very straight-forward.  Create a function
+  which will search for the regexp in the buffer and add the face text
+  property.  Then add it to the <code>org-agenda-finalize-hook</code> and that's
+  that!
   </p>
 
   <div class="org-src-container">
-  <pre class="src src-org">Use one of the following ports to operate on the given environment:
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-fontify-progress-cookie</span> <span style="color: #888a85;">()</span>
+  <span style="color: #e9b96e;">"Fontify progress cookies in org agenda."</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>re-search-forward <span style="color: #e9b96e;">"\\[[[:digit:]]+/[[:digit:]]+\\]"</span> nil t<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>add-face-text-property <span style="color: #888a85;">(</span>match-beginning 0<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>match-end 0<span style="color: #888a85;">)</span>
+  <span style="color: #e6a8df;">'org-checkbox-statistics-todo</span><span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>re-search-forward <span style="color: #e9b96e;">"\\[[[:digit:]]+%\\]"</span> nil t<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>add-face-text-property <span style="color: #888a85;">(</span>match-beginning 0<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>match-end 0<span style="color: #888a85;">)</span>
+  <span style="color: #e6a8df;">'org-checkbox-statistics-todo</span><span style="color: #888a85;">))))</span>
 
-  <span style="color: #8cc4ff; font-weight: bold;">- localhost ::</span> 27017
-  <span style="color: #8cc4ff; font-weight: bold;">- staging ::</span> 27004
-  <span style="color: #8cc4ff; font-weight: bold;">- production ::</span> 27005
-
-  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
-  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> elisp</span>
-  <span style="background-color: #232a2b;">27017</span>
-  <span style="color: #b4fa70;">#+END_SRC</span>
-
-  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
-  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-babel-ref-resolve "port")</span>
-  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
-  <span style="color: #b4fa70;">#+END_SRC</span>
+  <span style="color: #888a85;">(</span>add-hook <span style="color: #e6a8df;">'org-agenda-finalize-hook</span> <span style="color: #e6a8df;">'my-fontify-progress-cookie</span><span style="color: #888a85;">)</span>
   </pre>
   </div>
+  ]]></description>
+</item>
 
-  <p>
-  We can use the org mode list description syntax <code>foo ::</code> to attach a
-  label to each item and leave the number as the "value".
+<item>
+  <title>Restrict agenda to multiple subtrees</title>
+  <link>https://fuco1.github.io/2021-05-29-Restrict-agenda-to-multiple-subtrees.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2021-05-29-Restrict-agenda-to-multiple-subtrees.html</guid>
+  <pubDate>Sat, 29 May 2021 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<p>
+  The function <code>org-agenda-set-restriction-lock</code> is very useful for
+  speeding up agenda when working on a specific project (implemented as
+  a file or an Orgmode subtree).  Personally, I use two agenda views,
+  one "quick" with 5 simple sections and one "full" with 10 rather
+  complicated sections.
   </p>
 
   <p>
-  This is starting to look an awful lot like a list of choices I could
-  pick from.  So my thinking goes like this: let's make it a checkbox
-  list and then select the option by checking the option.  The trouble
-  there is that toggling the input would require me to un-toggle the
-  current one and then toggle the desired option.  Ideally, toggling one
-  checkbox would uncheck the other so that there is always exactly one
-  option selected: in other words, I wanted a radiobutton list.
+  The quick one lists all the actionable tasks, all the stuck tasks or
+  notes that need to be processed and refiled.  The full one lists all
+  the tasks from the project, including hierarchical project
+  dependencies, tasks on hold, bugs, waiting tasks and so on.  The full
+  view takes a lot more processing power and is not useful maybe 80% of
+  the time when I simply want to find work to do next.
   </p>
 
   <p>
-  After a quick google session I've found (via <a href="http://irreal.org/blog/?p=4644">Irreal</a>) that <a href="http://kitchingroup.cheme.cmu.edu/blog/2015/10/05/A-checkbox-list-in-org-mode-with-one-value/">John Kitchin</a>
-  already figured this out.  I took his code and cleaned it up a bit to
-  work with "modern" org mode (the post is three years old) and packaged
-  it as <a href="https://github.com/Fuco1/org-radiobutton">org-radiobutton</a>.
+  For the times when I want to get a complete overview over a project
+  and do some light management or planning, I use the full agenda view.
   </p>
 
   <p>
-  Now I have a nice menu I can go to and with a single <code>C-c C-c</code> on the
-  option I want I can select the environment where to run the notebook.
-  Org mode is so cool!
+  One thing that kept bothering me was that the only option was to
+  restrict to a file or a subtree, but nothing in
+  between<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>, such as a
+  region spanning multiple subtrees.  Since I'm not a huge fan of
+  nesting headers just for the sake of nesting (flatter structures and
+  <a href="https://github.com/Fuco1/org-node-graph">graphs</a> are much nicer for organization).
+  </p>
+
+  <p>
+  Luckily, the function <code>org-agenda-set-restriction-lock</code> is fairly
+  hackable.  It uses overlays and markers for managing the restriction,
+  so all we need to do is grab the current active region's bounds and
+  set the org variables appropriately.
   </p>
 
   <div class="org-src-container">
-  <pre class="src src-org">Check one of the following ports to operate on the given environment:
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-agenda-set-restriction-lock</span> <span style="color: #888a85;">(</span>orig-fun <span style="color: #8cc4ff;">&amp;optional</span> type<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">if</span> <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span>use-region-p<span style="color: #888a85;">))</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">unless a region is active, use the original function for</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">cancel/file/subtree</span>
+  <span style="color: #888a85;">(</span>funcall orig-fun type<span style="color: #888a85;">)</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">here we do approximately the same as subtree except find the</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">beginning of subtree at region's beginning and end of subtree</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">at region's end (could span multiple subtrees)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> org-agenda-restrict <span style="color: #888a85;">(</span>current-buffer<span style="color: #888a85;">))</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">use 'my-region to avoid potential future conflict</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> org-agenda-overriding-restriction <span style="color: #e6a8df;">'my-region</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>put <span style="color: #e6a8df;">'org-agenda-files</span> <span style="color: #e6a8df;">'org-restrict</span>
+  <span style="color: #888a85;">(</span>list <span style="color: #888a85;">(</span>buffer-file-name <span style="color: #888a85;">(</span>buffer-base-buffer<span style="color: #888a85;">))))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>beg <span style="color: #888a85;">(</span>region-beginning<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>end <span style="color: #888a85;">(</span>region-end<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
+  <span style="color: #888a85;">(</span>goto-char beg<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-back-to-heading t<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> beg <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span>
+  <span style="color: #888a85;">(</span>goto-char end<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-end-of-subtree t t<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">setq</span> end <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>move-overlay org-agenda-restriction-lock-overlay
+  beg
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">if</span> org-agenda-restriction-lock-highlight-subtree
+  end
+  <span style="color: #888a85;">(</span>point-at-eol<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>move-marker org-agenda-restrict-begin beg<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>move-marker org-agenda-restrict-end end<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>message <span style="color: #e9b96e;">"Locking agenda restriction to region"</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-agenda-maybe-redo<span style="color: #888a85;">)))</span>
 
-  <span style="color: #b4fa70;">#+attr_org:</span><span style="color: #73d216;"> :radio</span>
-  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> port</span>
-  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> localhost ::</span> 27017
-  <span style="color: #888a85; font-weight: bold;">- </span><span style="color: #888a85; font-weight: bold;">[X]</span><span style="color: #888a85; font-weight: bold;"> staging ::</span><span style="color: #888a85;"> 27004</span>
-  <span style="color: #8cc4ff; font-weight: bold;">- </span><span style="color: #8cc4ff; font-weight: bold;">[ ]</span><span style="color: #8cc4ff; font-weight: bold;"> production ::</span> 27005
-
-  <span style="color: #b4fa70;">#+NAME:</span><span style="color: #73d216;"> query</span>
-  <span style="color: #b4fa70;">#+BEGIN_SRC</span><span style="color: #73d216;"> mongo :db logs :host localhost :port (org-radiobutton-value "port")</span>
-  <span style="background-color: #232a2b;">db.webhookLogs.find({endpoint: </span><span style="color: #e9b96e; background-color: #232a2b;">"AddCustomer"</span><span style="background-color: #232a2b;">}).sort({_id: -1}).limit(1)</span>
-  <span style="color: #b4fa70;">#+END_SRC</span>
+  <span style="color: #888a85;">(</span>advice-add <span style="color: #e6a8df;">'org-agenda-set-restriction-lock</span> <span style="color: #ad7fa8;">:around</span> <span style="color: #8cc4ff;">#'my-org-agenda-set-restriction-lock</span><span style="color: #888a85;">)</span>
   </pre>
   </div>
-
-  <p>
-  I'm going over all of my notebooks converting all the ugly option
-  hacks to this setup and it is so damn pleasing! :D
-  </p>
   ]]></description>
 </item>
 
@@ -484,7 +562,7 @@
   English.  Given the fact that the past and current org maintainers
   also don't speak English as a first language kind of led me to expect
   there to be some setting to inherit the input method of the original
-  buffer<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>.  Sadly, I
+  buffer<sup><a id="fnr.3" class="footref" href="#fn.3" role="doc-backlink">3</a></sup>.  Sadly, I
   couldn't find it, so I decided to "roll my own".
   </p>
 
@@ -492,7 +570,7 @@
   Now here comes the part that blew my mind... I've realized I wrote the
   whole code in under 2 minutes... where simply trying to read the
   manual and search the code would easily take more
-  time<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup>.  This is the nice feature of being an Emacs power-user.  I
+  time<sup><a id="fnr.4" class="footref" href="#fn.4" role="doc-backlink">4</a></sup>.  This is the nice feature of being an Emacs power-user.  I
   wrote the code on the first try, registered it in a hook which name
   I've guessed and it all worked flawlessly.  Nice!
   </p>
@@ -760,7 +838,7 @@
   <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-incf</span> line<span style="color: #888a85;">)</span>
   <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>min
   <span style="color: #888a85;">(</span>buffer-size<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span> <span style="color: #e6a8df;">'elsa-line</span> line<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span> <span style="color: #ff4b4b;">'elsa-line line</span><span style="color: #ff4b4b;">)))</span>
   </pre>
   </div>
 
@@ -791,175 +869,9 @@
   <p>
   On a closing note, I'm looking for people to help out on the project,
   there is a lot of things for people of all skill ranging from
-  beginners to seasoned hackers.  Check out issues marked <a href="https://github.com/Fuco1/Elsa/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22">help wanted</a> or
-  <a href="https://github.com/Fuco1/Elsa/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">good first issue</a> and get involved!  If anything's unclear go ahead and
+  beginners to seasoned hackers.  Check out issues marked <a href="https://github.com/Fuco1/Elsa/issues?q=is%253Aissue+is%253Aopen+label%253A%2522help+wanted%2522">help wanted</a> or
+  <a href="https://github.com/Fuco1/Elsa/issues?q=is%253Aissue+is%253Aopen+label%253A%2522good+first+issue%2522">good first issue</a> and get involved!  If anything's unclear go ahead and
   ask questions.
-  </p>
-  ]]></description>
-</item>
-
-<item>
-  <title>fontify-face: Fontification of symbols referencing faces</title>
-  <link>https://fuco1.github.io/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html</link>
-  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/2018-04-10-fontify-face:-Fontification-of-symbols-referencing-faces.html</guid>
-  <pubDate>Tue, 10 Apr 2018 00:00:00 +0200</pubDate>
-
-  <description><![CDATA[<p>
-  Today I was updating <a href="https://github.com/Fuco1/.emacs.d/tree/master/themes">my theme</a> to support some additional packages.
-  I'm a big fan of face inheritance because it makes things very
-  consistent across the board.  In particular I'm trying to reuse the
-  faces in the <code>font-lock-</code> group as much as possible.
-  </p>
-
-  <p>
-  I have even created a similar hierarchy for the various markup systems
-  such as markdown, org mode, rst, textile, latex and others.  It's
-  called, unsurprisingly, <code>markup</code> and contains all the common elements
-  such as headers, code text, emphasis and so on.  I then make all the
-  other modes inherit from this set of faces and thus achieve a
-  consistent look and feel across all the markup
-  modes.<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup>.  Have a look at the definitions if this
-  makes no sense to you yet!
-  </p>
-
-  <p>
-  Anyway, while I was working on adding new faces I got annoyed because
-  I couldn't see what I was doing.  I sometimes inherit from multiple
-  faces to make combined faces, sometimes I just add a parameter or two
-  and it's difficult to see the results. Usually you need to switch to a
-  different buffer (with the mode you are theming), find the desired
-  element and look what's going on.
-  </p>
-
-  <p>
-  Why couldn't the face name itself be fontified with the face? A ha!  I
-  already use <a href="https://elpa.gnu.org/packages/rainbow-mode.html">rainbow-mode</a> which colorizes color references such as
-  #fafafa with the color they represent.  So I'm thinking along the same
-  lines: the symbols representing faces should be fontified with that
-  face.  This will make the feedback loop much shorter and the
-  development much faster and more convenient.
-  </p>
-
-  <p>
-  I have quickly turned this idea into a package and called it
-  <a href="https://github.com/Fuco1/fontify-face">fontify-face</a>.  The code is rather unsurprising, just a couple lines.
-  The most interesting part is the function
-  <code>fontify-face-colorize-matched-face</code> which computes the face from the
-  matched region and then passes it back to font-lock to do its thing.
-  </p>
-
-  <p>
-  This works because font-lock allows arbitrary forms in every place
-  where you can pass a face reference.  The rule is, this form must
-  evaluate to
-  </p>
-
-  <ul class="org-ul">
-  <li>a face reference,</li>
-  <li>or a plist representing face properties,</li>
-  <li>or nil if we don't want do do anything with the match.</li>
-  </ul>
-
-  <p>
-  The form I use is <code>(funcall 'fontify-face-colorize-matched-face)</code>
-  because I dislike just passing random blobs of code around.  This way
-  I can redefine the function without having to mess around with
-  removing the old forms from <code>font-lock-keywords-alist</code>.  This is similar
-  in logic to why you shouldn't put lambda forms in hooks.
-  </p>
-
-  <p>
-  So that's it folks.  Finally, here are some pictures:
-  </p>
-
-
-  <div class="figure">
-  <p><img src="https://i.imgur.com/hjJQVyL.png" alt="hjJQVyL.png" />
-  </p>
-  <p><span class="figure-number">Figure 1: </span>magit and friends</p>
-  </div>
-
-
-  <div class="figure">
-  <p><img src="https://i.imgur.com/1ksWpt3.png" alt="1ksWpt3.png" />
-  </p>
-  <p><span class="figure-number">Figure 2: </span>markup faces</p>
-  </div>
-  ]]></description>
-</item>
-
-<item>
-  <title>Smartparens is 5 years old today</title>
-  <link>https://fuco1.github.io/2017-11-17-Smartparens-is-5-years-old-today.html</link>
-  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/2017-11-17-Smartparens-is-5-years-old-today.html</guid>
-  <pubDate>Fri, 17 Nov 2017 00:00:00 +0100</pubDate>
-
-  <description><![CDATA[<p>
-  Five years ago I've published the <a href="https://github.com/Fuco1/smartparens/commit/cf39349e1966d20ce0c9f370d7310500d5da1637">first version</a> of Smartparens on
-  Github.  To celebrate the occasion I've just released Smartparens
-  version <a href="https://github.com/Fuco1/smartparens/releases/tag/1.11.0">1.11.0</a> packed with new features, bug fixes and some
-  performance optimizations.
-  </p>
-
-  <p>
-  This project has become a huge part of my life and evolved along with
-  me over the years.  I have started working on it pretty much on the
-  day when I first started using Emacs.  One can almost say that the
-  project was only born thanks to my ignorance of Emacs landscape---had
-  I known of paredit I would have probably never started, or maybe start
-  but a lot later and with different setup in mind.
-  </p>
-
-  <p>
-  Today with over 350.000 downloads on MELPA it is one of the biggest
-  projects in Emacs land; and I'm aiming for the top!  The ubiquity of
-  it still shocks me and every time I randomly read a blog post or an
-  article where someone mentions Smartparens it feels just like years
-  ago---a sense of deep appreciation and gratefulness, not only for the
-  kind words but also simply for the fact that I am able to do something
-  like this and can rightly call myself amazingly fortunate.
-  </p>
-
-  <p>
-  I had no idea what I was doing but the response from the community was
-  amazing and very encouraging.  One special shout out has to go to the
-  amazing <a href="http://batsov.com/">Bozhidar Batsov</a> who <a href="https://twitter.com/bbatsov/status/350889256048279553?lang=en">switched Prelude</a> to use Smartparens not
-  even half a year after I started the project.  This was a huge deal
-  for the growth of the project with thousands of new users coming in
-  pretty much over night.
-  </p>
-
-  <p>
-  This early success encouraged me to start other (Emacs) projects of
-  which I now have well over 50 and I have contributed to countless
-  others.
-  </p>
-
-  <p>
-  Thanks also go to all the <a href="https://github.com/Fuco1/smartparens/graphs/contributors">contributors</a> who helped to move Smartparens
-  to where it is now; and also many others who reported issues and
-  provided suggestions for improvements.  I can't name you all but your
-  efforts are much appreciated!
-  </p>
-
-  <p>
-  I had pretty rough and packed year but I hope to get back on track
-  with the release schedule and start a more rapid release cycle.
-  Expect more goodies to come soon :)
-  </p>
-
-  <p>
-  Thanks again and enjoy the new release everyone!
-  </p>
-
-  <p>
-  ----
-  </p>
-
-  <p>
-  PS: You can send some love through <a href="https://www.patreon.com/user?u=3282358&amp;ty=h">Patreon</a> or <a href="https://www.paypal.me/MatusGoljer">PayPal</a>.
   </p>
   ]]></description>
 </item>
@@ -967,21 +879,26 @@
   <h2 class="footnotes">Footnotes: </h2>
   <div id="text-footnotes">
 
-    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">While it is possible to restrict to a
+    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">This really removed a lot of "create a
+    perfect file hierarchy" anxiety that ultra-orderly people like me get
+    all the time.  I am no longer slave to the perpetual fine-tuning of
+    what is nested where.  The files on the disk are actually stored in a
+    flat two-level hierarchy determined by some hash or uuid.  This is
+    great!  And the semantics of what the file is and how to find it is
+    delegated to org mode.  This is even greater because its metadata are
+    so much ritcher than what you can store in the file system itself.</p></div></div>
+
+    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">While it is possible to restrict to a
     region from the org-agenda speed dial, I find it quite impractical and
     prefer to do the restrictions from the project's buffer</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">And really, 99% of the time, when you say "I'm
+    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">And really, 99% of the time, when you say "I'm
     going to write an org-extension", it already is in core.</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara"><p class="footpara">This is not the greatest engineering and you
+    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4" role="doc-backlink">4</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">This is not the greatest engineering and you
     should almost always prefer a well-tested lib over your own... on the
     other hand, being a pragmatic professional, I value my time over code
     purity</p></div></div>
-
-    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara"><p class="footpara">I might somehow package this in the future
-    but haven't found a good way to plug this into existing themes.  If
-    you have ideas let me know!</p></div></div>
 
 
   </div>
