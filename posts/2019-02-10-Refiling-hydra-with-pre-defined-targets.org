@@ -6,9 +6,6 @@ CLOSED: [2019-02-10 Sun 13:52]
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2019-02-10 Sun 13:52]
 :END:
-:CLOCK:
-CLOCK: [2019-02-10 Sun 13:17]
-:END:
 
 I'm a heavy =org-capture= user and I use about 10 templates to save the
 ideas/tasks to appropriate places (work / life / emacs / other
@@ -86,4 +83,3 @@ _k_b.org    _r_eading.org"
 
 (bind-key "C-c r" #'my-org-refile-hydra/body org-mode-map)
 #+end_src
-
