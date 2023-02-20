@@ -14,9 +14,9 @@
   <link>https://fuco1.github.io/</link>
   <description><![CDATA[]]></description>
   <language>en</language>
-  <pubDate>Wed, 08 Feb 2023 16:03:25 +0100</pubDate>
-  <lastBuildDate>Wed, 08 Feb 2023 16:03:25 +0100</lastBuildDate>
-  <generator>Emacs 28.1 Org-mode 9.6.1</generator>
+  <pubDate>Mon, 20 Feb 2023 20:18:55 +0100</pubDate>
+  <lastBuildDate>Mon, 20 Feb 2023 20:18:55 +0100</lastBuildDate>
+  <generator>Emacs 28.2 Org-mode 9.6.1</generator>
   <webMaster>matus.goljer@gmail.com (Matúš Goljer)</webMaster>
   <image>
     <url>https://orgmode.org/img/org-mode-unicorn-logo.png</url>
@@ -25,129 +25,494 @@
   </image>
 
   <item>
-    <title>Font-locking with custom matchers</title>
-    <link>https://fuco1.github.io/2017-06-11-Font-locking-with-custom-matchers.html</link>
+    <title>Using OpenAI GPT to search your org files</title>
+    <link>https://fuco1.github.io/2023-02-20-Using-OpenAI-GPT-to-search-your-org-files.html</link>
     <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-    <guid isPermaLink="false">https://fuco1.github.io/2017-06-11-Font-locking-with-custom-matchers.html</guid>
-    <pubDate>Sun, 11 Jun 2017 00:00:00 +0200</pubDate>
+    <guid isPermaLink="false">https://fuco1.github.io/2023-02-20-Using-OpenAI-GPT-to-search-your-org-files.html</guid>
+    <pubDate>Mon, 20 Feb 2023 00:00:00 +0100</pubDate>
 
-    <description><![CDATA[<table id="orgee4e220" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-    <colgroup>
-    <col  class="org-right" />
-
-    <col  class="org-left" />
-    </colgroup>
-    <thead>
-    <tr>
-    <th scope="col" class="org-right">Date</th>
-    <th scope="col" class="org-left">Change</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-    <td class="org-right">2017-06-21</td>
-    <td class="org-left">The regexp was fixed to match <code>$FOO_BAR</code> and skip escaped dollars (see this <a href="https://github.com/Fuco1/Fuco1.github.io/pull/6">PR</a>)</td>
-    </tr>
-    </tbody>
-    </table>
-
-    <p>
-    Previously I have written about <a href="./2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html#org6db07d1">font-lock anchored matchers</a>.  Today I have come across another problem and another solution with Emacs's font-lock mechanism.  This trend is starting to annoy me.
+    <description><![CDATA[<p>
+    As I wrote <a href="./2023-02-08-Visit-the-org-headline-from-the-attach-dired-buffer.html#org2e7b192">previously</a>, I store all my files under <code>~/data/org-attach</code> by
+    using the org mode file attachment feature.  To retrieve a file, I
+    usually use agenda search or other org packages which can go over your
+    org files and retrieve a headline.
     </p>
 
     <p>
-    I now work at a DevOps position and so I have been writing a lot of shell scripts lately to glue all the stuff we do together.  One missing feature that kept bugging me was the font-locking of interpolated variables in <code>sh-mode</code>... that is, the fact that there wasn't any!
-    </p>
-
-    <div class="org-src-container">
-    <pre class="src src-bash"><span style="color: #fcaf3e;">FOO</span>=<span style="color: #e9b96e;">"hello"</span>
-    <span style="color: #73d216;"># </span><span style="color: #73d216;">ugly brown!</span>
-    <span style="color: #fcaf3e;">BAR</span>=<span style="color: #e9b96e;">"hello $FOO"</span>
-    <span style="color: #73d216;"># </span><span style="color: #73d216;">I would really like to see that $FOO is *not* being interpolated</span>
-    <span style="color: #fcaf3e;">BAZ</span>=<span style="color: #e9b96e;">'hello $FOO'</span>
-    <span style="color: #73d216;"># </span><span style="color: #73d216;">in regular usage things are highlighted, but you should always quote, right?</span>
-    bash $<span style="color: #fcaf3e;">FOO</span> $<span style="color: #fcaf3e;">BAR</span> ${<span style="color: #fcaf3e;">BAZ</span>}
-    </pre>
-    </div>
-
-    <p>
-    The problem with shell programming is that you quote 90% of the time and so the font-locking is wasted :/  You might say, well, just throw in the regexp, right?  Not quite.  We do not want to highlight variables in single-quoted strings where they are not interpolated.  This means we need to only match variables in certain syntactic context.
+    But what for those rare moments when I only have a vague idea of what
+    I'm looking for and can't hit the query exactly?  Well... we can use a
+    semantic search.
     </p>
 
     <p>
-    In the previous post I mentioned you can use custom matchers which are essentially regular elisp functions so long as you conform to the interface of <code>re-search-forward</code>.  So that is exactly what I've done.
+    OpenAI recently opened a Large Language Model Embedding API.  Roughly
+    speaking, embedding takes a chunk of text and returns a fixed sized
+    vector in the model's "knowledge space" (OpenAI's ada model returns
+    1536 dimensional vector).  Two vectors which are close to each other
+    in this knowledge space should correspond to similar things.
     </p>
 
     <p>
-    The following function is a bit convoluted because you need to check the parse state.  Note that the function should only "process" <b>one</b> match as <code>font-lock</code> will execute it in a loop until it returns <code>nil</code> or moves point after the <code>limit</code>.
+    The usual metric of judging closeness of vectors is the "angle"
+    between them.  This is hard to imagine in 1536 dimensions, but to keep
+    it short we can use the <a href="https://en.wikipedia.org/wiki/Dot_product">dot product</a> operation to compute the
+    "similarity".
+    </p>
+
+    <p>
+    So the idea here is simple:
     </p>
 
     <ol class="org-ol">
-    <li>Look for the next string matching a variable syntax, which is either
-    <ul class="org-ul">
-    <li>a <code>$</code> followed by word syntax, or</li>
-    <li>a <code>$</code> followed by text enclosed in <code>{}.</code></li>
-    </ul></li>
-    <li>If no match then return nil.  This will tell the font-lock engine
-    there is nothing to do up to <code>limit</code>.  This happens if the
-    <code>re-search-forward</code> returns <code>nil</code> right away or eventually runs out of
-    matches as we get over <code>limit</code>.</li>
-    <li>If match, check if we are inside a double-quoted string.
-    <ul class="org-ul">
-    <li>If so, great, announce a match with a <code>throw</code> and the point where
-    we ended (this is not strictly necessary, you only need to
-    return non-nil).</li>
-    <li>If not <code>GOTO 1</code>.</li>
-    </ul></li>
+    <li>Iterate over all headlines in my buffers.</li>
+    <li>Submit them to the Embedding API and cache the embedding vectors for each headline.</li>
+    <li>When querying for a headline, submit the query to the API, then
+    calculate similarity with all the cached embeddings and present the
+    closest ones as candidates.<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup></li>
     </ol>
 
+    <p>
+    I wrote my own "org brain" clone which I called <a href="https://github.com/Fuco1/org-node-graph">org-graph</a> because I
+    wasn't happy with any available solution.  My biggest problem was that
+    most systems either prescribed one file per note, or only worked with
+    top level headlines, or had other artificial limitations.  So it was
+    logical this feature would live in that package as well.
+    </p>
+
+    <p>
+    But just after I got ready with all the preprocessing and data
+    preparation and API implementation, there came a shock.  Emacs math is
+    SLOOOOOOW.  So slow this "dot product" operation was taking ages and
+    the interface sucked.
+    </p>
+
+    <p>
+    But then I remembered about <a href="https://phst.eu/emacs-modules">dynamic modules</a>.  Not wanting to give up,
+    I decided to write a C module for some good old linear algebra.
+    </p>
+
+    <p>
+    You start with a header and some initialization:
+    </p>
+
     <div class="org-src-container">
-    <pre class="src src-elisp" id="org046d41f"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-match-variables-in-quotes</span> <span style="color: #888a85;">(</span>limit<span style="color: #888a85;">)</span>
-    <span style="color: #e9b96e;">"Match variables in double-quotes in `</span><span style="color: #e6a8df;">sh-mode</span><span style="color: #e9b96e;">'."</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">with-syntax-table</span> sh-mode-syntax-table
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">catch</span> '<span style="color: #e6a8df;">done</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>re-search-forward
-    <span style="color: #73d216;">;; </span><span style="color: #73d216;">`</span><span style="color: #e6a8df;">rx</span><span style="color: #73d216;">' is cool, mkay.</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">rx</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> line-start <span style="color: #888a85;">(</span>not <span style="color: #888a85;">(</span>any <span style="color: #e9b96e;">"\\"</span><span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span>group <span style="color: #e9b96e;">"$"</span><span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>group
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #e9b96e;">"{"</span> <span style="color: #888a85;">(</span>+? nonl<span style="color: #888a85;">)</span> <span style="color: #e9b96e;">"}"</span><span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>+ <span style="color: #888a85;">(</span>any alnum <span style="color: #e9b96e;">"_"</span><span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">and</span> <span style="color: #888a85;">(</span>any <span style="color: #e9b96e;">"*"</span> <span style="color: #e9b96e;">"@"</span> <span style="color: #e9b96e;">"#"</span> <span style="color: #e9b96e;">"?"</span> <span style="color: #e9b96e;">"-"</span> <span style="color: #e9b96e;">"$"</span> <span style="color: #e9b96e;">"!"</span> <span style="color: #e9b96e;">"0"</span> <span style="color: #e9b96e;">"_"</span><span style="color: #888a85;">)))))</span>
-    limit t<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">-when-let</span> <span style="color: #888a85;">(</span>string-syntax <span style="color: #888a85;">(</span>nth 3 <span style="color: #888a85;">(</span>syntax-ppss<span style="color: #888a85;">)))</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">when</span> <span style="color: #888a85;">(</span>= string-syntax 34<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span><span style="color: #b4fa70;">throw</span> '<span style="color: #e6a8df;">done</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))))))))</span>
+    <pre class="src src-c"><span style="color: #ad7fa8;">#include</span> <span style="color: #e9b96e;">&lt;emacs-module.h&gt;</span>
+
+    <span style="color: #8cc4ff;">int</span> <span style="color: #fcaf3e;">plugin_is_GPL_compatible</span>;
+
+    <span style="color: #8cc4ff;">int</span>
+    <span style="color: #fce94f;">emacs_module_init</span> (<span style="color: #b4fa70;">struct</span> <span style="color: #8cc4ff;">emacs_runtime</span> *<span style="color: #fcaf3e;">runtime</span>)
+    {
+    <span style="color: #8cc4ff;">emacs_env</span> *<span style="color: #fcaf3e;">env</span> = runtime-&gt;get_environment (runtime);
+
+    <span style="color: #b4fa70;">return</span> 0;
+    }
     </pre>
     </div>
 
     <p>
-    Add the support to the current buffer (use <code>nil</code> as first argument) or <code>sh-mode</code> globally (use <code>'sh-mode</code>):
+    Then you can start implementing the functions.  I'm not going to
+    repeat everything here, you can find the full C source at <a href="https://github.com/Fuco1/org-node-graph/blob/master/dotproduct.c">GitHub</a>.  The
+    following function computes the dot product, which is really just a
+    lot of multiplication and addition.
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-elisp" id="org3bbe08f"><span style="color: #888a85;">(</span>font-lock-add-keywords
-    <span style="color: #e6a8df;">'sh-mode</span> '<span style="color: #888a85;">((</span>my-match-variables-in-quotes
-    <span style="color: #888a85;">(</span>1 <span style="color: #e6a8df;">'default</span> t<span style="color: #888a85;">)</span>
-    <span style="color: #888a85;">(</span>2 font-lock-variable-name-face t<span style="color: #888a85;">))))</span>
+    <pre class="src src-c"><span style="color: #b4fa70;">static</span> <span style="color: #8cc4ff;">emacs_value</span>
+    <span style="color: #fce94f;">dot_product</span> (<span style="color: #8cc4ff;">emacs_env</span> *<span style="color: #fcaf3e;">env</span>, <span style="color: #8cc4ff;">ptrdiff_t</span> <span style="color: #fcaf3e;">nargs</span>, <span style="color: #8cc4ff;">emacs_value</span> *<span style="color: #fcaf3e;">args</span>,
+    <span style="color: #8cc4ff;">void</span> *<span style="color: #fcaf3e;">data</span>)
+    {
+    assert (nargs == 2);
+    <span style="color: #8cc4ff;">emacs_value</span> <span style="color: #fcaf3e;">a</span> = args[0];
+    <span style="color: #8cc4ff;">emacs_value</span> <span style="color: #fcaf3e;">b</span> = args[1];
+
+    <span style="color: #8cc4ff;">ptrdiff_t</span> <span style="color: #fcaf3e;">size</span> = env-&gt;vec_size (env, a);
+
+    <span style="color: #8cc4ff;">double</span> <span style="color: #fcaf3e;">dp</span> = 0;
+    <span style="color: #b4fa70;">for</span> (<span style="color: #8cc4ff;">int</span> <span style="color: #fcaf3e;">i</span> = 0; i &lt; size; i++) {
+    <span style="color: #8cc4ff;">double</span> <span style="color: #fcaf3e;">first</span> = get_at(env, a, i);
+    <span style="color: #8cc4ff;">double</span> <span style="color: #fcaf3e;">second</span> = get_at(env, b, i);
+    dp += first * second;
+    }
+
+    <span style="color: #8cc4ff;">emacs_value</span> <span style="color: #fcaf3e;">result</span> = env-&gt;make_float (env, dp);
+    <span style="color: #b4fa70;">return</span> result;
+    }
     </pre>
     </div>
 
     <p>
-    Quite simple and the outcome is very satisfying.  Makes reading shell scripts a lot better in my opinion.  If any of you cares to submit this upstream go ahead, I have signed the contributor papers but I hereby withdraw all claims on the above code so you don't have to go through hoops :)
+    With a simple Makefile
     </p>
 
     <div class="org-src-container">
-    <pre class="src src-sh"><span style="color: #fcaf3e;">FOO</span>=<span style="color: #e9b96e;">"hello"</span>
-    <span style="color: #73d216;"># </span><span style="color: #73d216;">yay</span>
-    <span style="color: #fcaf3e;">BAR</span>=<span style="color: #e9b96e;">"hello </span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">FOO</span><span style="color: #e9b96e;"> and also </span><span style="color: #eeeeec; background-color: #2e3436;">$</span><span style="color: #fcaf3e;">{FOO}</span><span style="color: #e9b96e;">"</span>
-    <span style="color: #73d216;"># </span><span style="color: #73d216;">No interpolation in single-quotes</span>
-    <span style="color: #fcaf3e;">BAZ</span>=<span style="color: #e9b96e;">'hello $FOO'</span>
+    <pre class="src src-makefile"><span style="color: #fce94f;">.PHONY</span>: all
+
+    <span style="color: #fce94f;">all</span>: dotproduct.so
+
+    <span style="color: #fce94f;">dotproduct.o</span>: dotproduct.c
+    gcc -Wall -c dotproduct.c
+
+    <span style="color: #fce94f;">dotproduct.so</span>: dotproduct.o
+    gcc -shared -o dotproduct.so dotproduct.o
     </pre>
     </div>
+
+    <p>
+    we can build the module
+    </p>
+
+    <div class="org-src-container">
+    <pre class="src src-bash">&gt; make
+    gcc -Wall -c dotproduct.c
+    gcc -shared -o dotproduct.so dotproduct.o
+    </pre>
+    </div>
+
+    <p>
+    Finally, we load the module into Emacs with:
+    </p>
+
+    <div class="org-src-container">
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span>module-load <span style="color: #888a85;">(</span>expand-file-name <span style="color: #e9b96e;">"dotproduct.so"</span><span style="color: #888a85;">))</span>
+    </pre>
+    </div>
+
+    <p>
+    Armed with the now much faster math routines, I embedded about 2000
+    headers and now I can search my files by just giving very vague
+    queries---it works surprisingly well, even across multiple different
+    natural languages (i.e. if I ask about Franz Kafka's Castle it will
+    return "Das Schloß" entry from my foreign language reading file).
+    </p>
+
+    <div class="org-src-container">
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span>org-graph-openai-query <span style="color: #e9b96e;">"Book about journey to the center of the Earth"</span><span style="color: #888a85;">)</span>
+    </pre>
+    </div>
+
+    <p>
+    The top 10 results.  You can see it mixes the languages but all the
+    things are somewhat related.  However, it got the first hit exactly
+    right.
+    </p>
+
+    <pre class="example" id="org0459edd">
+    [8de3805f-8971-404a-98d2-84305db1a444] 87.43 Voyage au centre de la Terre
+    [f128f559-74a6-4435-a357-aa7d35976097] 85.43 Nicolai Klimii Iter Subterraneum
+    [2e0f3f7a-73bd-4b0f-a588-c757432607ca] 85.26 Endurance: Shackleton's Incredible Voyage
+    [d2828ffb-343c-431f-8657-521ef32de079] 85.11 Vesmír v orechovej škrupinke
+    [724b7e0d-f804-4d1d-8767-c4d166492472] 84.83 Oheň nad hlubinou - Pád Straumli
+    [5e2b17a4-902a-4e55-87f3-25a18f239346] 84.78 The Earthsea
+    [5e5906eb-7ab6-4b86-b41f-2bd007ff8eba] 84.65 Tolkien: Sur les rivages de la Terre du Milieu
+    [c33a670e-8ec2-4886-9e12-eee71891d2ea] 84.21 Vladimir Ulrich - Bis ans Ende der Welt - Ein Pilgerbuch
+    [d3c57fb4-9458-487d-bcf7-9852b9fec3cf] 84.09 The Lost World
+    [5d0d82de-df40-43f7-9868-3470d1bd376d] 83.95 Oheň nad hlubinou - Planeta spárů
+    </pre>
+
+    <p>
+    Here's another example which is purposefully silly description of the
+    <a href="https://en.wikipedia.org/wiki/Thus_Spoke_Zarathustra">expected</a> book's title:
+    </p>
+
+    <div class="org-src-container">
+    <pre class="src src-elisp"><span style="color: #888a85;">(</span>org-graph-openai-query <span style="color: #e9b96e;">"Philosophical book where someone spoke in a particular way"</span><span style="color: #888a85;">)</span>
+    </pre>
+    </div>
+
+    <p>
+    The top 10 results from my org files are:
+    </p>
+
+    <pre class="example" id="org406d308">
+    [5d59a53e-fb81-4927-bce2-5096d9fb8417] 88.69 Thus Spoke Zarathustra
+    [15e61234-4d6b-413c-986d-391996f09a19] 87.82 Quotes
+    [7922112d-e871-419f-a4f2-68e892d5dad1] 87.04 Epistemology
+    [82e38b44-5ce1-416f-bd19-075aa70c7bf6] 86.96 Western Philosophy
+    [babcdf60-5840-4772-ba2b-314faa756997] 86.94 Nietzsche
+    [b192f472-d4f6-4596-8520-627b2c77e783] 86.90 Treatise on Human Nature
+    [b6f1d479-53fb-4e88-a474-024fbafab99e] 86.75 The Short History of Modern Philosophy
+    [1a366e71-eb03-472b-8c7c-d619494e9693] 86.62 The way of the bow
+    [2d738ef8-4a23-4b32-bcc1-0a1cc941c4be] 86.55 The Discourses
+    [2f00f564-af67-4d04-bf41-8cabe7764cdb] 86.36 The Life of Reason - Santayana
+    </pre>
+
+    <p>
+    Not bad, eh :)
+    </p>
+
+    <p>
+    To prepare the embeddings, you can run the function
+    <code>org-graph-compute-embeddings-for-buffer</code> in an org buffer.  Make sure
+    to set the environment variable <code>OPENAI_TOKEN</code>.  Also be aware that this
+    will add the <code>ID</code> property to every headline as this is a way to track
+    the cached embedding to the particular headline.  Make sure to backup
+    your org files before running this (you have them checked in to git
+    right... right?!).  This will fire several requests to the API (about
+    20 headings per request), so be patient, it should take about a minute
+    for 500-600 headings.
+    </p>
+
+    <p>
+    You can discuss and ask questions on the <a href="https://github.com/Fuco1/Fuco1.github.io/discussions">discussions board on GitHub</a>.
+    </p>
+
+    <p>
+    This blog post was inspired by <a href="https://reasonabledeviations.com/2023/02/05/gpt-for-second-brain/">GPT for second brains</a>.
+    </p>
     ]]></description>
+</item>
+
+<item>
+  <title>Refiling hydra with pre-defined targets</title>
+  <link>https://fuco1.github.io/2019-02-10-Refiling-hydra-with-pre-defined-targets.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2019-02-10-Refiling-hydra-with-pre-defined-targets.html</guid>
+  <pubDate>Sun, 10 Feb 2019 00:00:00 +0100</pubDate>
+
+  <description><![CDATA[<p>
+  I'm a heavy <code>org-capture</code> user and I use about 10 templates to save the
+  ideas/tasks to appropriate places (work / life / emacs / other
+  projects / reading...).  Sometimes, however, it is quite difficult to
+  determine at the time of capture where to put the note, or it would
+  take a lot of time to categorize properly... or sometimes I'm just
+  lazy.  For these situations I use a general <code>refile.org</code> file.  Anything
+  I don't want to deal with right now goes there.
+  </p>
+
+  <p>
+  Then I often end up with 200+ notes in this file and I have to deal
+  with it somehow during my weekly reviews.  Many items I simply delete,
+  but some I refine and then refile away to where they belong.
+  </p>
+
+  <p>
+  I use about 10 huge org files to store my data and simply calling
+  <code>org-refile</code> is very slow and the number of targets grows into tens of
+  thousands which makes the experience sub-optimal.
+  </p>
+
+  <p>
+  I've written a simple Elisp <code>defmacro</code> to generate specialized versions
+  of <code>org-refile</code> where I can limit the targets to one file or a subset of
+  files.  This is done by <code>let</code>-binding <code>org-refine-targets</code> variable and
+  then calling <code>org-refile</code>---it will pick up the new setting.  I also
+  automatically clear the cache because during this process I often add
+  or move headlines around and the cache is most of the time stale.  In
+  practice it's not a problem because refiling to just one file is
+  fast-enough to rebuild the cache on-the-go.
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defmacro</span> <span style="color: #fce94f;">my-org-make-refile-command</span> <span style="color: #888a85;">(</span>fn-suffix refile-targets<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"Generate a command to call `</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' with modified targets."</span>
+  `<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> ,<span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #e9b96e;">"my-org-refile-"</span> <span style="color: #888a85;">(</span>symbol-name fn-suffix<span style="color: #888a85;">)))</span> <span style="color: #888a85;">()</span>
+  ,<span style="color: #888a85;">(</span>format <span style="color: #e9b96e;">"`</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' to %S"</span> refile-targets<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-refile-cache-clear<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>org-refile-target-verify-function nil<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-refile-targets ,refile-targets<span style="color: #888a85;">))</span>
+  <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'org-refile</span><span style="color: #888a85;">))))</span>
+  </pre>
+  </div>
+
+  <p>
+  It's quite straight-forward, we have a <code>defun</code> skeleton and we splice
+  the name and the target there.  The expansion looks like this
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> kb '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
+
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">expands to</span>
+
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-refile-kb</span> nil
+  <span style="color: #e9b96e;">"`</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' to (quote ((\"~/data/documents/kb.org\" :maxlevel . 9)))"</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-refile-cache-clear<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span>
+  <span style="color: #888a85;">((</span>org-refile-target-verify-function nil<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>org-refile-targets
+  '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">))))</span>
+  <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'org-refile</span><span style="color: #888a85;">)))</span>
+  </pre>
+  </div>
+
+  <p>
+  Throw in a cool <a href="https://github.com/abo-abo/hydra">hydra</a> and you're all set!
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> kb '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> reading '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/org/reading.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> this-file `<span style="color: #888a85;">((</span>,<span style="color: #888a85;">(</span>buffer-file-name<span style="color: #888a85;">)</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
+
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defhydra</span> <span style="color: #8cc4ff;">my-org-refile-hydra</span> <span style="color: #888a85;">(</span><span style="color: #ad7fa8;">:color</span> blue <span style="color: #ad7fa8;">:hint</span> nil<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"</span>
+  <span style="color: #e9b96e;">_t_his file</span>
+
+  <span style="color: #e9b96e;">Special files:</span>
+  <span style="color: #e9b96e;">---------------------</span>
+  <span style="color: #e9b96e;">_k_b.org    _r_eading.org"</span>
+  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"k"</span> my-org-refile-kb<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"r"</span> my-org-refile-reading<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"t"</span> my-org-refile-this-file<span style="color: #888a85;">))</span>
+
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">bind-key</span> <span style="color: #e9b96e;">"C-c r"</span> <span style="color: #8cc4ff;">#'my-org-refile-hydra/body</span> org-mode-map<span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+  ]]></description>
+</item>
+
+<item>
+  <title>The absolute awesomeness of anchored font-lock matchers</title>
+  <link>https://fuco1.github.io/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html</link>
+  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
+  <guid isPermaLink="false">https://fuco1.github.io/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html</guid>
+  <pubDate>Thu, 01 Jun 2017 00:00:00 +0200</pubDate>
+
+  <description><![CDATA[<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+  <colgroup>
+  <col  class="org-right" />
+
+  <col  class="org-left" />
+  </colgroup>
+  <thead>
+  <tr>
+  <th scope="col" class="org-right">Date</th>
+  <th scope="col" class="org-left">Change</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td class="org-right">2017-07-03</td>
+  <td class="org-left">The font-lock spec annotations were updated to better reflect the looping nature of the matcher</td>
+  </tr>
+  </tbody>
+  </table>
+
+  <p>
+  People who know my rants on Emacs and especially <code>font-lock-mode</code> know that I consider it a rather crappy hack.  Parsing complex context sensitive languages with a bunch of very weak regexes<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup> just screams <i>This is a really bad idea!</i>  Well, either way I was always forced to admit that yes, it is a hack, but damn does it work in practice!  Very rarely there is some problem you can't solve, and if the need comes, you can actually use arbitrary elisp code as the matcher so long as it sets <code>match-data</code> the same way <code>re-search-forward</code> would.
+  </p>
+
+  <p>
+  Today I had a problem I thought would finally prove my point about how bad font-lock is and that we should all bike-shed and invent totally awesome <a href="https://eclipse.org/Xtext/">formal parsers</a>... then I went back to the docstring and of course Emacs can actually solve the problem.
+  </p>
+
+  <p>
+  The issue is the following:  I'm writing a DSL which looks kind of like Haskell types, but written in sexps.  So where in Haskell one writes
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-haskell"><span style="color: #fce94f;">function</span> <span style="color: #fcaf3e;">::</span> <span style="color: #8cc4ff;">Int</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #8cc4ff;">String</span> <span style="color: #fcaf3e;">-&gt;</span> (<span style="color: #8cc4ff;">String</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #8cc4ff;">Int</span>) <span style="color: #fcaf3e;">-&gt;</span> [<span style="color: #8cc4ff;">Float</span>]
+  </pre>
+  </div>
+
+  <p>
+  in my DSL it would look something like
+  </p>
+
+  <pre class="example" id="org75c1efd">
+  (type function :: int -&gt; string -&gt; (string -&gt; int) -&gt; [float])
+  </pre>
+
+  <p>
+  Now, how would I fontify those <code>string</code> and <code>int</code> occurrences <i>only</i> when they occur inside the <code>type</code> form?  Turns out font lock supports <i>Anchored matchers</i>.
+  </p>
+
+  <p>
+  The anchored matchers work by first searching for an <i>anchor</i> and only then searching for the thing you want to highlight.  This basically allows you to do look-ahead context-sensitive fontification in the sense that the subsequent matchers are <i>tried</i> but if they fail the process continues <b>from where the anchor match ended</b>.<sup><a id="fnr.3" class="footref" href="#fn.3" role="doc-backlink">3</a></sup>.
+  </p>
+
+  <p>
+  For the longest time I struggled to understand how the font-lock specifications worked because there is so many different ways to write them.  What actually helped me to understand this once and for all was to simply look into the source code and read how it works.  I remembered the recent post by <a href="http://irreal.org/blog/?p=6209">Irreal</a> on reading source code.  It really is an effective way to learn, especially with software like Emacs being absolutely transparent about everything that is going on inside.
+  </p>
+
+  <p>
+  A font lock rule starts with a matcher followed by one or more <code>HIGHLIGHT</code> forms.  A <code>HIGHLIGHT</code> form either specifies how to fontify group matched by the matcher or is actually <i>another matcher</i> (this is the anchored matcher).  The highlight forms are tried in order and applied one after another, whatever their type is.
+  </p>
+
+  <p>
+  The specification is not completely recursive because it only allows one level of nesting, so an anchored matcher can not have other anchored matchers inside it.  The anchored matcher has the following syntax:
+  </p>
+
+  <pre class="example" id="orgdd31aba">
+  (MATCHER PRE-MATCH-FORM POST-MATCH-FORM MATCH-HIGHLIGHT ...)
+  </pre>
+
+  <p>
+  where <code>MATCHER</code> is the search regexp that is tried after the anchor was found, <code>PRE-MATCH-FORM</code> and <code>POST-MATCH-FORM</code> are executed before and after the <code>MATCHER</code> is run so you can set search limits and do other magic if necessary.  <code>MATCH-HIGHLIGHT</code> are the usual forms with the groups and faces.
+  </p>
+
+  <p>
+  The cool and crucial ingredient is that the <code>MATCHER</code> is run in a cycle until the point goes after the limit.  This means that we in a sense "fontify" the region from the anchor to the limit we provide (or end of line by default).  We can then reset the position in the <code>POST-MATCH-FORM</code> so the next <code>HIGHLIGHT</code> (anchored matcher) will start from the beginning of the same "region" again.  This allows us to define "region specific" font-locking.  So cool!
+  </p>
+
+  <p>
+  The final annotated rule looks as follows:
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span>font-lock-add-keywords
+  nil
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">the first regexp is the anchor of the fontification, meaning the</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">"starting point" of the region</span>
+  '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"(</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e;">type</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;"> +</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">\\sw</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">|</span><span style="color: #e9b96e;">\\s_</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">+</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;"> +::"</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify the `</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' as keyword</span>
+  <span style="color: #888a85;">(</span>1 font-lock-keyword-face<span style="color: #888a85;">)</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify the function name as function</span>
+  <span style="color: #888a85;">(</span>2 font-lock-function-name-face<span style="color: #888a85;">)</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">look for symbols after the `</span><span style="color: #e6a8df;">::</span><span style="color: #73d216;">', they are types</span>
+  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"\\_&lt;</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">(?:</span><span style="color: #e9b96e;">\\sw</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">|</span><span style="color: #e9b96e;">\\s_</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">+</span><span style="color: #e9b96e; font-weight: bold;">\\</span><span style="color: #e9b96e; font-weight: bold;">)</span><span style="color: #e9b96e;">\\_&gt;"</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">set the limit of search to the current `</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' form only</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span> <span style="color: #888a85;">(</span>up-list<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">when we found all the types in the region (`</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' form) go</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">back to the `</span><span style="color: #e6a8df;">::</span><span style="color: #73d216;">' marker</span>
+  <span style="color: #888a85;">(</span>re-search-backward <span style="color: #e9b96e;">"::"</span><span style="color: #888a85;">)</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify each matched symbol as type</span>
+  <span style="color: #888a85;">(</span>0 font-lock-type-face<span style="color: #888a85;">))</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">when done with the symbols look for the arrows</span>
+  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"-&gt;"</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">we are starting from the `</span><span style="color: #e6a8df;">::</span><span style="color: #73d216;">' again, so set the same limit as</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">for the previous search (the `</span><span style="color: #e6a8df;">type</span><span style="color: #73d216;">' form)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">save-excursion</span> <span style="color: #888a85;">(</span>up-list<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">do not move back when we've found all matches to ensure</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">forward progress.  At this point we are done with the form</span>
+  nil
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">fontify the found arrows as variables (whatever...)</span>
+  <span style="color: #888a85;">(</span>0 font-lock-variable-name-face t<span style="color: #888a85;">)))))</span>
+  </pre>
+  </div>
+
+  <p>
+  And the forms are fontified in very much the same way as the Haskell code above (thanks to Emacs's amazing consistency with font-lock faces, another brilliant design decision).
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-elisp"><span style="color: #888a85;">(</span>type function <span style="color: #ad7fa8;">::</span> int -&gt; string -&gt; <span style="color: #888a85;">(</span>string -&gt; int<span style="color: #888a85;">)</span> -&gt; [float]<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>type constant <span style="color: #ad7fa8;">::</span> int<span style="color: #888a85;">)</span>
+
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">string</span> <span style="color: #888a85;">(</span>string int<span style="color: #888a85;">)</span>
+  <span style="color: #e9b96e;">"The keywords outside of the type form are *not* fontified!"</span><span style="color: #888a85;">)</span>
+  </pre>
+  </div>
+
+  <p>
+  I repeat it here just for completeness:
+  </p>
+
+  <div class="org-src-container">
+  <pre class="src src-haskell"><span style="color: #fce94f;">function</span> <span style="color: #fcaf3e;">::</span> <span style="color: #8cc4ff;">Int</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #8cc4ff;">String</span> <span style="color: #fcaf3e;">-&gt;</span> (<span style="color: #8cc4ff;">String</span> <span style="color: #fcaf3e;">-&gt;</span> <span style="color: #8cc4ff;">Int</span>) <span style="color: #fcaf3e;">-&gt;</span> [<span style="color: #8cc4ff;">Float</span>]
+  <span style="color: #fce94f;">constant</span> <span style="color: #fcaf3e;">::</span> <span style="color: #8cc4ff;">Int</span>
+  </pre>
+  </div>
+
+  <p>
+  Awesome.
+  </p>
+  ]]></description>
 </item>
 
 <item>
@@ -178,7 +543,7 @@
   <p>
   I don't really care about where or how the data itself is stored and I
   treat the <code>org-attach</code> directory as an opaque "blob"
-  store<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>.
+  store<sup><a id="fnr.4" class="footref" href="#fn.4" role="doc-backlink">4</a></sup>.
   This works 99% of the time because I usually want to find the file
   where I have some vague semantic idea of what it is and usually find
   it via org interface and then open the attachment.
@@ -311,7 +676,7 @@
   <p>
   One thing that kept bothering me was that the only option was to
   restrict to a file or a subtree, but nothing in
-  between<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>, such as a
+  between<sup><a id="fnr.5" class="footref" href="#fn.5" role="doc-backlink">5</a></sup>, such as a
   region spanning multiple subtrees.  Since I'm not a huge fan of
   nesting headers just for the sake of nesting (flatter structures and
   <a href="https://github.com/Fuco1/org-node-graph">graphs</a> are much nicer for organization).
@@ -359,107 +724,6 @@
   <span style="color: #888a85;">(</span>org-agenda-maybe-redo<span style="color: #888a85;">)))</span>
 
   <span style="color: #888a85;">(</span>advice-add <span style="color: #e6a8df;">'org-agenda-set-restriction-lock</span> <span style="color: #ad7fa8;">:around</span> <span style="color: #8cc4ff;">#'my-org-agenda-set-restriction-lock</span><span style="color: #888a85;">)</span>
-  </pre>
-  </div>
-  ]]></description>
-</item>
-
-<item>
-  <title>Refiling hydra with pre-defined targets</title>
-  <link>https://fuco1.github.io/2019-02-10-Refiling-hydra-with-pre-defined-targets.html</link>
-  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/2019-02-10-Refiling-hydra-with-pre-defined-targets.html</guid>
-  <pubDate>Sun, 10 Feb 2019 00:00:00 +0100</pubDate>
-
-  <description><![CDATA[<p>
-  I'm a heavy <code>org-capture</code> user and I use about 10 templates to save the
-  ideas/tasks to appropriate places (work / life / emacs / other
-  projects / reading...).  Sometimes, however, it is quite difficult to
-  determine at the time of capture where to put the note, or it would
-  take a lot of time to categorize properly... or sometimes I'm just
-  lazy.  For these situations I use a general <code>refile.org</code> file.  Anything
-  I don't want to deal with right now goes there.
-  </p>
-
-  <p>
-  Then I often end up with 200+ notes in this file and I have to deal
-  with it somehow during my weekly reviews.  Many items I simply delete,
-  but some I refine and then refile away to where they belong.
-  </p>
-
-  <p>
-  I use about 10 huge org files to store my data and simply calling
-  <code>org-refile</code> is very slow and the number of targets grows into tens of
-  thousands which makes the experience sub-optimal.
-  </p>
-
-  <p>
-  I've written a simple Elisp <code>defmacro</code> to generate specialized versions
-  of <code>org-refile</code> where I can limit the targets to one file or a subset of
-  files.  This is done by <code>let</code>-binding <code>org-refine-targets</code> variable and
-  then calling <code>org-refile</code>---it will pick up the new setting.  I also
-  automatically clear the cache because during this process I often add
-  or move headlines around and the cache is most of the time stale.  In
-  practice it's not a problem because refiling to just one file is
-  fast-enough to rebuild the cache on-the-go.
-  </p>
-
-  <div class="org-src-container">
-  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defmacro</span> <span style="color: #fce94f;">my-org-make-refile-command</span> <span style="color: #888a85;">(</span>fn-suffix refile-targets<span style="color: #888a85;">)</span>
-  <span style="color: #e9b96e;">"Generate a command to call `</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' with modified targets."</span>
-  `<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> ,<span style="color: #888a85;">(</span>intern <span style="color: #888a85;">(</span>concat <span style="color: #e9b96e;">"my-org-refile-"</span> <span style="color: #888a85;">(</span>symbol-name fn-suffix<span style="color: #888a85;">)))</span> <span style="color: #888a85;">()</span>
-  ,<span style="color: #888a85;">(</span>format <span style="color: #e9b96e;">"`</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' to %S"</span> refile-targets<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span>org-refile-cache-clear<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>org-refile-target-verify-function nil<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span>org-refile-targets ,refile-targets<span style="color: #888a85;">))</span>
-  <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'org-refile</span><span style="color: #888a85;">))))</span>
-  </pre>
-  </div>
-
-  <p>
-  It's quite straight-forward, we have a <code>defun</code> skeleton and we splice
-  the name and the target there.  The expansion looks like this
-  </p>
-
-  <div class="org-src-container">
-  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> kb '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
-
-  <span style="color: #73d216;">;; </span><span style="color: #73d216;">expands to</span>
-
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">my-org-refile-kb</span> nil
-  <span style="color: #e9b96e;">"`</span><span style="color: #e6a8df;">org-refile</span><span style="color: #e9b96e;">' to (quote ((\"~/data/documents/kb.org\" :maxlevel . 9)))"</span>
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">interactive</span><span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span>org-refile-cache-clear<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span>
-  <span style="color: #888a85;">((</span>org-refile-target-verify-function nil<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span>org-refile-targets
-  '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">))))</span>
-  <span style="color: #888a85;">(</span>call-interactively <span style="color: #e6a8df;">'org-refile</span><span style="color: #888a85;">)))</span>
-  </pre>
-  </div>
-
-  <p>
-  Throw in a cool <a href="https://github.com/abo-abo/hydra">hydra</a> and you're all set!
-  </p>
-
-  <div class="org-src-container">
-  <pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> kb '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/data/documents/kb.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> reading '<span style="color: #888a85;">((</span><span style="color: #e9b96e;">"~/org/reading.org"</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">my-org-make-refile-command</span> this-file `<span style="color: #888a85;">((</span>,<span style="color: #888a85;">(</span>buffer-file-name<span style="color: #888a85;">)</span> <span style="color: #ad7fa8;">:maxlevel</span> . 9<span style="color: #888a85;">)))</span>
-
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">defhydra</span> <span style="color: #8cc4ff;">my-org-refile-hydra</span> <span style="color: #888a85;">(</span><span style="color: #ad7fa8;">:color</span> blue <span style="color: #ad7fa8;">:hint</span> nil<span style="color: #888a85;">)</span>
-  <span style="color: #e9b96e;">"</span>
-  <span style="color: #e9b96e;">_t_his file</span>
-
-  <span style="color: #e9b96e;">Special files:</span>
-  <span style="color: #e9b96e;">---------------------</span>
-  <span style="color: #e9b96e;">_k_b.org    _r_eading.org"</span>
-  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"k"</span> my-org-refile-kb<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"r"</span> my-org-refile-reading<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span><span style="color: #e9b96e;">"t"</span> my-org-refile-this-file<span style="color: #888a85;">))</span>
-
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">bind-key</span> <span style="color: #e9b96e;">"C-c r"</span> <span style="color: #8cc4ff;">#'my-org-refile-hydra/body</span> org-mode-map<span style="color: #888a85;">)</span>
   </pre>
   </div>
   ]]></description>
@@ -562,7 +826,7 @@
   English.  Given the fact that the past and current org maintainers
   also don't speak English as a first language kind of led me to expect
   there to be some setting to inherit the input method of the original
-  buffer<sup><a id="fnr.3" class="footref" href="#fn.3" role="doc-backlink">3</a></sup>.  Sadly, I
+  buffer<sup><a id="fnr.6" class="footref" href="#fn.6" role="doc-backlink">6</a></sup>.  Sadly, I
   couldn't find it, so I decided to "roll my own".
   </p>
 
@@ -570,7 +834,7 @@
   Now here comes the part that blew my mind... I've realized I wrote the
   whole code in under 2 minutes... where simply trying to read the
   manual and search the code would easily take more
-  time<sup><a id="fnr.4" class="footref" href="#fn.4" role="doc-backlink">4</a></sup>.  This is the nice feature of being an Emacs power-user.  I
+  time<sup><a id="fnr.7" class="footref" href="#fn.7" role="doc-backlink">7</a></sup>.  This is the nice feature of being an Emacs power-user.  I
   wrote the code on the first try, registered it in a hook which name
   I've guessed and it all worked flawlessly.  Nice!
   </p>
@@ -716,170 +980,27 @@
   </div>
   ]]></description>
 </item>
-
-<item>
-  <title>WAR STORY: When turning to the profiler turns out to be a good call</title>
-  <link>https://fuco1.github.io/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html</link>
-  <author>matus.goljer@gmail.com (Matúš Goljer)</author>
-  <guid isPermaLink="false">https://fuco1.github.io/2018-08-12-WAR-STORY:-When-turning-to-the-profiler-turns-out-to-be-a-good-call.html</guid>
-  <pubDate>Sun, 12 Aug 2018 00:00:00 +0200</pubDate>
-
-  <description><![CDATA[<p>
-  Some of you might have seen the little bit of news circulating around
-  about my new project.  It's called <a href="https://github.com/Fuco1/Elsa">Elsa</a> (stands for Emacs Lisp Static
-  Analyzer), which is exactly what you would expect: you throw it some
-  Elisp code and it analyzes the types, dead code, style and all sorts
-  of other rules (stars are the limit!).
-  </p>
-
-  <p>
-  I've been working on this "secretly" in public (the repo was on Github
-  from day 1.) for about a year and very early on I've made a couple
-  decisions that I now thought doomed me to failure.  These were:
-  </p>
-
-  <ul class="org-ul">
-  <li>I will use <a href="https://www.gnu.org/s/emacs/manual/html_node/eieio/">EIEIO</a> to represent the reader forms and types</li>
-  <li>I will use CL <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Generic-Functions.html">generics</a> to process these objects</li>
-  </ul>
-
-  <p>
-  For this kind of a problem where we are walking some recursive
-  structure and then doing some "arithmetics" on hierarchies of types,
-  classes and methods are a very natural choice.  You can write generic
-  implementations and then "pattern match" on specific classes to
-  provide more elaborate strategies.
-  </p>
-
-  <p>
-  These two were notoriously known for having very bad performance in
-  the past, but nonetheless I decided that the simplicity of the
-  implementation has higher priority for me now and that in the worst
-  case I can transform it into a manual-dispatch-conds-and-defuns later.
-  </p>
-
-  <p>
-  EIEIO in particular was also known to be quite undebuggable.  They did
-  a good job on it with the 25 release and the error messages are now
-  pretty helpful.  It's no worse than the rest of Emacs (<code>M-x
-  faint-praise</code>).
-  </p>
-
-  <p>
-  When I finally finished the reader module which turns the source file
-  into a tree of EIEIO objects, to my horror I found out that it was
-  indeed slow. <b>Way slow</b>. I was using <a href="https://github.com/Fuco1/smartparens/blob/master/smartparens.el">smartparens.el</a> as a benchmark: it's
-  a single lisp file package of about 10000 lines with enough complexity
-  to inhibit most of the features of Elisp.
-  </p>
-
-  <p>
-  It took 42 seconds to analyze.  That is not great when you want to use
-  it with something like <a href="http://www.flycheck.org/en/latest/">flycheck</a>.  So I'm pretty much thinking I'm
-  screwed at this point and begin thinking about how to get rid of the
-  generics, because obviously <i>that</i> must be the issue, right?
-  </p>
-
-  <p>
-  Oh, how wrong I was.  Finally in a stroke of genius I fired up an
-  <code>emacs -nw -q</code>, loaded all the necessary things and did <code>M-x
-  profiler-start</code>.
-  </p>
-
-  <p>
-  Then I run the analysis in that instance, get the report and get my
-  mind blown to pieces: the culprit was the little innocent looking
-  function <code>line-number-at-pos</code>.  The reader spent about 90% of all the
-  time inside that function.
-  </p>
-
-  <p>
-  What happened?  Every time I read any form I need to remember the line
-  and column it was encountered at for error reporting to the user
-  later.  So every time I read anything (a symbol, a list, a keyword, a
-  string) I would call <code>line-number-at-pos</code> with the token's start
-  position to get the line number.
-  </p>
-
-  <p>
-  What this function does is it jumps to the first line of the file,
-  then regexp searches for <code>\n</code> until it reaches the <code>point</code> from which it
-  was called.
-  </p>
-
-  <p>
-  So you can imagine, in your source code on line <code>8500</code>, a form like
-  </p>
-
-  <div class="org-src-container">
-  <pre class="src src-elisp"><span style="color: #888a85;">(</span>very innocent looking form at line 8500<span style="color: #888a85;">)</span>
-  </pre>
-  </div>
-
-  <p>
-  would trigger 8 calls to <code>line-number-at-pos</code> which would in turn do
-  68000 regexp searches for <code>\n</code>.  The total number of these went way up
-  in the lower hundreds of millions, somewhere around the marks of 400
-  to 500 million calls.  Now that's <i>a lot</i> of completely useless
-  computation.
-  </p>
-
-  <p>
-  So what I did to fix this?  At the beginning of the analysis I run
-  through all the lines and place a text property <code>elsa-line</code> on the first
-  character with the line number.
-  </p>
-
-  <div class="org-src-container">
-  <pre class="src src-elisp"><span style="color: #888a85;">(</span>goto-char <span style="color: #888a85;">(</span>point-min<span style="color: #888a85;">))</span>
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">let</span> <span style="color: #888a85;">((</span>line 1<span style="color: #888a85;">))</span>
-  <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">))</span> <span style="color: #e6a8df;">'elsa-line</span> line<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">while</span> <span style="color: #888a85;">(</span>= <span style="color: #888a85;">(</span>forward-line<span style="color: #888a85;">)</span> 0<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-incf</span> line<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span>put-text-property <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>min
-  <span style="color: #888a85;">(</span>buffer-size<span style="color: #888a85;">)</span>
-  <span style="color: #888a85;">(</span>1+ <span style="color: #888a85;">(</span>point<span style="color: #888a85;">)))</span> <span style="color: #ff4b4b;">'elsa-line line</span><span style="color: #ff4b4b;">)))</span>
-  </pre>
-  </div>
-
-  <p>
-  Then to get the line number all I need to do is
-  </p>
-
-  <div class="org-src-container">
-  <pre class="src src-elisp"><span style="color: #888a85;">(</span>get-text-property <span style="color: #888a85;">(</span>line-beginning-position<span style="color: #888a85;">)</span> <span style="color: #e6a8df;">'elsa-line</span><span style="color: #888a85;">)</span>
-  </pre>
-  </div>
-
-  <p>
-  Because the text properties use efficient data structures this access
-  is really really fast (something like <code>O(log n)</code> in length of buffer).
-  </p>
-
-  <p>
-  With this little change, the analysis time dropped to 5 seconds,
-  almost a factor of 10!  So the moral of the story is, as has been
-  repeated to death, when in trouble always bring out the big guns:
-  profilers are our friends!  No way in the world I would've guessed
-  this function was responsible (I actually started changing a bunch of
-  code into <code>defsubst</code> and inlining code before I figured that's
-  completely bonkers).
-  </p>
-
-  <p>
-  On a closing note, I'm looking for people to help out on the project,
-  there is a lot of things for people of all skill ranging from
-  beginners to seasoned hackers.  Check out issues marked <a href="https://github.com/Fuco1/Elsa/issues?q=is%253Aissue+is%253Aopen+label%253A%2522help+wanted%2522">help wanted</a> or
-  <a href="https://github.com/Fuco1/Elsa/issues?q=is%253Aissue+is%253Aopen+label%253A%2522good+first+issue%2522">good first issue</a> and get involved!  If anything's unclear go ahead and
-  ask questions.
-  </p>
-  ]]></description>
-</item>
 <div id="footnotes">
   <h2 class="footnotes">Footnotes: </h2>
   <div id="text-footnotes">
 
-    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">This really removed a lot of "create a
+    <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">Now before we go
+    further, you need to register on <a href="https://platform.openai.com/">OpenAI platform</a> and the API costs
+    money.  The good news is that it is <b>extremely</b> cheap.  It will cost
+    you $1 to embed 2.4 MILLION tokens.  With a query being roughly 10
+    words which corresponds to 10-15 tokens, one query will cost you
+    about $0.0000006.  So it's pretty much free and you only need a
+    credit card to formally register.  You can also set monthly
+    spending limit to $0.01 and you would probably never run over the
+    limit. The step 2 will cost based on how much data you have.  I
+    have about 200000 lines of org files and so far I spent less than
+    $0.50 including all the experimenting.</p></div></div>
+
+    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">Emacs RE engine is a lot less powerful than PCRE engines, it doesn't support look-ahead nor back-references among other less commonly used features</p></div></div>
+
+    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">For those familiar with Parsec, this is basically the <code>try</code> combinator</p></div></div>
+
+    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4" role="doc-backlink">4</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">This really removed a lot of "create a
     perfect file hierarchy" anxiety that ultra-orderly people like me get
     all the time.  I am no longer slave to the perpetual fine-tuning of
     what is nested where.  The files on the disk are actually stored in a
@@ -888,14 +1009,14 @@
     delegated to org mode.  This is even greater because its metadata are
     so much ritcher than what you can store in the file system itself.</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">While it is possible to restrict to a
+    <div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5" role="doc-backlink">5</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">While it is possible to restrict to a
     region from the org-agenda speed dial, I find it quite impractical and
     prefer to do the restrictions from the project's buffer</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">And really, 99% of the time, when you say "I'm
+    <div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6" role="doc-backlink">6</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">And really, 99% of the time, when you say "I'm
     going to write an org-extension", it already is in core.</p></div></div>
 
-    <div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4" role="doc-backlink">4</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">This is not the greatest engineering and you
+    <div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7" role="doc-backlink">7</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">This is not the greatest engineering and you
     should almost always prefer a well-tested lib over your own... on the
     other hand, being a pragmatic professional, I value my time over code
     purity</p></div></div>
