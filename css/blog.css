@@ -53,3 +53,7 @@ div#text-table-of-contents {
     border: 1px solid black;
     padding-left: 10px;
 }
+
+.figure p {
+    text-align: center;
+}
