@@ -1,0 +1,449 @@
+#+TITLE: Functors in my Emacs?!
+#+DATE: [2023-03-22 Wed 23:58]
+
+* DONE Functors in /my/ Emacs?!                                 :ignore:published:
+CLOSED: [2023-03-22 Wed 23:58]
+:PROPERTIES:
+:PUBDATE:  [2023-03-22 Wed 23:57]
+:BLOG_FILENAME: 2023-03-22-Functors-in-my-Emacs?!
+:END:
+:LOGBOOK:
+- State "DONE"       from              [2023-03-22 Wed 23:58]
+:END:
+
+This will be a series of posts on some really cool concepts coming
+from the more theoretical side of computer science, but I feel like
+the sophisticated Emacs crowd will appreciate it.
+
+So, why?  While working on [[https://github.com/emacs-elsa/Elsa][Elsa]], the Emacs Lisp Static Analyzer, I
+came to the point of finally implementing generic types, which the
+Haskell crowd calls [[https://en.wikipedia.org/wiki/Parametric_polymorphism][parametric polymorphism]] to confuse the
+plebs[fn:1dfc38151494f627:In all seriousness, I love Haskell and the
+community is in general great.].  But most programmers came across it
+in one way or another in TypeScript, Java, C#, C++ or even Python (go
+famously lacks this feature until very recently when there has been
+some proposals to add it).  The syntax usually looks something like:
+
+#+begin_src java
+List<E> add(int index, E element)
+#+end_src
+
+where =E= is some concrete but unknown type.  We call =E= a /type variable/.
+
+But first, let's go back to the beginning and state the problem.
+Elsa, other than being the /program/ which checks the types is also a
+/type system/.  Emacs of course has types, such as numbers, strings or
+lists, but anything more complex can not be expressed.  For example,
+you can't say "a list of numbers", "a hash table mapping keywords to
+some cl-struct" and so on.  The second issue is that these types are
+only tracked at runtime.  This might be a bit late to catch errors and
+in case of a type error your program will crash, just like the Spanish
+inquisition, when you least expect it.
+
+Elsa is a /static/ analyzer, meaning it will analyze your code without
+actually running it.  So it's something like a compiler, checking the
+types and making sure everything matches up and ensuring that once you
+run the code, it will never crash on nil being passed where it
+shouldn't or a number being stuffed into =append=.
+
+The analysis works in two main steps:
+
+1. Read the code and turn it into some internal representation.
+2. Simulate the evaluation rules of Elisp traversing this internal
+   representation keeping track of variables in scope, expression
+   types and checking all the rules.
+
+For this, we need some structures to represent this data.  I will
+forgo the explanation of the CST (concrete syntax tree) representation
+for now and focus on the types.
+
+** Quick primer on type representation in Elsa
+
+In Elsa we represent all types as EIEIO classes inheriting from
+=elsa-type= top level class.  Primitive types, like integers, strings,
+symbols are represented by classes =elsa-type-int=, =elsa-type-string=,
+...  Then there are more complex types which are rather /type functions/
+or /type constructors/, mapping simple types to more structured types.
+An example is a "list of something".  For this, we have a type
+=elsa-type-list= which takes another type as an argument.
+
+To make a list type, we invoke the constructor =(elsa-type-list
+:item-type (elsa-type-string))=.  This would be a list of strings.
+Because this is kind of unwieldily, Elsa has a macro to make types:
+=(elsa-make-type (list string))= would construct a list of strings.  To
+express the types from now on, I will use the syntax accepted by
+=elsa-make-type=.
+
+There are built-in types for many common types found in Emacs, such as:
+
+- =(cons int string)= is a cons pair of integers and strings, like =(1 . "foo")=
+- =(function (int string) symbol)= is a function taking an int and a string and returning a symbol
+- =(class elsa-type)= is an EIEIO class =elsa-type=
+- =(struct trinary)= is a =cl-defstruct= named =trinary=
+- =(or int marker)= is a composite type which is either integer or a
+  string, but we don't really know which one, because user can supply
+  either.  This is useful to annotate functions which can take more
+  than one type as their argument, such as =goto-char=.
+- =(const :key)= represents only the constant value =:key= and nothing
+  else.
+- more can be found in the Elsa manual or reading the code :grin:
+
+Types naturally form a hierarchy.  On the top is the type =mixed= which
+represents everything and on the bottom is type =empty= which has no
+values whatsoever.  If you imagine types as /sets of values/ you would
+be pretty close. One type /accepts/ another if the other type is a
+subset of the accepting type. Some examples:
+
+#+begin_src elisp
+(elsa-type-accept mixed string) ;; t, mixed contains all the values
+(elsa-type-accept string nil) ;; nil, string can not be nil
+(elsa-type-accept symbol keyword) ;; t, every keyword is a symbol
+(elsa-type-accept keyword symbol) ;; nil, some symbols are not keywords
+
+;; t, or is a "union" of string and int, and all the strings are
+;; included there
+(elsa-type-accept (or string int) string)
+
+;; nil, the other argument can be "foo" but that is not a number.
+(elsa-type-accept int (or string int))
+#+end_src
+
+Notice in the last example that the second type could assume a value 4
+which is an integer, so =int= /could/ accept =(or string int)=, but not
+always.  This can actually be expressed by a [[https://github.com/emacs-elsa/trinary-logic][three-valued logic]] and it
+is in fact what Elsa uses internally, but about that maybe some other
+time.
+
+** So what about the generic types?
+
+Generic types are super useful and basically any analyzer of Elisp
+would not work without them.  The simplest example is the function
+=car=.  =car= doesn't care what cons you give it, it will always politely
+give the value of the first cell back.  So as a first attempt we can
+type it:
+
+#+begin_src elisp
+(car :: (function ((cons mixed mixed)) mixed))
+#+end_src
+
+Which means: it's a function taking a cons of two "anythings"
+returning an "anything".  But that's not /really/ what car does, is it?
+The =car= and =cdr= of a cons cell have concrete and very real types
+during runtime, we just don't know what they are beforehand.  But this
+idea of "concrete but undetermined" is exactly what generics express.
+
+So a second /generic/ attempt to type this would be:
+
+#+begin_src elisp
+(car :: (function ((cons &a &b)) &a))
+#+end_src
+
+This says that whatever the type of the car cell is (here a type
+variable =&a=) is what the =car= function will return.
+
+Now, this in itself is useless, because in a real program nothing has
+a "type =&a=".  During the analysis we need to derive what is the actual
+type that =&a= represents.  Consider the following example:
+
+#+begin_src elisp
+(car (cons 1 "hello")) ;; => 1
+#+end_src
+
+Here, the cons has a type =(cons int string)= and so by "overlapping"
+the types we can derive that =&a= is an =int= and =&b= is a =string= and the
+return type of the entire =car= form then must be an =int=.  This process
+is called /unification/, because we unify the two type signatures:
+
+#+begin_src elisp
+(function ((cons &a  &b    )) &a )
+           (cons int string)
+;; -------
+(function ((cons int &b    )) int) ;; &a -> int
+           (cons int string)
+;; -------
+(function ((cons int string)) int) ;; &a -> int, &b -> string
+           (cons int string)
+;; done
+#+end_src
+
+The types were unified and the /unifying substitution/ is =&a -> int, &b
+-> string=.
+
+** Introducing Functors
+
+Now, trigger warning for mathematicians.  I will be very loose about
+the terminology.  I don't think it matters here very much.
+
+Functor is a fancy word for "structure" and a functor map a more
+generic =mapcar=.  We can imagine a functor as embedding a function into
+a structure.  If we have a function:
+
+#+begin_src elisp
+(1+ :: (function (int) int))
+#+end_src
+
+we can embed it (somehow) into a list structure to produce a function
+
+#+begin_src elisp
+(1+-on-a-list :: (function ((list int)) (list int)))
+#+end_src
+
+Notice how the argument and return type =int= became =(list int)=.  We
+/embedded/ the function into a richer structure, here, a list.
+
+If you think about it, that's exactly what =mapcar= does.  A
+hypothetical syntax =(mapcar '1+)= without the second list argument is a
+"function" which expects one more argument, a =(list int)= and it
+outputs a =(list int)=.[fn:3174657231ea840:I put function in quotes,
+because in Elisp no such thing exists.  You must always provide all
+the arguments to a function.  But you can imagine a /partial/
+application, when you only provide some arguments and the result is a
+new function expecting the rest of the arguments to finally produce
+the result.  This can be achieved with the built-in =apply-partially=
+function.]
+
+#+begin_src elisp
+         (1+  :: (function (      int)        int))
+((mapcar '1+) :: (function ((list int)) (list int)))
+#+end_src
+
+A functor map generalizes the lists's =mapcar= to arbitrary structures.
+The defining characteristic of a functor map is that the input and
+output structure is the same and only the "contents" are changed.
+Using a =mapcar= on a list we get out a list with updated elements.
+
+Let's try some examples of functors.
+
+First, let's take a =cons=.  A =cons= is a structure with two "cells", the
+car and the cdr.  To "map" over a cons is to apply a function over the
+car and the cdr.  So an implementation of a functor map (or =fmap=)
+might be:
+
+#+begin_src elisp
+;; (fmap fun (cons      a       b))
+;; =>        (cons (fun a) (fun b))
+
+(defun fmap (fun cons-cell)
+  (cons (funcall fun (car cons-cell))
+        (funcall fun (cdr cons-cell))))
+
+(fmap '1+ (cons 1 2)) ;; => (cons 2 3)
+(fmap 'number-to-string (cons 1 2)) ;; => (cons "1" "2")
+#+end_src
+
+Another example might be an optional value.  Let's define a structure
+"optional" which is either a value or "nothing".  Nothing is distinct
+from a =nil= which still is a valid Elisp value.  Nothing is an
+abstraction outside of Elisp type system really meaning absence of
+anything meaningful (say result of division by zero).
+
+#+begin_src elisp
+(defclass optional () () :abstract t)
+(defclass has-value (optional) ((value :initarg :value)))
+(defclass nothing (optional) ())
+
+(has-value :value 7) ;; has value 7
+(nothing)            ;; => has no value
+#+end_src
+
+We can write a "safe" division by zero using this class like so:
+
+#+begin_src elisp
+(defun division (a b)
+  (if (= b 0)
+      (nothing)
+    (has-value (/ a b))))
+#+end_src
+
+How would we map over this =optional= structure?  It consists of
+two... options: =nothing= or =has-value=.  We can treat them one by one:
+
+1. Mapping over nothing must produce nothing because =fmap= must
+   preserve the structure and there's no structure in "nothing" (well,
+   philosophically, even nothing is a structure of some sort).
+2. Mapping over a =has-value= must also produce a =has-value= but with the
+   updated content.   So the implementation is:
+
+#+begin_src elisp
+;; (fmap fun nothing)
+;; =>        nothing
+;; (fmap fun (has-value :value      7))
+;; =>        (has-value :value (fun 7))
+
+(defun fmap (fun optional)
+  (cond
+   ((nothing-p optional)
+    ;; nothing in, nothing out.
+    (nothing))
+   ((has-value-p optional)
+    ;; get the value out of the optional, call the function and wrap
+    ;; it back into a new has-value.
+    (has-value :value (funcall fun (oref optional value))))))
+
+(fmap '1+ (nothing))      ;; => (nothing)
+(fmap '1+ (has-value 1))  ;; => (has-value 2)
+
+(fmap 'number-to-string (division 1 0)) ;; => (nothing)
+(fmap 'number-to-string (division 1 2)) ;; => (has-value "0.5")
+#+end_src
+
+The interesting thing about this example is that we can have a
+structure composed of multiple substructures and we can treat them on
+a case by case basis.
+
+If we go back to the list embedding of the =1+= function producing a
+=(list int)= to a =(list int)= function, the embeddings for the cons and
+optional would look very similar:
+
+#+begin_src elisp
+;; fmap on cons
+((fmap '1+) :: (function ((cons int int)) (cons int int)))
+;; fmap on optional
+((fmap 'number-to-string) ::
+ (function ((class (optional int))) (class (optional string))))
+#+end_src
+
+To generalize this further, we can replace the concrete /type
+constructors/ (such as =cons=) and /type parameters/ (such as =int= or
+=string)= with type variables:
+
+#+begin_src elisp
+(fmap :: (function ((function (&a) &b) (&f &a)) (&f &b)))
+#+end_src
+
+This rather cryptic line says that a =fmap= takes a function from =&a= to
+=&b= and a structure (functor) =&f= holding things of type =&a=, and it
+produces the same structure =&f= holding things of type =&b=.
+
+Functors on their own do not seem very useful.  We have =mapcar= or the
+specialized =fmap= and then what?  The real power of these abstractions
+come when we implement /other/ operations in terms of the generic ones.
+So let's jump into that to close this one out.
+
+Finally, I should not omit the fact that there are some actual
+[[https://en.wikipedia.org/wiki/Functor#Definition][mathematical laws]] the =fmap= function *must* satisfy to be a functor.
+This blog post article being dense as it is, I leave this to the
+reader to expand upon.  It's not very important when implementing
+real-world functors as you almost always "have to" do it the right
+way.
+
+** Type variable substitution
+
+Imagine now that we solved some unification, such as =(unify (cons &a
+int) (cons string &b))= and we got out the unifying substitution =&a ->
+string, &b -> int=.  How do we actually get the resulting unified type?
+We perform variable /substitution/!
+
+To perform substitution on a simple type like =int= makes no sense,
+because there is no possible structure to be represented as a
+variable.  This is the trivial case of a thing with no structure.  It
+is only itself and that's it.
+
+More interesting case is that of a list type, which has one type
+argument.  A substitution would dive into the item type argument, try
+to substitute that, and then construct a new list type with the
+substituted item type.
+
+Even more interesting is the cons type, which has two type
+arguments. We first substitute both of them and then construct a new
+cons type with the substituted type arguments.
+
+In code, it would look something like this:
+
+#+begin_src elisp
+(cl-defgeneric substitute (this subs))
+
+(cl-defmethod substitute ((this elsa-simple-type) subs)
+  ;; Simple type can not substitute anything.
+  this)
+
+(cl-defmethod substitute ((this elsa-type-variable) subs)
+  ;; Get the substitution from the hash table or return this if there
+  ;; is no substitution available.
+  (or (gethash (oref this name) subs)
+      this))
+
+(cl-defmethod substitute ((this elsa-type-list) subs)
+  ;; Substitute the item-type and construct a new list type.
+  (elsa-type-list :item-type (substitute (oref this item-type) subs)))
+
+(cl-defmethod substitute ((this elsa-type-cons) subs)
+  ;; Substitute the car-type and cdr-type and construct a new cons
+  ;; type.
+  (elsa-type-cons :car-type (substitute (oref this car-type) subs)
+                  :cdr-type (substitute (oref this cdr-type) subs)))
+#+end_src
+
+If you squint at the last example really hard, it actually looks a lot like:
+
+#+begin_src elisp
+(defun fmap (fun cons-cell)
+  (cons (funcall fun (car cons-cell))
+        (funcall fun (cdr cons-cell))))
+#+end_src
+
+How could we implement a =fmap= for =elsa-type-cons=?
+
+#+begin_src elisp
+(cl-defmethod substitute ((this elsa-type-cons) subs)
+  ;; Substitute the car-type and cdr-type and construct a new cons type.
+  (elsa-type-cons :car-type (substitute (oref this car-type) subs)
+                  :cdr-type (substitute (oref this cdr-type) subs)))
+
+;; => substitute "substitute" with "funcall fun" and drop the second
+;; argument
+
+(cl-defmethod fmap (fun (this elsa-type-cons))
+  ;; Substitute the car-type and cdr-type and construct a new cons type.
+  (elsa-type-cons :car-type (funcall fun (oref this car-type))
+                  :cdr-type (funcall fun (oref this cdr-type))))
+#+end_src
+
+#+NAME: fig:whoa
+[[https://i.imgur.com/AtFWWIn.gif]]
+
+It's the same thing!  And this is the power of having generic
+operations such as functor maps.  Once we define =fmap= for all the
+"structure-ful" Elsa types, we can write a single unification method
+in terms of =fmap= instead of one per each specific type.
+
+#+begin_src elisp
+-- (cl-defmethod substitute ((this elsa-type-list) subs)
+--   ;; Substitute the item-type and construct a new list type.
+--   (elsa-type-list :item-type (substitute (oref this item-type) subs)))
+--
+-- (cl-defmethod substitute ((this elsa-type-cons) subs)
+--   ;; Substitute the car-type and cdr-type and construct a new cons
+--   ;; type.
+--   (elsa-type-cons :car-type (substitute (oref this car-type) subs)
+--                   :cdr-type (substitute (oref this cdr-type) subs)))
+
+++ (cl-defmethod substitute ((this elsa-type) subs)
+++   (fmap (lambda (x) (substitute x subs) this)))
+#+end_src
+
+We can read this as "please, whatever structure =this= is, substitute
+every type argument it has recursively and give me back the same
+structure".  Armed with the =fmap= instances for all the different
+types, we can implement plethora of other operations which work on the
+internal elements of these structures while preserving their shapes
+without ever actually having to be exposed to the structures---it is
+abstracted away in the functor map.  This also frees you from thinking
+too much about the concrete and rather express the problem in the
+abstract way leading to (maybe?) increased clarity.
+
+I think here is a good time to stop for now.  If you have any
+questions, hit me up on twitter or on the GitHub repo for this blog
+(both are in the header).
+
+Next time we will talk about extending functor maps to "zips", which
+instead of one structure and a function take two structures (of the
+same shape) and a function to "zip" them into a new structure of the
+same shape while combining the elements at the same "place" (teaser follows)
+
+#+begin_src elisp
+(??something?? '+
+               (cons 1 2)
+               (cons 3 4))
+;; =>          (cons 4 6)
+#+end_src

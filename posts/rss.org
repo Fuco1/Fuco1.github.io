@@ -1,8 +1,14 @@
+* Functors in my Emacs?!
+:PROPERTIES:
+:RSS_PERMALINK: 2023-03-22-Functors-in-my-Emacs?!.html
+:PUBDATE: <2023-03-22>
+:END:
+#+include: "/home/matus/Documents/Fuco1.github.io/posts/2023-03-22-Functors-in-my-Emacs?!.org" :lines "3-"
+
 * Using OpenAI GPT to search your org files
 :PROPERTIES:
 :RSS_PERMALINK: 2023-02-20-Using-OpenAI-GPT-to-search-your-org-files.html
 :PUBDATE: <2023-02-20>
-:ID:       ba0b698a-280b-4831-8960-3e2cb3998a9e
 :END:
 #+include: "/home/matus/Documents/Fuco1.github.io/posts/2023-02-20-Using-OpenAI-GPT-to-search-your-org-files.org" :lines "3-"
 
@@ -10,7 +16,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-02-10-Refiling-hydra-with-pre-defined-targets.html
 :PUBDATE: <2019-02-10>
-:ID:       af489bc2-758d-49e2-9aba-cb09ea5267eb
 :END:
 #+include: "/home/matus/Documents/Fuco1.github.io/posts/2019-02-10-Refiling-hydra-with-pre-defined-targets.org" :lines "3-"
 
@@ -18,7 +23,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.html
 :PUBDATE: <2017-06-01>
-:ID:       4958a22c-ea1b-4fea-b2ff-92d7fb0ceeee
 :END:
 #+include: "/home/matus/Documents/Fuco1.github.io/posts/2017-06-01-The-absolute-awesomeness-of-anchored-font-lock-matchers.org" :lines "3-"
 
@@ -26,7 +30,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2023-02-08-Visit-the-org-headline-from-the-attach-dired-buffer.html
 :PUBDATE: <2023-02-08>
-:ID:       79af65d2-6603-48e4-b089-5f9d9df50bc7
 :END:
 #+include: "/home/matus/Documents/Fuco1.github.io/posts/2023-02-08-Visit-the-org-headline-from-the-attach-dired-buffer.org" :lines "3-"
 
@@ -34,7 +37,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.html
 :PUBDATE: <2022-01-04>
-:ID:       f1c76189-e547-4aa1-a9d6-2263a1ed67d6
 :END:
 #+include: "/home/matus/Documents/Fuco1.github.io/posts/2022-01-04-Add-fontification-for-progress-cookie-in-org-agenda.org" :lines "3-"
 
@@ -42,7 +44,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2021-05-29-Restrict-agenda-to-multiple-subtrees.html
 :PUBDATE: <2021-05-29>
-:ID:       a3971faa-a61f-4fb1-bb30-01e096c5578b
 :END:
 #+include: "/home/matus/Documents/Fuco1.github.io/posts/2021-05-29-Restrict-agenda-to-multiple-subtrees.org" :lines "3-"
 
@@ -50,7 +51,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-02-02-Org-mode-and-google-calendar-sync.html
 :PUBDATE: <2019-02-02>
-:ID:       b8f3f1e5-529b-4305-926b-0367039223cc
 :END:
 #+include: "/home/matus/Documents/Fuco1.github.io/posts/2019-02-02-Org-mode-and-google-calendar-sync.org" :lines "3-"
 
@@ -58,7 +58,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.html
 :PUBDATE: <2019-01-23>
-:ID:       c1898c1b-7d73-4a48-8aa9-04670aace3d4
 :END:
 #+include: "/home/matus/Documents/Fuco1.github.io/posts/2019-01-23-Use-the-input-method-from-original-org-buffer-in-log-note-buffer.org" :lines "3-"
 
@@ -66,14 +65,6 @@
 :PROPERTIES:
 :RSS_PERMALINK: 2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.html
 :PUBDATE: <2019-01-03>
-:ID:       20bfe560-51ae-4ee0-95e8-2b0f2efb0a04
 :END:
 #+include: "/home/matus/Documents/Fuco1.github.io/posts/2019-01-03-Make-agenda-clockreport-respect-=org-extend-today-until=.org" :lines "3-"
 
-* Multiline fontification with org-emphasis-alist
-:PROPERTIES:
-:RSS_PERMALINK: 2018-12-23-Multiline-fontification-with-org-emphasis-alist.html
-:PUBDATE: <2018-12-23>
-:ID:       752f1e30-9996-4286-b173-7d9a7709082f
-:END:
-#+include: "/home/matus/Documents/Fuco1.github.io/posts/2018-12-23-Multiline-fontification-with-org-emphasis-alist.org" :lines "3-"

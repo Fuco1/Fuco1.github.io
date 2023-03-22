@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2023-03-22 Wed 23:59 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Functors in my Emacs?!</title>
+<meta name="author" content="Matúš Goljer" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" href="css/blog.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div style="text-align: left; float: left;">
+  <a href="./index.html">Home</a>
+  <a href="https://github.com/Fuco1/">GitHub</a>
+  <a href="https://www.patreon.com/user?u=3282358">Patreon</a>
+</div>
+<div style="text-align: right;">
+  <a href="https://github.com/Fuco1/Fuco1.github.io/discussions">Discussions</a>
+  <a href="https://fuco1.github.io/rss.xml">RSS</a>
+  <a href="https://twitter.com/Fuco1337">Twitter</a>
+</div>
+<hr />
+</div>
+<div id="content" class="content">
+<h1 class="title">Functors in my Emacs?!</h1>
+
+<p>
+This will be a series of posts on some really cool concepts coming
+from the more theoretical side of computer science, but I feel like
+the sophisticated Emacs crowd will appreciate it.
+</p>
+
+<p>
+So, why?  While working on <a href="https://github.com/emacs-elsa/Elsa">Elsa</a>, the Emacs Lisp Static Analyzer, I
+came to the point of finally implementing generic types, which the
+Haskell crowd calls <a href="https://en.wikipedia.org/wiki/Parametric_polymorphism">parametric polymorphism</a> to confuse the
+plebs<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>.  But most programmers came across it
+in one way or another in TypeScript, Java, C#, C++ or even Python (go
+famously lacks this feature until very recently when there has been
+some proposals to add it).  The syntax usually looks something like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-java"><span style="color: #8cc4ff;">List</span>&lt;<span style="color: #8cc4ff;">E</span>&gt; <span style="color: #fce94f;">add</span>(<span style="color: #8cc4ff;">int</span> <span style="color: #fcaf3e;">index</span>, <span style="color: #8cc4ff;">E</span> <span style="color: #fcaf3e;">element</span>)
+</pre>
+</div>
+
+<p>
+where <code>E</code> is some concrete but unknown type.  We call <code>E</code> a <i>type variable</i>.
+</p>
+
+<p>
+But first, let's go back to the beginning and state the problem.
+Elsa, other than being the <i>program</i> which checks the types is also a
+<i>type system</i>.  Emacs of course has types, such as numbers, strings or
+lists, but anything more complex can not be expressed.  For example,
+you can't say "a list of numbers", "a hash table mapping keywords to
+some cl-struct" and so on.  The second issue is that these types are
+only tracked at runtime.  This might be a bit late to catch errors and
+in case of a type error your program will crash, just like the Spanish
+inquisition, when you least expect it.
+</p>
+
+<p>
+Elsa is a <i>static</i> analyzer, meaning it will analyze your code without
+actually running it.  So it's something like a compiler, checking the
+types and making sure everything matches up and ensuring that once you
+run the code, it will never crash on nil being passed where it
+shouldn't or a number being stuffed into <code>append</code>.
+</p>
+
+<p>
+The analysis works in two main steps:
+</p>
+
+<ol class="org-ol">
+<li>Read the code and turn it into some internal representation.</li>
+<li>Simulate the evaluation rules of Elisp traversing this internal
+representation keeping track of variables in scope, expression
+types and checking all the rules.</li>
+</ol>
+
+<p>
+For this, we need some structures to represent this data.  I will
+forgo the explanation of the CST (concrete syntax tree) representation
+for now and focus on the types.
+</p>
+
+<div id="outline-container-org8e14430" class="outline-2">
+<h2 id="org8e14430">Quick primer on type representation in Elsa</h2>
+<div class="outline-text-2" id="text-org8e14430">
+<p>
+In Elsa we represent all types as EIEIO classes inheriting from
+<code>elsa-type</code> top level class.  Primitive types, like integers, strings,
+symbols are represented by classes <code>elsa-type-int</code>, <code>elsa-type-string</code>,
+&#x2026;  Then there are more complex types which are rather <i>type functions</i>
+or <i>type constructors</i>, mapping simple types to more structured types.
+An example is a "list of something".  For this, we have a type
+<code>elsa-type-list</code> which takes another type as an argument.
+</p>
+
+<p>
+To make a list type, we invoke the constructor <code>(elsa-type-list
+:item-type (elsa-type-string))</code>.  This would be a list of strings.
+Because this is kind of unwieldily, Elsa has a macro to make types:
+<code>(elsa-make-type (list string))</code> would construct a list of strings.  To
+express the types from now on, I will use the syntax accepted by
+<code>elsa-make-type</code>.
+</p>
+
+<p>
+There are built-in types for many common types found in Emacs, such as:
+</p>
+
+<ul class="org-ul">
+<li><code>(cons int string)</code> is a cons pair of integers and strings, like <code>(1 . "foo")</code></li>
+<li><code>(function (int string) symbol)</code> is a function taking an int and a string and returning a symbol</li>
+<li><code>(class elsa-type)</code> is an EIEIO class <code>elsa-type</code></li>
+<li><code>(struct trinary)</code> is a <code>cl-defstruct</code> named <code>trinary</code></li>
+<li><code>(or int marker)</code> is a composite type which is either integer or a
+string, but we don't really know which one, because user can supply
+either.  This is useful to annotate functions which can take more
+than one type as their argument, such as <code>goto-char</code>.</li>
+<li><code>(const :key)</code> represents only the constant value <code>:key</code> and nothing
+else.</li>
+<li>more can be found in the Elsa manual or reading the code :grin:</li>
+</ul>
+
+<p>
+Types naturally form a hierarchy.  On the top is the type <code>mixed</code> which
+represents everything and on the bottom is type <code>empty</code> which has no
+values whatsoever.  If you imagine types as <i>sets of values</i> you would
+be pretty close. One type <i>accepts</i> another if the other type is a
+subset of the accepting type. Some examples:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>elsa-type-accept mixed string<span style="color: #888a85;">)</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">t, mixed contains all the values</span>
+<span style="color: #888a85;">(</span>elsa-type-accept string nil<span style="color: #888a85;">)</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">nil, string can not be nil</span>
+<span style="color: #888a85;">(</span>elsa-type-accept symbol keyword<span style="color: #888a85;">)</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">t, every keyword is a symbol</span>
+<span style="color: #888a85;">(</span>elsa-type-accept keyword symbol<span style="color: #888a85;">)</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">nil, some symbols are not keywords</span>
+
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">t, or is a "union" of string and int, and all the strings are</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">included there</span>
+<span style="color: #888a85;">(</span>elsa-type-accept <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> string int<span style="color: #888a85;">)</span> string<span style="color: #888a85;">)</span>
+
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">nil, the other argument can be "foo" but that is not a number.</span>
+<span style="color: #888a85;">(</span>elsa-type-accept int <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> string int<span style="color: #888a85;">))</span>
+</pre>
+</div>
+
+<p>
+Notice in the last example that the second type could assume a value 4
+which is an integer, so <code>int</code> <i>could</i> accept <code>(or string int)</code>, but not
+always.  This can actually be expressed by a <a href="https://github.com/emacs-elsa/trinary-logic">three-valued logic</a> and it
+is in fact what Elsa uses internally, but about that maybe some other
+time.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge045b7e" class="outline-2">
+<h2 id="orge045b7e">So what about the generic types?</h2>
+<div class="outline-text-2" id="text-orge045b7e">
+<p>
+Generic types are super useful and basically any analyzer of Elisp
+would not work without them.  The simplest example is the function
+<code>car</code>.  <code>car</code> doesn't care what cons you give it, it will always politely
+give the value of the first cell back.  So as a first attempt we can
+type it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #fce94f;">car</span> <span style="color: #fcaf3e;">::</span> <span style="color: #888a85;">(</span><span style="color: #8cc4ff;">function</span> (<span style="color: #888a85;">(</span><span style="color: #8cc4ff;">cons</span> <span style="color: #8cc4ff;">mixed</span> <span style="color: #8cc4ff;">mixed</span><span style="color: #888a85;">)</span>) <span style="color: #8cc4ff;">mixed</span><span style="color: #888a85;">))</span>
+</pre>
+</div>
+
+<p>
+Which means: it's a function taking a cons of two "anythings"
+returning an "anything".  But that's not <i>really</i> what car does, is it?
+The <code>car</code> and <code>cdr</code> of a cons cell have concrete and very real types
+during runtime, we just don't know what they are beforehand.  But this
+idea of "concrete but undetermined" is exactly what generics express.
+</p>
+
+<p>
+So a second <i>generic</i> attempt to type this would be:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #fce94f;">car</span> <span style="color: #fcaf3e;">::</span> <span style="color: #888a85;">(</span><span style="color: #8cc4ff;">function</span> (<span style="color: #888a85;">(</span><span style="color: #8cc4ff;">cons</span> <span style="color: #fcaf3e;">&amp;a</span> <span style="color: #fcaf3e;">&amp;b</span><span style="color: #888a85;">)</span>) <span style="color: #fcaf3e;">&amp;a</span><span style="color: #888a85;">))</span>
+</pre>
+</div>
+
+<p>
+This says that whatever the type of the car cell is (here a type
+variable <code>&amp;a</code>) is what the <code>car</code> function will return.
+</p>
+
+<p>
+Now, this in itself is useless, because in a real program nothing has
+a "type <code>&amp;a</code>".  During the analysis we need to derive what is the actual
+type that <code>&amp;a</code> represents.  Consider the following example:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>car <span style="color: #888a85;">(</span>cons 1 <span style="color: #e9b96e;">"hello"</span><span style="color: #888a85;">))</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt; 1</span>
+</pre>
+</div>
+
+<p>
+Here, the cons has a type <code>(cons int string)</code> and so by "overlapping"
+the types we can derive that <code>&amp;a</code> is an <code>int</code> and <code>&amp;b</code> is a <code>string</code> and the
+return type of the entire <code>car</code> form then must be an <code>int</code>.  This process
+is called <i>unification</i>, because we unify the two type signatures:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">function</span> <span style="color: #888a85;">((</span>cons <span style="color: #8cc4ff;">&amp;a</span>  <span style="color: #8cc4ff;">&amp;b</span>    <span style="color: #888a85;">))</span> <span style="color: #8cc4ff;">&amp;a</span> <span style="color: #888a85;">)</span>
+           <span style="color: #888a85;">(</span>cons int string<span style="color: #888a85;">)</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">-------</span>
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">function</span> <span style="color: #888a85;">((</span>cons int <span style="color: #8cc4ff;">&amp;b</span>    <span style="color: #888a85;">))</span> int<span style="color: #888a85;">)</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">&amp;a -&gt; int</span>
+           <span style="color: #888a85;">(</span>cons int string<span style="color: #888a85;">)</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">-------</span>
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">function</span> <span style="color: #888a85;">((</span>cons int string<span style="color: #888a85;">))</span> int<span style="color: #888a85;">)</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">&amp;a -&gt; int, &amp;b -&gt; string</span>
+           <span style="color: #888a85;">(</span>cons int string<span style="color: #888a85;">)</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">done</span>
+</pre>
+</div>
+
+<p>
+The types were unified and the <i>unifying substitution</i> is <code>&amp;a -&gt; int, &amp;b
+-&gt; string</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org60aae82" class="outline-2">
+<h2 id="org60aae82">Introducing Functors</h2>
+<div class="outline-text-2" id="text-org60aae82">
+<p>
+Now, trigger warning for mathematicians.  I will be very loose about
+the terminology.  I don't think it matters here very much.
+</p>
+
+<p>
+Functor is a fancy word for "structure" and a functor map a more
+generic <code>mapcar</code>.  We can imagine a functor as embedding a function into
+a structure.  If we have a function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #fce94f;">1+</span> <span style="color: #fcaf3e;">::</span> <span style="color: #888a85;">(</span><span style="color: #8cc4ff;">function</span> (<span style="color: #8cc4ff;">int</span>) <span style="color: #8cc4ff;">int</span><span style="color: #888a85;">))</span>
+</pre>
+</div>
+
+<p>
+we can embed it (somehow) into a list structure to produce a function
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #fce94f;">1+-on-a-list</span> <span style="color: #fcaf3e;">::</span> <span style="color: #888a85;">(</span><span style="color: #8cc4ff;">function</span> (<span style="color: #888a85;">(</span><span style="color: #8cc4ff;">list</span> <span style="color: #8cc4ff;">int</span><span style="color: #888a85;">)</span>) <span style="color: #888a85;">(</span><span style="color: #8cc4ff;">list</span> <span style="color: #8cc4ff;">int</span><span style="color: #888a85;">)))</span>
+</pre>
+</div>
+
+<p>
+Notice how the argument and return type <code>int</code> became <code>(list int)</code>.  We
+<i>embedded</i> the function into a richer structure, here, a list.
+</p>
+
+<p>
+If you think about it, that's exactly what <code>mapcar</code> does.  A
+hypothetical syntax <code>(mapcar '1+)</code> without the second list argument is a
+"function" which expects one more argument, a <code>(list int)</code> and it
+outputs a <code>(list int)</code>.<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">         <span style="color: #888a85;">(</span><span style="color: #fce94f;">1+</span>  <span style="color: #fcaf3e;">::</span> <span style="color: #888a85;">(</span><span style="color: #8cc4ff;">function</span> (      <span style="color: #8cc4ff;">int</span>)        <span style="color: #8cc4ff;">int</span><span style="color: #888a85;">))</span>
+<span style="color: #888a85;">((</span>mapcar <span style="color: #e6a8df;">'1+</span><span style="color: #888a85;">)</span> <span style="color: #ad7fa8;">::</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">function</span> <span style="color: #888a85;">((</span>list int<span style="color: #888a85;">))</span> <span style="color: #888a85;">(</span>list int<span style="color: #888a85;">)))</span>
+</pre>
+</div>
+
+<p>
+A functor map generalizes the lists's <code>mapcar</code> to arbitrary structures.
+The defining characteristic of a functor map is that the input and
+output structure is the same and only the "contents" are changed.
+Using a <code>mapcar</code> on a list we get out a list with updated elements.
+</p>
+
+<p>
+Let's try some examples of functors.
+</p>
+
+<p>
+First, let's take a <code>cons</code>.  A <code>cons</code> is a structure with two "cells", the
+car and the cdr.  To "map" over a cons is to apply a function over the
+car and the cdr.  So an implementation of a functor map (or <code>fmap</code>)
+might be:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #73d216;">;; </span><span style="color: #73d216;">(fmap fun (cons      a       b))</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt;        (cons (fun a) (fun b))</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">fmap</span> <span style="color: #888a85;">(</span>fun cons-cell<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>cons <span style="color: #888a85;">(</span>funcall fun <span style="color: #888a85;">(</span>car cons-cell<span style="color: #888a85;">))</span>
+        <span style="color: #888a85;">(</span>funcall fun <span style="color: #888a85;">(</span>cdr cons-cell<span style="color: #888a85;">))))</span>
+
+<span style="color: #888a85;">(</span>fmap <span style="color: #e6a8df;">'1+</span> <span style="color: #888a85;">(</span>cons 1 2<span style="color: #888a85;">))</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt; (cons 2 3)</span>
+<span style="color: #888a85;">(</span>fmap <span style="color: #e6a8df;">'number-to-string</span> <span style="color: #888a85;">(</span>cons 1 2<span style="color: #888a85;">))</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt; (cons "1" "2")</span>
+</pre>
+</div>
+
+<p>
+Another example might be an optional value.  Let's define a structure
+"optional" which is either a value or "nothing".  Nothing is distinct
+from a <code>nil</code> which still is a valid Elisp value.  Nothing is an
+abstraction outside of Elisp type system really meaning absence of
+anything meaningful (say result of division by zero).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defclass</span> <span style="color: #8cc4ff;">optional</span> <span style="color: #888a85;">()</span> <span style="color: #888a85;">()</span> <span style="color: #ad7fa8;">:abstract</span> t<span style="color: #888a85;">)</span>
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defclass</span> <span style="color: #8cc4ff;">has-value</span> <span style="color: #888a85;">(</span>optional<span style="color: #888a85;">)</span> <span style="color: #888a85;">((</span>value <span style="color: #ad7fa8;">:initarg</span> <span style="color: #ad7fa8;">:value</span><span style="color: #888a85;">)))</span>
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defclass</span> <span style="color: #8cc4ff;">nothing</span> <span style="color: #888a85;">(</span>optional<span style="color: #888a85;">)</span> <span style="color: #888a85;">())</span>
+
+<span style="color: #888a85;">(</span>has-value <span style="color: #ad7fa8;">:value</span> 7<span style="color: #888a85;">)</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">has value 7</span>
+<span style="color: #888a85;">(</span>nothing<span style="color: #888a85;">)</span>            <span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt; has no value</span>
+</pre>
+</div>
+
+<p>
+We can write a "safe" division by zero using this class like so:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">division</span> <span style="color: #888a85;">(</span>a b<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">if</span> <span style="color: #888a85;">(</span>= b 0<span style="color: #888a85;">)</span>
+      <span style="color: #888a85;">(</span>nothing<span style="color: #888a85;">)</span>
+    <span style="color: #888a85;">(</span>has-value <span style="color: #888a85;">(</span>/ a b<span style="color: #888a85;">))))</span>
+</pre>
+</div>
+
+<p>
+How would we map over this <code>optional</code> structure?  It consists of
+two&#x2026; options: <code>nothing</code> or <code>has-value</code>.  We can treat them one by one:
+</p>
+
+<ol class="org-ol">
+<li>Mapping over nothing must produce nothing because <code>fmap</code> must
+preserve the structure and there's no structure in "nothing" (well,
+philosophically, even nothing is a structure of some sort).</li>
+<li>Mapping over a <code>has-value</code> must also produce a <code>has-value</code> but with the
+updated content.   So the implementation is:</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #73d216;">;; </span><span style="color: #73d216;">(fmap fun nothing)</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt;        nothing</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">(fmap fun (has-value :value      7))</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt;        (has-value :value (fun 7))</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">fmap</span> <span style="color: #888a85;">(</span>fun optional<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cond</span>
+   <span style="color: #888a85;">((</span>nothing-p optional<span style="color: #888a85;">)</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">nothing in, nothing out.</span>
+    <span style="color: #888a85;">(</span>nothing<span style="color: #888a85;">))</span>
+   <span style="color: #888a85;">((</span>has-value-p optional<span style="color: #888a85;">)</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">get the value out of the optional, call the function and wrap</span>
+    <span style="color: #73d216;">;; </span><span style="color: #73d216;">it back into a new has-value.</span>
+    <span style="color: #888a85;">(</span>has-value <span style="color: #ad7fa8;">:value</span> <span style="color: #888a85;">(</span>funcall fun <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> optional value<span style="color: #888a85;">))))))</span>
+
+<span style="color: #888a85;">(</span>fmap <span style="color: #e6a8df;">'1+</span> <span style="color: #888a85;">(</span>nothing<span style="color: #888a85;">))</span>      <span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt; (nothing)</span>
+<span style="color: #888a85;">(</span>fmap <span style="color: #e6a8df;">'1+</span> <span style="color: #888a85;">(</span>has-value 1<span style="color: #888a85;">))</span>  <span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt; (has-value 2)</span>
+
+<span style="color: #888a85;">(</span>fmap <span style="color: #e6a8df;">'number-to-string</span> <span style="color: #888a85;">(</span>division 1 0<span style="color: #888a85;">))</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt; (nothing)</span>
+<span style="color: #888a85;">(</span>fmap <span style="color: #e6a8df;">'number-to-string</span> <span style="color: #888a85;">(</span>division 1 2<span style="color: #888a85;">))</span> <span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt; (has-value "0.5")</span>
+</pre>
+</div>
+
+<p>
+The interesting thing about this example is that we can have a
+structure composed of multiple substructures and we can treat them on
+a case by case basis.
+</p>
+
+<p>
+If we go back to the list embedding of the <code>1+</code> function producing a
+<code>(list int)</code> to a <code>(list int)</code> function, the embeddings for the cons and
+optional would look very similar:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #73d216;">;; </span><span style="color: #73d216;">fmap on cons</span>
+<span style="color: #888a85;">((</span>fmap <span style="color: #e6a8df;">'1+</span><span style="color: #888a85;">)</span> <span style="color: #ad7fa8;">::</span> <span style="color: #888a85;">(</span><span style="color: #b4fa70;">function</span> <span style="color: #888a85;">((</span>cons int int<span style="color: #888a85;">))</span> <span style="color: #888a85;">(</span>cons int int<span style="color: #888a85;">)))</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">fmap on optional</span>
+<span style="color: #888a85;">((</span>fmap <span style="color: #e6a8df;">'number-to-string</span><span style="color: #888a85;">)</span> <span style="color: #ad7fa8;">::</span>
+ <span style="color: #888a85;">(</span><span style="color: #b4fa70;">function</span> <span style="color: #888a85;">((</span>class <span style="color: #888a85;">(</span>optional int<span style="color: #888a85;">)))</span> <span style="color: #888a85;">(</span>class <span style="color: #888a85;">(</span>optional string<span style="color: #888a85;">))))</span>
+</pre>
+</div>
+
+<p>
+To generalize this further, we can replace the concrete <i>type
+constructors</i> (such as <code>cons</code>) and <i>type parameters</i> (such as <code>int</code> or
+<code>string)</code> with type variables:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #fce94f;">fmap</span> <span style="color: #fcaf3e;">::</span> <span style="color: #888a85;">(</span><span style="color: #8cc4ff;">function</span> (<span style="color: #888a85;">(</span><span style="color: #8cc4ff;">function</span> <span style="color: #888a85;">(</span><span style="color: #fcaf3e;">&amp;a</span><span style="color: #888a85;">)</span> <span style="color: #fcaf3e;">&amp;b</span><span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span><span style="color: #fcaf3e;">&amp;f</span> <span style="color: #fcaf3e;">&amp;a</span><span style="color: #888a85;">)</span>) <span style="color: #888a85;">(</span><span style="color: #fcaf3e;">&amp;f</span> <span style="color: #fcaf3e;">&amp;b</span><span style="color: #888a85;">)))</span>
+</pre>
+</div>
+
+<p>
+This rather cryptic line says that a <code>fmap</code> takes a function from <code>&amp;a</code> to
+<code>&amp;b</code> and a structure (functor) <code>&amp;f</code> holding things of type <code>&amp;a</code>, and it
+produces the same structure <code>&amp;f</code> holding things of type <code>&amp;b</code>.
+</p>
+
+<p>
+Functors on their own do not seem very useful.  We have <code>mapcar</code> or the
+specialized <code>fmap</code> and then what?  The real power of these abstractions
+come when we implement <i>other</i> operations in terms of the generic ones.
+So let's jump into that to close this one out.
+</p>
+
+<p>
+Finally, I should not omit the fact that there are some actual
+<a href="https://en.wikipedia.org/wiki/Functor#Definition">mathematical laws</a> the <code>fmap</code> function <b>must</b> satisfy to be a functor.
+This blog post article being dense as it is, I leave this to the
+reader to expand upon.  It's not very important when implementing
+real-world functors as you almost always "have to" do it the right
+way.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org163571c" class="outline-2">
+<h2 id="org163571c">Type variable substitution</h2>
+<div class="outline-text-2" id="text-org163571c">
+<p>
+Imagine now that we solved some unification, such as <code>(unify (cons &amp;a
+int) (cons string &amp;b))</code> and we got out the unifying substitution <code>&amp;a -&gt;
+string, &amp;b -&gt; int</code>.  How do we actually get the resulting unified type?
+We perform variable <i>substitution</i>!
+</p>
+
+<p>
+To perform substitution on a simple type like <code>int</code> makes no sense,
+because there is no possible structure to be represented as a
+variable.  This is the trivial case of a thing with no structure.  It
+is only itself and that's it.
+</p>
+
+<p>
+More interesting case is that of a list type, which has one type
+argument.  A substitution would dive into the item type argument, try
+to substitute that, and then construct a new list type with the
+substituted item type.
+</p>
+
+<p>
+Even more interesting is the cons type, which has two type
+arguments. We first substitute both of them and then construct a new
+cons type with the substituted type arguments.
+</p>
+
+<p>
+In code, it would look something like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-defgeneric</span> <span style="color: #fce94f;">substitute</span> <span style="color: #888a85;">(</span>this subs<span style="color: #888a85;">))</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-defmethod</span> <span style="color: #fce94f;">substitute</span> <span style="color: #888a85;">((</span>this elsa-simple-type<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">Simple type can not substitute anything.</span>
+  this<span style="color: #888a85;">)</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-defmethod</span> <span style="color: #fce94f;">substitute</span> <span style="color: #888a85;">((</span>this elsa-type-variable<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">Get the substitution from the hash table or return this if there</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">is no substitution available.</span>
+  <span style="color: #888a85;">(</span><span style="color: #b4fa70;">or</span> <span style="color: #888a85;">(</span>gethash <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this name<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+      this<span style="color: #888a85;">))</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-defmethod</span> <span style="color: #fce94f;">substitute</span> <span style="color: #888a85;">((</span>this elsa-type-list<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">Substitute the item-type and construct a new list type.</span>
+  <span style="color: #888a85;">(</span>elsa-type-list <span style="color: #ad7fa8;">:item-type</span> <span style="color: #888a85;">(</span>substitute <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this item-type<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)))</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-defmethod</span> <span style="color: #fce94f;">substitute</span> <span style="color: #888a85;">((</span>this elsa-type-cons<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">Substitute the car-type and cdr-type and construct a new cons</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">type.</span>
+  <span style="color: #888a85;">(</span>elsa-type-cons <span style="color: #ad7fa8;">:car-type</span> <span style="color: #888a85;">(</span>substitute <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this car-type<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+                  <span style="color: #ad7fa8;">:cdr-type</span> <span style="color: #888a85;">(</span>substitute <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this cdr-type<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)))</span>
+</pre>
+</div>
+
+<p>
+If you squint at the last example really hard, it actually looks a lot like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">defun</span> <span style="color: #fce94f;">fmap</span> <span style="color: #888a85;">(</span>fun cons-cell<span style="color: #888a85;">)</span>
+  <span style="color: #888a85;">(</span>cons <span style="color: #888a85;">(</span>funcall fun <span style="color: #888a85;">(</span>car cons-cell<span style="color: #888a85;">))</span>
+        <span style="color: #888a85;">(</span>funcall fun <span style="color: #888a85;">(</span>cdr cons-cell<span style="color: #888a85;">))))</span>
+</pre>
+</div>
+
+<p>
+How could we implement a <code>fmap</code> for <code>elsa-type-cons</code>?
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-defmethod</span> <span style="color: #fce94f;">substitute</span> <span style="color: #888a85;">((</span>this elsa-type-cons<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">Substitute the car-type and cdr-type and construct a new cons type.</span>
+  <span style="color: #888a85;">(</span>elsa-type-cons <span style="color: #ad7fa8;">:car-type</span> <span style="color: #888a85;">(</span>substitute <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this car-type<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+                  <span style="color: #ad7fa8;">:cdr-type</span> <span style="color: #888a85;">(</span>substitute <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this cdr-type<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)))</span>
+
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt; substitute "substitute" with "funcall fun" and drop the second</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">argument</span>
+
+<span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-defmethod</span> <span style="color: #fce94f;">fmap</span> <span style="color: #888a85;">(</span>fun <span style="color: #888a85;">(</span>this elsa-type-cons<span style="color: #888a85;">))</span>
+  <span style="color: #73d216;">;; </span><span style="color: #73d216;">Substitute the car-type and cdr-type and construct a new cons type.</span>
+  <span style="color: #888a85;">(</span>elsa-type-cons <span style="color: #ad7fa8;">:car-type</span> <span style="color: #888a85;">(</span>funcall fun <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this car-type<span style="color: #888a85;">))</span>
+                  <span style="color: #ad7fa8;">:cdr-type</span> <span style="color: #888a85;">(</span>funcall fun <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this cdr-type<span style="color: #888a85;">))))</span>
+</pre>
+</div>
+
+
+<div id="org80ca332" class="figure">
+<p><img src="https://i.imgur.com/AtFWWIn.gif" alt="AtFWWIn.gif" />
+</p>
+</div>
+
+<p>
+It's the same thing!  And this is the power of having generic
+operations such as functor maps.  Once we define <code>fmap</code> for all the
+"structure-ful" Elsa types, we can write a single unification method
+in terms of <code>fmap</code> instead of one per each specific type.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">-- <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-defmethod</span> <span style="color: #fce94f;">substitute</span> <span style="color: #888a85;">((</span>this elsa-type-list<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+--   <span style="color: #73d216;">;; </span><span style="color: #73d216;">Substitute the item-type and construct a new list type.</span>
+--   <span style="color: #888a85;">(</span>elsa-type-list <span style="color: #ad7fa8;">:item-type</span> <span style="color: #888a85;">(</span>substitute <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this item-type<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)))</span>
+--
+-- <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-defmethod</span> <span style="color: #fce94f;">substitute</span> <span style="color: #888a85;">((</span>this elsa-type-cons<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+--   <span style="color: #73d216;">;; </span><span style="color: #73d216;">Substitute the car-type and cdr-type and construct a new cons</span>
+--   <span style="color: #73d216;">;; </span><span style="color: #73d216;">type.</span>
+--   <span style="color: #888a85;">(</span>elsa-type-cons <span style="color: #ad7fa8;">:car-type</span> <span style="color: #888a85;">(</span>substitute <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this car-type<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+--                   <span style="color: #ad7fa8;">:cdr-type</span> <span style="color: #888a85;">(</span>substitute <span style="color: #888a85;">(</span><span style="color: #b4fa70;">oref</span> this cdr-type<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)))</span>
+
+++ <span style="color: #888a85;">(</span><span style="color: #b4fa70;">cl-defmethod</span> <span style="color: #fce94f;">substitute</span> <span style="color: #888a85;">((</span>this elsa-type<span style="color: #888a85;">)</span> subs<span style="color: #888a85;">)</span>
+++   <span style="color: #888a85;">(</span>fmap <span style="color: #888a85;">(</span><span style="color: #b4fa70;">lambda</span> <span style="color: #888a85;">(</span>x<span style="color: #888a85;">)</span> <span style="color: #888a85;">(</span>substitute x subs<span style="color: #888a85;">)</span> this<span style="color: #888a85;">)))</span>
+</pre>
+</div>
+
+<p>
+We can read this as "please, whatever structure <code>this</code> is, substitute
+every type argument it has recursively and give me back the same
+structure".  Armed with the <code>fmap</code> instances for all the different
+types, we can implement plethora of other operations which work on the
+internal elements of these structures while preserving their shapes
+without ever actually having to be exposed to the structures&#x2014;it is
+abstracted away in the functor map.  This also frees you from thinking
+too much about the concrete and rather express the problem in the
+abstract way leading to (maybe?) increased clarity.
+</p>
+
+<p>
+I think here is a good time to stop for now.  If you have any
+questions, hit me up on twitter or on the GitHub repo for this blog
+(both are in the header).
+</p>
+
+<p>
+Next time we will talk about extending functor maps to "zips", which
+instead of one structure and a function take two structures (of the
+same shape) and a function to "zip" them into a new structure of the
+same shape while combining the elements at the same "place" (teaser follows)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #888a85;">(</span>??something?? '+
+               <span style="color: #888a85;">(</span>cons 1 2<span style="color: #888a85;">)</span>
+               <span style="color: #888a85;">(</span>cons 3 4<span style="color: #888a85;">))</span>
+<span style="color: #73d216;">;; </span><span style="color: #73d216;">=&gt;          (cons 4 6)</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">In all seriousness, I love Haskell and the
+community is in general great.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">I put function in quotes,
+because in Elisp no such thing exists.  You must always provide all
+the arguments to a function.  But you can imagine a <i>partial</i>
+application, when you only provide some arguments and the result is a
+new function expecting the rest of the arguments to finally produce
+the result.  This can be achieved with the built-in <code>apply-partially</code>
+function.</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<hr />
+<div style="text-align: left; float: left;">Published at: 2023-03-22 23:58 Last updated at: 2023-03-22 23:59</div>
+<div style="text-align: right;">Found a typo? <a href="https://github.com/Fuco1/fuco1.github.io/blob/master/posts/2023-03-22-Functors-in-my-Emacs?!.org">Edit on GitHub!</a></div>
+</div>
+</body>
+</html>
